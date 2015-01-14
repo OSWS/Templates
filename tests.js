@@ -212,10 +212,10 @@ describe('OSWS-Templates', function() {
 			});
 		});
 		it('div', function() {
-			var div = Templates.div;
-			var _div = div()('content');
+			var div = Templates.div, img = Templates.img;
+			var _div = div()('content', img());
 			_div.render(function(error, result) {
-				assert.equal(result, '<div>content</div>')
+				assert.equal(result, '<div>content<img/></div>')
 			});
 		});
 	});

@@ -9,7 +9,7 @@ var Renderer = require('osws-renderer-ts');
 |
 */
 
-var RegExpSearch = module.exports.RegExpSearch = function(data, reg) {
+var RegExpSearch = exports.RegExpSearch = function(data, reg) {
 	var result = [], temp = null;
 	while ((temp = reg.exec(data)) != null) {
 		if (temp.index === reg.lastIndex) reg.lastIndex++;
@@ -30,7 +30,7 @@ var RegExpSearch = module.exports.RegExpSearch = function(data, reg) {
 |
 */
 
-var RegExpSearchSelector = module.exports.RegExpSearchSelector = {
+var RegExpSearchSelector = exports.RegExpSearchSelector = {
 
 	// (selector: string) => string
 	name: function(selector) {
@@ -73,7 +73,7 @@ var RegExpSearchSelector = module.exports.RegExpSearchSelector = {
 |
 */
 
-var QueueContent = module.exports.QueueContent = function(queue, args) {
+var QueueContent = exports.QueueContent = function(queue, args) {
 	_.each(args, function(arg) {
 
 		// string
@@ -160,7 +160,7 @@ var QueueContent = module.exports.QueueContent = function(queue, args) {
 */
 
 // new () => instance: Prototype
-var Prototype = module.exports.Prototype = function() {
+var Prototype = exports.Prototype = function() {
 
 	// Inheritance
 
@@ -233,7 +233,7 @@ var Prototype = module.exports.Prototype = function() {
 |
 */
 
-var content = module.exports.content = (new Prototype()).extend(function(parent) {
+var content = exports.content = (new Prototype()).extend(function(parent) {
 	this.constructor = function() {
 		parent.constructor.call(this);
 		QueueContent(this.queue, arguments);
@@ -282,7 +282,7 @@ var content = module.exports.content = (new Prototype()).extend(function(parent)
 |
 */
 
-var Tag = module.exports.Tag = (new Prototype()).extend(function(parent) {
+var Tag = exports.Tag = (new Prototype()).extend(function(parent) {
 
 	this.constructor = function() {
 		var instance = this;
@@ -397,7 +397,7 @@ var Tag = module.exports.Tag = (new Prototype()).extend(function(parent) {
 |
 */
 
-var Single = module.exports.Single = Tag().extend(function(parent) {
+var Single = exports.Single = Tag().extend(function(parent) {
 
 	this.constructor = function() {
 		parent.constructor.apply(this, arguments);
@@ -455,7 +455,7 @@ var Single = module.exports.Single = Tag().extend(function(parent) {
 |
 */
 
-var Double = module.exports.Double = Tag().extend(function(parent) {
+var Double = exports.Double = Tag().extend(function(parent) {
 
 	this.constructor = function() {
 		this.contents = [];
@@ -534,23 +534,23 @@ var Double = module.exports.Double = Tag().extend(function(parent) {
 
 // Tags
 
-var _double = module.exports._double = ['html', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup', 'div', 'p', 'address', 'blockquote', 'pre', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'fieldset', 'legend', 'form', 'noscript', 'object', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'col', 'colgroup', 'caption', 'span', 'b', 'big', 'strong', 'i', 'var', 'cite', 'em', 'q', 'del', 's', 'strike', 'tt', 'code', 'kbd', 'samp', 'small', 'sub', 'sup', 'dfn', 'bdo', 'abbr', 'acronym', 'a', 'button', 'textarea', 'select', 'option', 'article', 'aside', 'figcaption', 'figure', 'footer', 'header', 'section', 'main', 'nav', 'menu', 'audio', 'video', 'embed', 'canvas', 'output', 'details', 'summary', 'mark', 'meter', 'progress', 'template', 'comment'];
+var _double = exports._double = ['html', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup', 'div', 'p', 'address', 'blockquote', 'pre', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'fieldset', 'legend', 'form', 'noscript', 'object', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'col', 'colgroup', 'caption', 'span', 'b', 'big', 'strong', 'i', 'var', 'cite', 'em', 'q', 'del', 's', 'strike', 'tt', 'code', 'kbd', 'samp', 'small', 'sub', 'sup', 'dfn', 'bdo', 'abbr', 'acronym', 'a', 'button', 'textarea', 'select', 'option', 'article', 'aside', 'figcaption', 'figure', 'footer', 'header', 'section', 'main', 'nav', 'menu', 'audio', 'video', 'embed', 'canvas', 'output', 'details', 'summary', 'mark', 'meter', 'progress', 'template', 'comment'];
 
-var _single = module.exports._single = ['br', 'hr', 'img', 'input', 'base', 'frame', 'link', 'meta'];
+var _single = exports._single = ['br', 'hr', 'img', 'input', 'base', 'frame', 'link', 'meta'];
 
-var tags = module.exports.tags = {};
-var double = module.exports.double = {};
-var single = module.exports.single = {};
+var tags = exports.tags = {};
+var double = exports.double = {};
+var single = exports.single = {};
 
 (function(){
 	_.each(_double, function(name) {
 		tags[name] = Double(name)().extend();
 		double[name] = tags[name];
-		module.exports[name] = tags[name];
+		exports[name] = tags[name];
 	});
 	_.each(_single, function(name) {
 		tags[name] = Single(name).extend();
 		single[name] = tags[name];
-		module.exports[name] = tags[name];
+		exports[name] = tags[name];
 	});
 })();
