@@ -19,48 +19,32 @@ var RegExpSearch = exports.RegExpSearch = function(data, reg) {
 
 /*
 |
-|	// Example valid selector string: tag.container#FirstId[data-num=123,alt="text"]
-+--	RegExpSearchSelector
-|	+--	name: (selector: string) => string
-|	+--	id: (selector: string) => string
-|	+--	classes: (selector: string) => string[]
-|	+--	attributes: (selector: string) => [name: string]: string
+|	// Example valid selector string: TagNeme.class.fdsaDss.pngClas-gfdreDS#Id1#Id2[attr1=http://google.com/images/logo.png,attr2='http://google.com/images/logo.png'][attr3=".com/images/logo.png"]
++--	RegExpSearchSelector: (data) => string[][]
 |
 */
 
-var RegExpSearchSelector = exports.RegExpSearchSelector = {
+var RegExpSearchSelectorRegExp = (/(\[)|(\])|^([-\w]+)|#([-\w]+)|(\.([-\w]+)|([_a-zA-Z]+[\w-]+)="(['\w\s-:\\\/\.\,\]\[]*)"|([_a-zA-Z]+[\w-]+)='(["\w\s-:\\\/\.\,\]\[]*)'|([_a-zA-Z]+[\w-]+)=([_\w-:\\\/\.]*))/g);
 
-	// (selector: string) => string
-	name: function(selector) {
-		var founded = RegExpSearch(selector, (/^([_a-zA-Z]+[_\w-]*)/g));
-		return founded[0]? founded[0][1] : undefined;
-	},
+var RegExpSearchSelector = exports.RegExpSearchSelector = function(data) {
+	var matchs = RegExpSearch(data, RegExpSearchSelectorRegExp);
+	var results = { name: undefined, attributes: { } };
+	var isAttr = false;
+	_.each(matchs, function(node) {
+		if (node[1]) isAttr = true;
+		else if (node[2]) isAttr = false;
 
-	// (selector: string) => string
-	id: function(selector) {
-		var founded = RegExpSearch(selector, (/#([_a-zA-Z]+[_\w-]*)/g));
-		return founded[0]? founded[0][1] : undefined;
-	},
-	
-	// (selector: string) => string[]
-	classes: function(selector) {
-		var result = [];
-		_.each(RegExpSearch(selector, (/\.([_a-zA-Z]+[_\w-]*)/g)), function (node) { result.push(node[1]); });
-		return result;
-	},
-	
-	// (selector: string) => [name: string]: string
-	attributes: function(selector) {
-		var result = {};
-		// [key=value]
-		_.each(RegExpSearch(selector, (/[\[,]*([_a-zA-Z]+[_\w-]+)=([_\w-:\\\/\.]+)[\],]*/g)), function (node) { result[node[1]] = node[2]; });
-		// [key="valu  213 21, gfd: sdf se"]
-		_.each(RegExpSearch(selector, (/[\[,]*([_a-zA-Z]+[_\w-]+)="(['_\w\s-:\\\/\.\,]*)"[\],]*/g)), function (node) { result[node[1]] = node[2]; });
-		// [key='valu  213 21, gfd: sdf se']
-		_.each(RegExpSearch(selector, (/[\[,]*([_a-zA-Z]+[_\w-]+)='(["_\w\s-:\\\/\.\,]*)'[\],]*/g)), function (node) { result[node[1]] = node[2]; });
-		return result;
-	},
-
+		else if (isAttr) {
+			if (node[11]) results.attributes[node[11]] = node[12];
+			else if (node[9]) results.attributes[node[9]] = node[10];
+			else if (node[7]) results.attributes[node[7]] = node[8];
+		} else {
+			if (node[3]) results.name = node[3];
+			else if (node[4]) results.attributes.id = node[4];
+			else if (node[6]) results.attributes.class? results.attributes.class += ' ' + node[6] : results.attributes.class = node[6];
+		}
+	});
+	return results;
 };
 
 
@@ -394,9 +378,8 @@ var Tag = exports.Tag = Flow().extend(function(parent) {
 	this.constructor = function() {
 		var instance = this;
 
-		// Parse name
-		instance.name = null;
-		instance.attributes = { class: [] };
+		// instance.name = undefined; // Auto inherit from  prototype.
+		instance.attributes = _.isObject(this.parent.attributes)? _.cloneDeep(this.parent.attributes) : {};
 
 		// Parse arguments to inputs
 		var selectors = [];
@@ -419,25 +402,29 @@ var Tag = exports.Tag = Flow().extend(function(parent) {
 		var instance = this;
 		var parent = this.parent;
 
-		instance.name = _.isString(parent.name)? parent.name : _.isString(instance.name)? instance.name : null;
-
+		// If attributes resetted
 		if (!_.isObject(instance.attributes)) instance.attributes = {};
 
-		if (!_.has(instance.attributes, 'id')) instance.attributes.id = undefined;
+		if (parent.attributes) {
+			// id
+			instance.attributes.id = _.isString(parent.attributes.id)? parent.attributes.id : undefined;
 
-		instance.attributes.id = parent.attributes && _.isString(parent.attributes.id)? parent.attributes.id : _.isString(instance.attributes.id)? instance.attributes.id : undefined;
+			// class
+			instance.attributes.class = _.isString(parent.attributes.class)? parent.attributes.class : undefined;
+		}
 
-		if (!_.isArray(instance.attributes.class)) instance.attributes.class = _.isString(instance.attributes.class)? instance.attributes.class.split(' ') : [];
-		if (parent.attributes) instance.attributes.class.push.apply(instance.attributes.class, _.isString(parent.attributes.class)? parent.attributes.class.split(' ') : _.isArray(parent.attributes.class)? parent.attributes.class : []);
+		_.each(arguments, function(selector) {
+			if (_.isString(selector)) {
+				var results = RegExpSearchSelector(selector);
 
-		_.each(arguments, function(selector) { if (_.isString(selector)) {
-			if (!_.isString(instance.name)) instance.name = RegExpSearchSelector.name(selector);
-			instance.attributes.id = RegExpSearchSelector.id(selector);
-			instance.attributes.class.push.apply(instance.attributes.class, RegExpSearchSelector.classes(selector));
-			_.each(RegExpSearchSelector.attributes(selector), function(value, key) {
-				instance.attributes[key] = value;
-			});
-		} });
+				// Name only if name undefined...
+				if (!_.isString(instance.name)) instance.name = results.name;
+
+				_.each(results.attributes, function(value, key) {
+					instance.attributes[key] = (key == 'class' && _.isString(results.attributes[key]) && _.isString(instance.attributes[key]))? instance.attributes[key] + ' ' + results.attributes[key] : results.attributes[key];
+				});
+			}
+		});
 	};
 	
 	// ([attributes: [name: string]: string]) => void
@@ -482,7 +469,8 @@ var Tag = exports.Tag = Flow().extend(function(parent) {
 	this._attr = function() {
 		var result = ''
 		_.each(this.attributes, function(value, key) {
-			if (_.isString(value) || _.isNumber(value)) result += ' '+key+'="'+value+'"';
+			if (_.isArray(value)) result += ' '+key+'="' + value.join(' ') + '"';
+			else if (_.isString(value) || _.isNumber(value)) result += ' '+key+'="'+value+'"';
 			else if(_.isNull(value)) result += ' '+key;
 		});
 		return result;

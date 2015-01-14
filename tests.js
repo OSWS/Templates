@@ -4,27 +4,9 @@ var Renderer = require('osws-renderer-ts');
 
 var Templates = require('./index.js');
 
-var testSelector = 'tag-Na,me123.teSt-Class.cont,ainer#FirstId#secont-id[data-num=123,str="check"]';
+var testSelector = 'TagNeme.class.fdsaDss.pngClas-gfdreDS#Id1#Id2[attr1=http://google.com/images/logo.png,attr2=\'http://google.com/images/logo.png\'][attr3=".com/images/logo.png"]';
 
 describe('OSWS-Templates', function() {
-	describe('RegExpSearchSelector', function() {
-		var RegExpSearchSelector = Templates.RegExpSearchSelector;
-
-		describe('string', function() {
-			it('name', function() {
-				assert.equal(RegExpSearchSelector.name(testSelector), 'tag-Na');
-			});
-			it('id', function() {
-				assert.equal(RegExpSearchSelector.id(testSelector), 'FirstId');
-			});
-			it('classes', function() {
-				assert.deepEqual(RegExpSearchSelector.classes(testSelector), ['teSt-Class', 'cont']);
-			});
-			it('attributes', function() {
-				assert.deepEqual(RegExpSearchSelector.attributes(testSelector), {'data-num':'123', 'str':'check'});
-			});
-		});
-	});
 	describe('QueueContent', function() {
 		var QueueContent = Templates.QueueContent;
 
@@ -111,19 +93,19 @@ describe('OSWS-Templates', function() {
 
 			it('class', function() {
 				var tag0 = Tag('.Tag.tag0') // selector
-				assert.deepEqual(tag0.attributes.class, ['Tag', 'tag0']);
+				assert.equal(tag0.attributes.class, 'Tag tag0');
 				var Tag1 = tag0.extend();
 				var tag1 = Tag1('.Tag1.tag1'); // inherit
-				assert.deepEqual(tag1.attributes.class, ['Tag', 'tag0', 'Tag1', 'tag1']);
-				assert.deepEqual(tag0.attributes.class, ['Tag', 'tag0']);
+				assert.equal(tag1.attributes.class, 'Tag tag0 Tag1 tag1');
+				assert.equal(tag0.attributes.class, 'Tag tag0');
 				var Tag2 = tag1.extend(function(parent) {
 					this.constructor = function() {
 						parent.constructor.apply(this, arguments);
-						this.attributes.class.push('other');
+						this.attributes.class += ' other';
 					};
 				});
 				var tag2 = Tag2(); // inherit
-				assert.deepEqual(tag2.attributes.class, ['Tag', 'tag0', 'Tag1', 'tag1', 'other']);
+				assert.equal(tag2.attributes.class, 'Tag tag0 Tag1 tag1 other');
 			});
 
 			it('attributes', function() {
