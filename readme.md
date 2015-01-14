@@ -1,4 +1,4 @@
-# [OSWS](https://github.com/OSWS) for [Stylus](http://learnboost.github.io/stylus/)
+# [OSWS](https://github.com/OSWS) Tempaltes
 > version: 0.0.0 beta
 
-[documentation](https://github.com/OSWS/OSWS-Stylus/wiki)
+[documentation](https://github.com/OSWS/OSWS-Templates/wiki)
