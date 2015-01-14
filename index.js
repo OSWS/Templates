@@ -83,7 +83,7 @@ var QueueContent = exports.QueueContent = function(queue, args) {
 		// function
 		} else if (_.isFunction(arg)) {
 
-			// Prototype
+			// Prototype authomatic construction
 			if (arg.prototype instanceof Prototype) {
 				(function(arg) { queue.addAsync(function(callback) {
 					arg.queue.renderAsync(function(error, result) {
@@ -182,6 +182,9 @@ var Prototype = exports.Prototype = function() {
 				switcher = false;
 				this.parent = parent;
 
+				// Easy access to constructor arguments
+				this.arguments = _arguments;
+
 				if (_.isFunction(injector)) injector.call(this, parent);
 
 				// Checking to be able to complete overlap.
@@ -228,15 +231,120 @@ var Prototype = exports.Prototype = function() {
 
 /*
 |
-|	// A simple interface for transmitting data queues
-+--	content: [new] (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+|	// Control flow of renderer queues
++--	Flow: [new] () => instance: Prototype
+|	|
+|	|	// Flow contents
+|	+--	contents: Renderer.Queue[]
+|	|
+|	|	// Add contents flow to element queue
+|	+--	generator: () => void
+|	|	// Override in `constructor`.
+|	|	// Can be overridden!
+|	|
+|	|	// Add content into tag before exists content
+|	+--	before: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+|	|	// Override in `constructor`.
+|	|	// Can be overridden!
+|	|
+|	|	// Add content into tag after exists content
+|	+--	content: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+|	|	// Override in `constructor`.
+|	|	// Can be overridden!
+|	|
+|	|	// Equal to content
+|	+--	after: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+|	|	// Override in `constructor`.
+|	|	// Can be overridden!
+|	|
+|	|	// extend the one-time inheritance
+|	+--	inherit: () => constructor: Prototype
+|		// Override in `constructor`.
+|		// Can be overridden!
 |
 */
 
-var content = exports.content = (new Prototype()).extend(function(parent) {
+var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 	this.constructor = function() {
 		parent.constructor.call(this);
-		QueueContent(this.queue, arguments);
+
+		// Flow contents
+		if (!_.has(this, 'contants')) this.contents = [];
+
+		// Call generator to inset contents flow to queue
+		this.generator();
+	};
+
+	// () => void
+	this.generator = function() {
+		var instance = this;
+		instance.queue.addAsync(function(callback) {
+			var result = '';
+			async.each(instance.contents, function(queue, next) {
+				queue.renderAsync(function(error, str) {
+					result += str;
+					next();
+				});
+			}, function() {
+				callback(result);
+			});
+		});
+	};
+	// Override in `constructor`.
+	// Can be overridden!
+
+	// (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+	this.before = function() {
+		var queue = new Renderer.Queue();
+		QueueContent(queue, arguments);
+		this.contents.unhift(queue);
+		return this;
+	};
+	// Override in `constructor`.
+	// Can be overridden!
+
+	// (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+	this.content = function() {
+		var queue = new Renderer.Queue();
+		QueueContent(queue, arguments);
+		this.contents.push(queue);
+		return this;
+	};
+	// Override in `constructor`.
+	// Can be overridden!
+
+	// (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+	this.after = function() {
+		return this.content.apply(this, arguments);
+	};
+	// Override in `constructor`.
+	// Can be overridden!
+
+	this.inherit = function() {
+		var instance = this.extend(function() {
+			if (_.isArray(this.parent.contents)) this.contents.push.apply(this.contents, this.parent.contents);
+		});
+
+		return instance;
+	};
+	// Override in `constructor`.
+	// Can be overridden!
+});
+
+/*
+|
+|	// A simple interface for transmitting data queues
++--	content: [new] (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+|	|
+|	|	// extend with content inheritance
+|	+--	inherit: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => constructor: Prototype
+|
+*/
+
+var content = exports.content = Flow().extend(function(parent) {
+	this.constructor = function() {
+		parent.constructor.call(this);
+		this.content.apply(this, arguments);
 	};
 });
 
@@ -244,6 +352,7 @@ var content = exports.content = (new Prototype()).extend(function(parent) {
 /*
 |
 |	// Tools for generatin double or single structures.
+|	// Not ready for manual use! Only inheritance.
 +--	Tag: [new] ([selector: string], [attributes: [name: string]: string]) => instance: Prototype
 |	|
 |	+--	parseSelectors: ([selector: string]) => void
@@ -282,7 +391,7 @@ var content = exports.content = (new Prototype()).extend(function(parent) {
 |
 */
 
-var Tag = exports.Tag = (new Prototype()).extend(function(parent) {
+var Tag = exports.Tag = Flow().extend(function(parent) {
 
 	this.constructor = function() {
 		var instance = this;
@@ -394,15 +503,14 @@ var Tag = exports.Tag = (new Prototype()).extend(function(parent) {
 |	+--	generator: () => void
 |	|	// Override in `constructor`.
 |	|	// Can be overridden!
+|	|
+|	+-- before = undefined
+|	+-- content = undefined
+|	+-- after = undefined
 |
 */
 
 var Single = exports.Single = Tag().extend(function(parent) {
-
-	this.constructor = function() {
-		parent.constructor.apply(this, arguments);
-		this.generator();
-	};
 
 	// () => void
 	this.generator = function() {
@@ -417,6 +525,10 @@ var Single = exports.Single = Tag().extend(function(parent) {
 	// Override in `constructor`.
 	// Can be overridden!
 
+	this.before = undefined;
+	this.content = undefined;
+	this.after = undefined;
+
 });
 
 
@@ -425,53 +537,14 @@ var Single = exports.Single = Tag().extend(function(parent) {
 |	// Tool for double tags generating.
 +--	Double: [new] ([selector: string], [attributes: [name: string]: string]) => instance.content
 |	|
-|	|	// Double tag contents
-|	+--	contents: Renderer.Queue[]
-|	|
 |	|	// Double tag returns content method when creates
 |	+--	returner: () => instance.content
 |	|	// Override in `constructor`.
 |	|	// Can be overridden!
-|	|
-|	|	// Generate double tag structore
-|	+--	generator: () => void
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
-|	|
-|	|	// Add content into tag after exists content
-|	+--	content: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
-|	|
-|	|	// Equal to content
-|	+--	after: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
-|	|
-|	|	// Add content into tag before exists content
-|	+--	before: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
-|		// Override in `constructor`.
-|		// Can be overridden!
 |
 */
 
 var Double = exports.Double = Tag().extend(function(parent) {
-
-	this.constructor = function() {
-		this.contents = [];
-		// inheritance
-		if (_.isArray(this.parent.contents)) this.contents.push.apply(this.contents, this.parent.contents);
-
-		parent.constructor.apply(this, arguments);
-
-		this.generator();
-	};
-
-	this.returner = function(instance) {
-		return function(){ return instance.content.apply(instance, arguments); };
-	}
-	// Override in `constructor`.
-	// Can be overridden!
 
 	// () => void
 	this.generator = function() {
@@ -482,17 +555,7 @@ var Double = exports.Double = Tag().extend(function(parent) {
 		});
 		instance.queue.addSync(function() { return instance._attr(); });
 		instance.queue.addSync(function() { return instance._doubleClose(); });
-		instance.queue.addAsync(function(callback) {
-			var result = '';
-			async.each(instance.contents, function(queue, next) {
-				queue.renderAsync(function(error, str) {
-					result += str;
-					next();
-				});
-			}, function() {
-				callback(result);
-			});
-		});
+		parent.generator.apply(this);
 		instance.queue.addSync(function() { return instance._doubleOpen(); });
 		instance.queue.addSync(function() {
 			return instance.name;
@@ -502,30 +565,10 @@ var Double = exports.Double = Tag().extend(function(parent) {
 	// Override in `constructor`.
 	// Can be overridden!
 
-	// (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
-	this.content = function() {
-		var queue = new Renderer.Queue();
-		QueueContent(queue, arguments);
-		this.contents.push(queue);
-		return this;
-	};
-	// Override in `constructor`.
-	// Can be overridden!
-
-	// (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
-	this.before = function() {
-		var queue = new Renderer.Queue();
-		QueueContent(queue, arguments);
-		this.contents.unhift(queue);
-		return this;
-	};
-	// Override in `constructor`.
-	// Can be overridden!
-
-	// (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
-	this.after = function() {
-		return this.content.apply(this, arguments);
-	};
+	// () => instance.content
+	this.returner = function(instance) {
+		return function(){ return instance.content.apply(instance, arguments); };
+	}
 	// Override in `constructor`.
 	// Can be overridden!
 

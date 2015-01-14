@@ -187,12 +187,15 @@ describe('OSWS-Templates', function() {
 		it('content', function() {
 			var Double = Templates.Double;
 
-			var _div = Double('div')('inherit');
-			var div = _div.extend();
+			var div0 = Double('div')('extend');
+			var Div0 = div0.extend();
 
-			var __div = div()('content')
-			__div.render(function(error, result) {
-				assert.equal(result, '<div>inheritcontent</div>')
+			var div1 = Div0()('inherit');
+			var Div1 = div1.inherit();
+
+			var div2 = Div1()('content')
+			div2.render(function(error, result) {
+				assert.equal(result, '<div>content</div>')
 			});
 		});
 	});
