@@ -177,7 +177,7 @@ describe('OSWS-Templates', function() {
 
 			var div2 = Div1()('content')
 			div2.render(function(error, result) {
-				assert.equal(result, '<div>content</div>')
+				assert.equal(result, '<div>inheritcontent</div>')
 			});
 		});
 	});

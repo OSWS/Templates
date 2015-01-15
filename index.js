@@ -305,8 +305,16 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 	// Can be overridden!
 
 	this.inherit = function() {
-		var instance = this.extend(function() {
-			if (_.isArray(this.parent.contents)) this.contents.push.apply(this.contents, this.parent.contents);
+		var instance = this.extend(function(parent) {
+			this.constructor = function() {
+				var instance = this;
+
+				parent.constructor.apply(instance, arguments);
+
+				_.once(function() {
+					if (_.isArray(instance.parent.contents)) instance.contents.push.apply(instance.contents, instance.parent.contents);
+				})();
+			}
 		});
 
 		return instance;
@@ -319,9 +327,6 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 |
 |   // A simple interface for transmitting data queues
 +-- content: [new] (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
-|   |
-|   | // extend with content inheritance
-|   +-- inherit: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => constructor: Prototype
 |
 */
 
