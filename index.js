@@ -4,8 +4,8 @@ var Renderer = require('osws-renderer-ts');
 
 /*
 |
-|	// Core string search method.
-+--	RegExpSearch: (data: string, reg: RegExp) => string[][]
+|   // Core string search method.
++-- RegExpSearch: (data: string, reg: RegExp) => string[][]
 |
 */
 
@@ -21,8 +21,8 @@ var RegExpSearch = exports.RegExpSearch = function(data, reg) {
 
 /*
 |
-|	// Example valid selector string: TagNeme.class.fdsaDss.pngClas-gfdreDS#Id1#Id2[attr1=http://google.com/images/logo.png,attr2='http://google.com/images/logo.png'][attr3=".com/images/logo.png"]
-+--	RegExpSearchSelector: (data) => string[][]
+|   // Example valid selector string: TagNeme.class.fdsaDss.pngClas-gfdreDS#Id1#Id2[attr1=http://google.com/images/logo.png,attr2='http://google.com/images/logo.png'][attr3=".com/images/logo.png"]
++-- RegExpSearchSelector: (data) => string[][]
 |
 */
 
@@ -52,8 +52,8 @@ var RegExpSearchSelector = exports.RegExpSearchSelector = function(data) {
 
 /*
 |
-|	// Method for filling a content data stream.
-+--	QueueContent: (queue: Renderer.Queue, args: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => void
+|   // Method for filling a content data stream.
++-- QueueContent: (queue: Renderer.Queue, args: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => void
 |
 */
 
@@ -110,36 +110,36 @@ var QueueContent = exports.QueueContent = function(queue, args) {
 
 /*
 |
-|	// Is not intended for final use! Only for core.
-|	// This is the first and the last object that is created manually with `new`
-|	// All of its expansion can be called without `new`
-+--	Prototype: new () => instance: Prototype
-|	|
-|	+--	parent: Prototype
-|	|
-|	|	// `injector` is not equal to `constructor`. `constructor` inherited, `injector` no.
-|	|	// The `constructor` and other class options are overridden in the `injector`.
-|	+--	extend: (injector: (parent: Prototype).call(instance: Prototype) => void) => instance: Prototype
-|	|
-|	|	// That will return the call to the extended `Prototype`?
-|	+--	returner: ().call(instance: Prototype) => any
-|	|	// For internal use only.
-|	|	// Can be overridden!
-|	|
-|	|	// Inherited option causes each extension?
-|	+--	constructor: ().call(instance: Prototype) => any
-|	|	// For internal use only.
-|	|	// Can be overridden!
-|	|
-|	|	// Personal for each element Renderer.Queue.
-|	+--	queue: Renderer.Queue
-|	|	// Can be overridden!
-|	|	// Override in `constructor`.
-|	|
-|	|	// Nice Renderer.Queue .renderAsync wrapper.
-|	+--	render: (callback: IAsyncCallback) => void
-|	|	// Can be overridden!
-|	|	// Override in `constructor`.
+|   // Is not intended for final use! Only for core.
+|   // This is the first and the last object that is created manually with `new`
+|   // All of its expansion can be called without `new`
++-- Prototype: new () => instance: Prototype
+|   |
+|   +-- parent: Prototype
+|   |
+|   | // `injector` is not equal to `constructor`. `constructor` inherited, `injector` no.
+|   | // The `constructor` and other class options are overridden in the `injector`.
+|   +-- extend(injector: (parent: Prototype).call(instance: Prototype) => void) => instance: Prototype
+|   |
+|   | // That will return the call to the extended `Prototype`?
+|   +-- returner: ().call(instance: Prototype) => any
+|   | // For internal use only.
+|   | // Can be overridden!
+|   |
+|   | // Inherited option causes each extension?
+|   +-- constructor: ().call(instance: Prototype) => any
+|   | // For internal use only.
+|   | // Can be overridden!
+|   |
+|   | // Personal for each element Renderer.Queue.
+|   +-- queue: Renderer.Queue
+|   | // Can be overridden!
+|   | // Override in `constructor`.
+|   |
+|   | // Nice Renderer.Queue .renderAsync wrapper.
+|   +-- render: (callback: IAsyncCallback) => void
+|   | // Can be overridden!
+|   | // Override in `constructor`.
 |
 */
 
@@ -215,36 +215,36 @@ var Prototype = exports.Prototype = function() {
 
 /*
 |
-|	// Control flow of renderer queues
-+--	Flow: [new] () => instance: Prototype
-|	|
-|	|	// Flow contents
-|	+--	contents: Renderer.Queue[]
-|	|
-|	|	// Add contents flow to element queue
-|	+--	generator: () => void
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
-|	|
-|	|	// Add content into tag before exists content
-|	+--	before: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
-|	|
-|	|	// Add content into tag after exists content
-|	+--	content: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
-|	|
-|	|	// Equal to content
-|	+--	after: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
-|	|
-|	|	// extend the one-time inheritance
-|	+--	inherit: () => constructor: Prototype
-|		// Override in `constructor`.
-|		// Can be overridden!
+|   // Control flow of renderer queues
++-- Flow: [new] () => instance: Prototype
+|   |
+|   | // Flow contents
+|   +-- contents: Renderer.Queue[]
+|   |
+|   | // Add contents flow to element queue
+|   +-- generator: () => void
+|   | // Override in `constructor`.
+|   | // Can be overridden!
+|   |
+|   | // Add content into tag before exists content
+|   +-- before: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+|   | // Override in `constructor`.
+|   | // Can be overridden!
+|   |
+|   | // Add content into tag after exists content
+|   +-- content: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+|   | // Override in `constructor`.
+|   | // Can be overridden!
+|   |
+|   | // Equal to content
+|   +-- after: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+|   | // Override in `constructor`.
+|   | // Can be overridden!
+|   |
+|   | // extend the one-time inheritance
+|   +-- inherit: () => constructor: Prototype
+|   | // Override in `constructor`.
+|   | // Can be overridden!
 |
 */
 
@@ -317,11 +317,11 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 
 /*
 |
-|	// A simple interface for transmitting data queues
-+--	content: [new] (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
-|	|
-|	|	// extend with content inheritance
-|	+--	inherit: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => constructor: Prototype
+|   // A simple interface for transmitting data queues
++-- content: [new] (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+|   |
+|   | // extend with content inheritance
+|   +-- inherit: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => constructor: Prototype
 |
 */
 
@@ -335,43 +335,43 @@ var content = exports.content = Flow().extend(function(parent) {
 
 /*
 |
-|	// Tools for generatin double or single structures.
-|	// Not ready for manual use! Only inheritance.
-+--	Tag: [new] ([selector: string], [attributes: [name: string]: string]) => instance: Prototype
-|	|
-|	+--	parseSelectors: ([selector: string]) => void
-|	|	// name priority: parent.name > instance.name > selector
-|	|	// id priority: attributes > parent.attributes.id > instance.attributes.id > selector
-|	|	// class prioryty: instance.attributes.class + parent.attributes.class + selector
-|	|	// attributes priority: attributes > parent.attributes
-|	|
-|	+--	parseAttributes: ([attributes: [name: string]: string]) => void
-|	|	// attributes priority: attributes > parent.attributes
-|	|
-|	|	// Generate single/first double open tag quote
-|	+--	_singleOpen: () => string
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
-|	|
-|	|	// Generate second double open tag quote
-|	+--	_doubleOpen: () => string
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
-|	|
-|	|	// Generate close single tag quote
-|	+--	_singleClose: () => string
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
-|	|
-|	|	// Generate close double tag quote
-|	+--	_doubleClose: () => string
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
-|	|
-|	|	// Generate tag attributes
-|	+--	_attr: () => string
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
+|   // Tools for generatin double or single structures.
+|   // Not ready for manual use! Only inheritance.
++-- Tag: [new] ([selector: string], [attributes: [name: string]: string]) => instance: Prototype
+|   |
+|   +-- parseSelectors: ([selector: string]) => void
+|   | // name priority: parent.name > instance.name > selector
+|   | // id priority: attributes > parent.attributes.id > instance.attributes.id > selector
+|   | // class prioryty: instance.attributes.class + parent.attributes.class + selector
+|   | // attributes priority: attributes > parent.attributes
+|   |
+|   +-- parseAttributes: ([attributes: [name: string]: string]) => void
+|   | // attributes priority: attributes > parent.attributes
+|   |
+|   | // Generate single/first double open tag quote
+|   +-- _singleOpen: () => string
+|   | // Override in `constructor`.
+|   | // Can be overridden!
+|   |
+|   | // Generate second double open tag quote
+|   +-- _doubleOpen: () => string
+|   | // Override in `constructor`.
+|   | // Can be overridden!
+|   |
+|   | // Generate close single tag quote
+|   +-- _singleClose: () => string
+|   | // Override in `constructor`.
+|   | // Can be overridden!
+|   |
+|   | // Generate close double tag quote
+|   +-- _doubleClose: () => string
+|   | // Override in `constructor`.
+|   | // Can be overridden!
+|   |
+|   | // Generate tag attributes
+|   +-- _attr: () => string
+|   | // Override in `constructor`.
+|   | // Can be overridden!
 |
 */
 
@@ -484,17 +484,19 @@ var Tag = exports.Tag = Flow().extend(function(parent) {
 
 /*
 |
-|	// Tool for single tags generating.
-+--	Single: [new] ([selector: string], [attributes: [name: string]: string]) => instance: Prototype
-|	|
-|	|	// Generate single tag structore from `_singleClose` `name` and `_close` options
-|	+--	generator: () => void
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
-|	|
-|	+-- before = undefined
-|	+-- content = undefined
-|	+-- after = undefined
+|   // Tool for single tags generating.
++-- Single: [new] ([selector: string], [attributes: [name: string]: string]) => instance: Prototype
+|   |
+|   | // Generate single tag structore from `_singleClose` `name` and `_close` options
+|   +-- generator: () => void
+|   | // Override in `constructor`.
+|   | // Can be overridden!
+|   |
+|   | // Clear double tag variables inheritance.
+|   |
+|   +-- before = undefined
+|   +-- content = undefined
+|   +-- after = undefined
 |
 */
 
@@ -513,6 +515,7 @@ var Single = exports.Single = Tag().extend(function(parent) {
 	// Override in `constructor`.
 	// Can be overridden!
 
+	// Clear double tag variables inheritance.
 	this.before = undefined;
 	this.content = undefined;
 	this.after = undefined;
@@ -522,13 +525,13 @@ var Single = exports.Single = Tag().extend(function(parent) {
 
 /*
 |
-|	// Tool for double tags generating.
-+--	Double: [new] ([selector: string], [attributes: [name: string]: string]) => instance.content
-|	|
-|	|	// Double tag returns content method when creates
-|	+--	returner: () => instance.content
-|	|	// Override in `constructor`.
-|	|	// Can be overridden!
+|   // Tool for double tags generating.
++-- Double: [new] ([selector: string], [attributes: [name: string]: string]) => instance.content
+|   |
+|   | // Double tag returns content method when creates
+|   +-- returner: () => instance.content
+|   // Override in `constructor`.
+|   // Can be overridden!
 |
 */
 
@@ -565,13 +568,13 @@ var Double = exports.Double = Tag().extend(function(parent) {
 
 // Tags
 
-var _double = exports._double = ['html', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup', 'div', 'p', 'address', 'blockquote', 'pre', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'fieldset', 'legend', 'form', 'noscript', 'object', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'col', 'colgroup', 'caption', 'span', 'b', 'big', 'strong', 'i', 'var', 'cite', 'em', 'q', 'del', 's', 'strike', 'tt', 'code', 'kbd', 'samp', 'small', 'sub', 'sup', 'dfn', 'bdo', 'abbr', 'acronym', 'a', 'button', 'textarea', 'select', 'option', 'article', 'aside', 'figcaption', 'figure', 'footer', 'header', 'section', 'main', 'nav', 'menu', 'audio', 'video', 'embed', 'canvas', 'output', 'details', 'summary', 'mark', 'meter', 'progress', 'template', 'comment'];
-
 var _single = exports._single = ['br', 'hr', 'img', 'input', 'base', 'frame', 'link', 'meta'];
 
+var _double = exports._double = ['html', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup', 'div', 'p', 'address', 'blockquote', 'pre', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'fieldset', 'legend', 'form', 'noscript', 'object', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'col', 'colgroup', 'caption', 'span', 'b', 'big', 'strong', 'i', 'var', 'cite', 'em', 'q', 'del', 's', 'strike', 'tt', 'code', 'kbd', 'samp', 'small', 'sub', 'sup', 'dfn', 'bdo', 'abbr', 'acronym', 'a', 'button', 'textarea', 'select', 'option', 'article', 'aside', 'figcaption', 'figure', 'footer', 'header', 'section', 'main', 'nav', 'menu', 'audio', 'video', 'embed', 'canvas', 'output', 'details', 'summary', 'mark', 'meter', 'progress', 'template', 'comment'];
+
 var tags = exports.tags = {};
-var double = exports.double = {};
 var single = exports.single = {};
+var double = exports.double = {};
 
 (function(){
 	_.each(_double, function(name) {
