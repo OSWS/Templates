@@ -103,3 +103,8 @@ sftp-config.json
 # Cloud9 IDE - http://c9.io
 .c9revisions
 .c9
+
+
+### TypeScript definitions ###
+# http://definitelytyped.org/
+typings

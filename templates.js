@@ -1,4 +1,4 @@
-define(['exports', 'lodash', 'async', 'osws-renderer-ts'], function(exports, _, async, Renderer) {
+define(['exports', 'lodash', 'async', 'osws-queues'], function(exports, _, async, Queues) {
 
 /*
 |
@@ -51,7 +51,7 @@ var RegExpSearchSelector = exports.RegExpSearchSelector = function(data) {
 /*
 |
 |   // Method for filling a content data stream.
-+-- QueueContent: (queue: Renderer.Queue, args: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => void
++-- QueueContent: (queue: Queues.Queue, args: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => void
 |
 */
 
@@ -74,7 +74,7 @@ var QueueContent = exports.QueueContent = function(queue, args) {
 					});
 				}); })(arg);
 
-			// ISyncCallback | IAsyncCallback
+			// Queues.ISyncCallback | Queues.IAsyncCallback
 			} else {
 				if (arg.length > 0) (function(arg) { queue.addAsync(function(callback) { arg(callback); }); })(arg);
 				else (function(arg) { queue.addSync(function() { return arg(); }); })(arg);
@@ -92,8 +92,8 @@ var QueueContent = exports.QueueContent = function(queue, args) {
 					});
 				}); })(arg);
 
-			// Renderer.Queue
-			} else if (arg instanceof Renderer.Queue) {
+			// Queues.Queue
+			} else if (arg instanceof Queues.Queue) {
 				(function(arg) { queue.addAsync(function(callback) {
 					arg.renderAsync(function(error, result) {
 						if (error) throw error;
@@ -129,13 +129,13 @@ var QueueContent = exports.QueueContent = function(queue, args) {
 |   | // For internal use only.
 |   | // Can be overridden!
 |   |
-|   | // Personal for each element Renderer.Queue.
-|   +-- queue: Renderer.Queue
+|   | // Personal for each element Queues.Queue.
+|   +-- queue: Queues.Queue
 |   | // Can be overridden!
 |   | // Override in `constructor`.
 |   |
-|   | // Nice Renderer.Queue .renderAsync wrapper.
-|   +-- render: (callback: IAsyncCallback) => void
+|   | // Nice Queues.Queue .renderAsync wrapper.
+|   +-- render: (callback: Queues.IAsyncCallback) => void
 |   | // Can be overridden!
 |   | // Override in `constructor`.
 |
@@ -153,25 +153,27 @@ var Prototype = exports.Prototype = function() {
 	this.extend = function(injector) {
 		var parent = this;
 
-		var switcher = false;
+		var _arguments = undefined;
 
-		function Element(_arguments) {
-			if (!switcher) {
-				switcher = true;
-				var instance = new Element(arguments);
-				return instance.returner(instance);
-			} else if (this instanceof Prototype) {
-				switcher = false;
+		function Element() {
+			if (this instanceof Prototype) {
+				var __arguments = _.isArguments(_arguments)? _arguments : arguments;
+
 				this.parent = parent;
 
-				// Easy access to constructor arguments
-				this.arguments = _arguments;
+				// Easy access to constructor arguments.
+				this.arguments = __arguments;
 
 				if (_.isFunction(injector)) injector.call(this, parent);
 
 				// Checking to be able to complete overlap.
-				if (_.isFunction(this.constructor)) this.constructor.apply(this, _arguments);
-			} else throw new Error('unexpected');
+				if (_.isFunction(this.constructor)) this.constructor.apply(this, __arguments);
+
+			} else {
+				_arguments = arguments;
+				var instance = new Element();
+				return instance.returner(instance);
+			}
 		};
 
 		Element.prototype = parent;
@@ -188,19 +190,19 @@ var Prototype = exports.Prototype = function() {
 
 	// (...arguments: any[]).call(instance: Prototype) => any
 	this.constructor = function() {
-		this.queue = new Renderer.Queue();
+		this.queue = new Queues.Queue();
 	};
 	// For internal use only.
 	// Can be overridden!
 
 	// Queues
 
-	// Renderer.Queue
+	// Queues.Queue
 	this.queue = undefined;
 	// Can be overridden!
 	// Override in `constructor`.
 
-	// (callback: IAsyncCallback) => void
+	// (callback: Queues.IAsyncCallback) => void
 	this.render = function(callback) {
 		this.queue.renderAsync(function(error, result) {
 			callback(error, result);
@@ -217,7 +219,7 @@ var Prototype = exports.Prototype = function() {
 +-- Flow: [new] () => instance: Prototype
 |   |
 |   | // Flow contents
-|   +-- contents: Renderer.Queue[]
+|   +-- contents: Queues.Queue[]
 |   |
 |   | // Add contents flow to element queue
 |   +-- generator: () => void
@@ -225,17 +227,17 @@ var Prototype = exports.Prototype = function() {
 |   | // Can be overridden!
 |   |
 |   | // Add content into tag before exists content
-|   +-- before: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+|   +-- before: (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
 |   | // Override in `constructor`.
 |   | // Can be overridden!
 |   |
 |   | // Add content into tag after exists content
-|   +-- content: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+|   +-- content: (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
 |   | // Override in `constructor`.
 |   | // Can be overridden!
 |   |
 |   | // Equal to content
-|   +-- after: (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+|   +-- after: (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
 |   | // Override in `constructor`.
 |   | // Can be overridden!
 |   |
@@ -275,9 +277,9 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 	// Override in `constructor`.
 	// Can be overridden!
 
-	// (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+	// (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
 	this.before = function() {
-		var queue = new Renderer.Queue();
+		var queue = new Queues.Queue();
 		QueueContent(queue, arguments);
 		this.contents.unhift(queue);
 		return this;
@@ -285,9 +287,9 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 	// Override in `constructor`.
 	// Can be overridden!
 
-	// (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+	// (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
 	this.content = function() {
-		var queue = new Renderer.Queue();
+		var queue = new Queues.Queue();
 		QueueContent(queue, arguments);
 		this.contents.push(queue);
 		return this;
@@ -295,7 +297,7 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 	// Override in `constructor`.
 	// Can be overridden!
 
-	// (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
+	// (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
 	this.after = function() {
 		return this.content.apply(this, arguments);
 	};
@@ -324,7 +326,7 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 /*
 |
 |   // A simple interface for transmitting data queues
-+-- content: [new] (...arguments: Array<selector:string|Prototype|Renderer.Queue|ISyncCallback|IAsyncCallback>) => instance: Prototype
++-- content: [new] (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
 |
 */
 
@@ -568,28 +570,30 @@ var Double = exports.Double = Tag().extend(function(parent) {
 
 });
 
+// Tags
 
 // Tags
 
-var _single = exports._single = ['br', 'hr', 'img', 'input', 'base', 'frame', 'link', 'meta'];
+exports.tags = {};
 
-var _double = exports._double = ['html', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup', 'div', 'p', 'address', 'blockquote', 'pre', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'fieldset', 'legend', 'form', 'noscript', 'object', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'col', 'colgroup', 'caption', 'span', 'b', 'big', 'strong', 'i', 'var', 'cite', 'em', 'q', 'del', 's', 'strike', 'tt', 'code', 'kbd', 'samp', 'small', 'sub', 'sup', 'dfn', 'bdo', 'abbr', 'acronym', 'a', 'button', 'textarea', 'select', 'option', 'article', 'aside', 'figcaption', 'figure', 'footer', 'header', 'section', 'main', 'nav', 'menu', 'audio', 'video', 'embed', 'canvas', 'output', 'details', 'summary', 'mark', 'meter', 'progress', 'template', 'comment'];
+var singleNames = exports.singleNames = ['br', 'hr', 'img', 'input', 'base', 'frame', 'link', 'meta'];
 
-var tags = exports.tags = {};
-var single = exports.single = {};
-var double = exports.double = {};
+exports.single = {};
 
-(function(){
-	_.each(_double, function(name) {
-		tags[name] = Double(name)().extend();
-		double[name] = tags[name];
-		exports[name] = tags[name];
-	});
-	_.each(_single, function(name) {
-		tags[name] = Single(name).extend();
-		single[name] = tags[name];
-		exports[name] = tags[name];
-	});
-})();
+for (var key in singleNames) {
+	exports[singleNames[key]] = Single(singleNames[key]).extend();
+	exports.tags[singleNames[key]] = exports[singleNames[key]];
+	exports.single[singleNames[key]] = exports[singleNames[key]];
+}
+
+var doubleNames = exports.doubleNames = ['html', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup', 'div', 'p', 'address', 'blockquote', 'pre', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'fieldset', 'legend', 'form', 'noscript', 'object', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'col', 'colgroup', 'caption', 'span', 'b', 'big', 'strong', 'i', 'var', 'cite', 'em', 'q', 'del', 's', 'strike', 'tt', 'code', 'kbd', 'samp', 'small', 'sub', 'sup', 'dfn', 'bdo', 'abbr', 'acronym', 'a', 'button', 'textarea', 'select', 'option', 'article', 'aside', 'figcaption', 'figure', 'footer', 'header', 'section', 'main', 'nav', 'menu', 'audio', 'video', 'embed', 'canvas', 'output', 'details', 'summary', 'mark', 'meter', 'progress', 'template', 'comment'];
+
+exports.double = {};
+
+for (var key in doubleNames) {
+	exports[doubleNames[key]] = Double(doubleNames[key])().extend();
+	exports.tags[doubleNames[key]] = exports[doubleNames[key]];
+	exports.double[doubleNames[key]] = exports[doubleNames[key]];
+}
 
 });
