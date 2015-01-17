@@ -1,4 +1,4 @@
-// Type definitions for OSWS Templates v0.0.1
+// Type definitions for OSWS Templates v0.0.2
 // Project: https://github.com/OSWS/OSWS-Templates
 // Definitions by: Ivan S Glazunov <https://github.com/ivansglazunov>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped

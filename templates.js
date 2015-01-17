@@ -19,12 +19,12 @@ var RegExpSearch = exports.RegExpSearch = function(data, reg) {
 
 /*
 |
-|   // Example valid selector string: TagNeme.class.fdsaDss.pngClas-gfdreDS#Id1#Id2[attr1=http://google.com/images/logo.png,attr2='http://google.com/images/logo.png'][attr3=".com/images/logo.png"]
+|   // Example valid selector string: TagNeme.class.fdsaDss.pngClas-gfdreDS#Id1#Id2[attr1=http://google.com/images/logo.png,attr2='http://google.com/images/logo.png'][attr3=".com/images/logo.png",attr4]
 +-- RegExpSearchSelector: (data) => string[][]
 |
 */
 
-var RegExpSearchSelectorRegExp = (/(\[)|(\])|^([-\w]+)|#([-\w]+)|(\.([-\w]+)|([_a-zA-Z]+[\w-]+)="(['\w\s-:\\\/\.\,\]\[]*)"|([_a-zA-Z]+[\w-]+)='(["\w\s-:\\\/\.\,\]\[]*)'|([_a-zA-Z]+[\w-]+)=([_\w-:\\\/\.]*))/g);
+var RegExpSearchSelectorRegExp = (/(\[)|(\])|^([-\w]+)|#([-\w]+)|\.([-\w]+)|([_a-zA-Z]+[\w-]+)="(['\w\s-:\\\/\.\,\]\[]*)"|([_a-zA-Z]+[\w-]+)='(["\w\s-:\\\/\.\,\]\[]*)'|([_a-zA-Z]+[\w-]+)=([_\w-:\\\/\.]*)|("['\w\s-:\\\/\.\,\]\[]+")|('["\w\s-:\\\/\.\,\]\[]+')|([_\w-:\\\/\.]*)/g);
 
 var RegExpSearchSelector = exports.RegExpSearchSelector = function(data) {
 	var matchs = RegExpSearch(data, RegExpSearchSelectorRegExp);
@@ -35,13 +35,16 @@ var RegExpSearchSelector = exports.RegExpSearchSelector = function(data) {
 		else if (node[2]) isAttr = false;
 
 		else if (isAttr) {
-			if (node[11]) results.attributes[node[11]] = node[12];
-			else if (node[9]) results.attributes[node[9]] = node[10];
-			else if (node[7]) results.attributes[node[7]] = node[8];
+			if (node[10]) results.attributes[node[10]] = node[11];
+			else if (node[14]) results.attributes[node[14]] = null;
+			else if (node[13]) results.attributes[node[13]] = null;
+			else if (node[12]) results.attributes[node[12]] = null;
+			else if (node[8]) results.attributes[node[8]] = node[9];
+			else if (node[6]) results.attributes[node[6]] = node[7];
 		} else {
 			if (node[3]) results.name = node[3];
 			else if (node[4]) results.attributes.id = node[4];
-			else if (node[6]) results.attributes.class? results.attributes.class += ' ' + node[6] : results.attributes.class = node[6];
+			else if (node[5]) results.attributes.class? results.attributes.class += ' ' + node[5] : results.attributes.class = node[5];
 		}
 	});
 	return results;
@@ -572,8 +575,6 @@ var Double = exports.Double = Tag().extend(function(parent) {
 
 // Tags
 
-// Tags
-
 exports.tags = {};
 
 var singleNames = exports.singleNames = ['br', 'hr', 'img', 'input', 'base', 'frame', 'link', 'meta'];
@@ -581,8 +582,7 @@ var singleNames = exports.singleNames = ['br', 'hr', 'img', 'input', 'base', 'fr
 exports.single = {};
 
 for (var key in singleNames) {
-	exports[singleNames[key]] = Single(singleNames[key]).extend();
-	exports.tags[singleNames[key]] = exports[singleNames[key]];
+	exports.tags[singleNames[key]] = Single(singleNames[key]).extend();
 	exports.single[singleNames[key]] = exports[singleNames[key]];
 }
 
@@ -591,9 +591,41 @@ var doubleNames = exports.doubleNames = ['html', 'body', 'h1', 'h2', 'h3', 'h4',
 exports.double = {};
 
 for (var key in doubleNames) {
-	exports[doubleNames[key]] = Double(doubleNames[key])().extend();
-	exports.tags[doubleNames[key]] = exports[doubleNames[key]];
+	exports.tags[doubleNames[key]] = Double(doubleNames[key])().extend();
 	exports.double[doubleNames[key]] = exports[doubleNames[key]];
 }
+
+// Doctypes
+
+var Doctype = exports.Doctype = Single('DOCTYPE').extend(function() {
+	// () => string
+	this._singleOpen = function() {
+		return '<!';
+	};
+	// () => string
+	this._singleClose = function() {
+		return '>';
+	};
+});
+
+exports.doctypes = {
+	html: Doctype('[html]').extend(),
+	xml: Doctype('[version="1.0" encoding="utf-8"]').extend(function() {
+		this.name = 'xml';
+		// () => string
+		this._singleOpen = function() {
+			return '<?';
+		};
+		// () => string
+		this._singleClose = function() {
+			return '?>';
+		};
+	}),
+	transitional: Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"]').extend(),
+	strict: Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"').extend(),
+	frameset: Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd"]').extend(),
+	basic: Doctype('[html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd"]').extend(),
+	mobile: Doctype('[html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd"]').extend()
+};
 
 });
