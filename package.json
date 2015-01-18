@@ -1,6 +1,6 @@
 {
 	"name": "osws-templates",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"description": "Tools for generating, extending and rendering HTML.",
 	"keywords": [],
 	"author": "Open Source Web Standards",
@@ -16,13 +16,13 @@
 		"url" : "https://github.com/OSWS/OSWS-Templates"
 	},
 	"scripts": {
-		"test": "npm run tsd && npm run tsc && npm run mocha",
-		"tsd": "tsd query node mocha -a install",
-		"tsc": "tsc tests/test.ts -m commonjs",
+		"tests": "npm run tests-tsd && npm run tests-tsc && npm run mocha",
+		"tests-tsd": "tsd query node mocha lodash -a install",
+		"tests-tsc": "tsc tests/test.ts -m commonjs",
 		"mocha": "mocha tests/test.js"
 	},
 	"dependencies": {
-		"osws-queues": "0.0.2",
+		"osws-queues": "0.0.3",
 		"lodash": "2.4.1",
 		"async": "0.9.0",
 		"mocha": "2.1.0"

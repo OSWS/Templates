@@ -1,10 +1,12 @@
 /// <reference path="../typings/node/node.d.ts" />
 /// <reference path="../typings/mocha/mocha.d.ts" />
+/// <reference path="../typings/lodash/lodash.d.ts" />
 /// <reference path="../templates.d.ts" />
 /// <reference path="../queues.d.ts" />
 var assert = require('assert');
 var Templates = require('osws-templates');
 var Queues = require('osws-queues');
+var _ = require('lodash');
 describe('OSWS-Templates', function () {
     it('QueueContent', function (done) {
         var queue = new Queues.Queue();
@@ -64,39 +66,45 @@ describe('OSWS-Templates', function () {
     });
     it('each', function (done) {
         var div = Templates.tags.div;
-        var tags = div('.class')();
+        var tags = div('.class')('body');
         tags.render(function (error, result) {
-            assert.equal(result, '<div class="class"></div>');
+            assert.equal(result, '<div class="class">body</div>');
         });
         tags.attr('#Id.container');
         tags.render(function (error, result) {
-            assert.equal(result, '<div class="class container" id="Id"></div>');
+            assert.equal(result, '<div class="class container" id="Id">body</div>');
         });
         tags.content('content', div()());
         tags.render(function (error, result) {
-            assert.equal(result, '<div class="class container" id="Id">content<div></div></div>');
+            assert.equal(result, '<div class="class container" id="Id">bodycontent<div></div></div>');
         });
         tags.before('before');
         tags.render(function (error, result) {
-            assert.equal(result, '<div class="class container" id="Id">beforecontent<div></div></div>');
+            assert.equal(result, '<div class="class container" id="Id">beforebodycontent<div></div></div>');
         });
         tags.after('after');
         tags.render(function (error, result) {
-            assert.equal(result, '<div class="class container" id="Id">beforecontent<div></div>after</div>');
+            assert.equal(result, '<div class="class container" id="Id">beforebodycontent<div></div>after</div>');
         });
         tags.attributes.id = 'else';
         tags.render(function (error, result) {
-            assert.equal(result, '<div class="class container" id="else">beforecontent<div></div>after</div>');
+            assert.equal(result, '<div class="class container" id="else">beforebodycontent<div></div>after</div>');
         });
         tags.each(function (content, indexes) {
             // indexes == [0,0] // content: string = "before"
-            // indexes == [1,0] // content: string = "content"
-            // indexes == [1,1] // content: Queues.IAsyncCallback // rendering div
-            // indexes == [0,1] // content: string = "after"
+            // indexes == [1,0] // content: string = "body"
+            // indexes == [2,0] // content: string = "content"
+            // indexes == [2,1] // content: Queues.IAsyncCallback // rendering div
+            // indexes == [3,1] // content: string = "after"
+            if (_.isEqual(indexes, [2, 0]))
+                return 'each';
+        });
+        tags.render(function (error, result) {
+            assert.equal(result, '<div class="class container" id="else">beforebodyeach<div></div>after</div>');
         });
         tags.name = 'span';
         tags.render(function (error, result) {
-            assert.equal(result, '<span class="class container" id="else">beforecontent<div></div>after</span>');
+            assert.equal(result, '<span class="class container" id="else">beforebodyeach<div></div>after</span>');
         });
         done();
     });

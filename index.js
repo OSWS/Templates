@@ -55,58 +55,54 @@ var RegExpSearchSelector = exports.RegExpSearchSelector = function(data) {
 
 /*
 |
+|   // Any data to queues format.
++-- toQueuesFormat: (arg: string|Prototype|Queues.Queue|Queues.ISyncNode|Queues.IAsyncNode) => string|Queues.ISyncNode|Queues.IAsyncNode
+|
+*/
+
+var toQueuesFormat = function(arg) {
+	if (_.isString(arg)) return arg;
+	else if (_.isFunction(arg)) {
+		if (arg.prototype instanceof Prototype) {
+			return function(callback) {
+				arg.queue.renderAsync(function(error, result) {
+					if (error) throw error;
+					callback(result);
+				});
+			};
+		} else return arg;
+	} else if (_.isObject(arg)) {
+		if (arg instanceof Prototype) {
+			return function(callback) {
+				arg.queue.renderAsync(function(error, result) {
+					if (error) throw error;
+					callback(result);
+				});
+			};
+		} else if (arg instanceof Queues.Queue) {
+			return function(callback) {
+				arg.renderAsync(function(error, result) {
+					if (error) throw error;
+					callback(result);
+				});
+			};
+		}
+	}
+	return undefined;
+};
+
+
+/*
+|
 |   // Method for filling a content data stream.
-+-- QueueContent: (queue: Queues.Queue, args: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => void
++-- QueueContent: (queue: Queues.Queue, args: Array<string|Prototype|Queues.Queue|Queues.ISyncNode|Queues.IAsyncNode>) => void
 |
 */
 
 var QueueContent = exports.QueueContent = function(queue, args) {
 	_.each(args, function(arg) {
-
-		// string
-		if (_.isString(arg)) {
-			queue.addString(arg);
-
-		// function
-		} else if (_.isFunction(arg)) {
-
-			// Prototype authomatic construction
-			if (arg.prototype instanceof Prototype) {
-				(function(arg) { queue.addAsync(function(callback) {
-					arg.queue.renderAsync(function(error, result) {
-						if (error) throw error;
-						callback(result);
-					});
-				}); })(arg);
-
-			// Queues.ISyncCallback | Queues.IAsyncCallback
-			} else {
-				if (arg.length > 0) (function(arg) { queue.addAsync(function(callback) { arg(callback); }); })(arg);
-				else (function(arg) { queue.addSync(function() { return arg(); }); })(arg);
-			}
-
-		// object
-		} else if (_.isObject(arg)) {
-
-			// Prototype
-			if (arg instanceof Prototype) {
-				(function(arg) { queue.addAsync(function(callback) {
-					arg.queue.renderAsync(function(error, result) {
-						if (error) throw error;
-						callback(result);
-					});
-				}); })(arg);
-
-			// Queues.Queue
-			} else if (arg instanceof Queues.Queue) {
-				(function(arg) { queue.addAsync(function(callback) {
-					arg.renderAsync(function(error, result) {
-						if (error) throw error;
-						callback(result);
-					});
-				}); })(arg);
-			}
-		}
+		var result = toQueuesFormat(arg);
+		if (!_.isUndefined(result)) queue.add(result);
 	});
 };
 
@@ -139,7 +135,7 @@ var QueueContent = exports.QueueContent = function(queue, args) {
 |   | // Can be overridden!
 |   |
 |   | // Nice Queues.Queue .renderAsync wrapper.
-|   +-- render: (callback: Queues.IAsyncCallback) => void
+|   +-- render: (callback: Queues.IAsyncNode) => void
 |   | // Can be overridden!
 |
 */
@@ -204,7 +200,7 @@ var Prototype = exports.Prototype = function() {
 	this.queue = undefined;
 	// Can be overridden!
 
-	// (callback: Queues.IAsyncCallback) => void
+	// (callback: Queues.IAsyncNode) => void
 	this.render = function(callback) {
 		this.queue.renderAsync(function(error, result) {
 			callback(error, result);
@@ -227,15 +223,15 @@ var Prototype = exports.Prototype = function() {
 |   | // Can be overridden!
 |   |
 |   | // Add content into tag before exists content
-|   +-- before: (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
+|   +-- before: (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncNode|Queues.IAsyncNode>) => instance: Prototype
 |   | // Can be overridden!
 |   |
 |   | // Add content into tag after exists content
-|   +-- content: (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
+|   +-- content: (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncNode|Queues.IAsyncNode>) => instance: Prototype
 |   | // Can be overridden!
 |   |
 |   | // Equal to content
-|   +-- after: (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
+|   +-- after: (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncNode|Queues.IAsyncNode>) => instance: Prototype
 |   | // Can be overridden!
 |   |
 |   | // extend the one-time inheritance
@@ -272,7 +268,7 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 	};
 	// Can be overridden!
 
-	// (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
+	// (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncNode|Queues.IAsyncNode>) => instance: Prototype
 	this.before = function() {
 		var queue = new Queues.Queue();
 		QueueContent(queue, arguments);
@@ -281,7 +277,7 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 	};
 	// Can be overridden!
 
-	// (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
+	// (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncNode|Queues.IAsyncNode>) => instance: Prototype
 	this.content = function() {
 		var queue = new Queues.Queue();
 		QueueContent(queue, arguments);
@@ -290,7 +286,7 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 	};
 	// Can be overridden!
 
-	// (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
+	// (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncNode|Queues.IAsyncNode>) => instance: Prototype
 	this.after = function() {
 		return this.content.apply(this, arguments);
 	};
@@ -313,11 +309,12 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 	};
 	// Can be overridden!
 
-	// (handler: (content: selector:string|Queues.ISyncCallback|Queues.IAsyncCallback, indexes: number[]) => void)=> instance: Prototype
+	// (handler: (content: selector:string|Queues.ISyncNode|Queues.IAsyncNode, indexes: number[]) => void)=> instance: Prototype
 	this.each = function(handler) {
-		_.each(this.contents, function(content, contentIndex) {
-			content.each(function(node, nodeIndex){
-				handler(node, [contentIndex, nodeIndex]);
+		_.each(this.contents, function(queue, contentIndex) {
+			queue.each(function(node, nodeIndex){
+				var result = toQueuesFormat(handler(node, [contentIndex, Number(nodeIndex)]));
+				if (!_.isUndefined(result)) queue.set(nodeIndex, result);
 			});
 		});
 		return this;
@@ -328,7 +325,7 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 /*
 |
 |   // A simple interface for transmitting data queues
-+-- content: [new] (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
++-- content: [new] (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncNode|Queues.IAsyncNode>) => instance: Prototype
 |
 */
 
