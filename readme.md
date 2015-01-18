@@ -1,4 +1,4 @@
 # [OSWS](https://github.com/OSWS) Templates
-> version: 0.0.2 beta
+> version: 0.0.3 beta
 
 [documentation](https://github.com/OSWS/OSWS-Templates/wiki)

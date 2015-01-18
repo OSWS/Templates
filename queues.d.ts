@@ -1,4 +1,4 @@
-// Type definitions for OSWS Queues v0.0.0
+// Type definitions for OSWS Queues v0.0.2
 // Project: https://github.com/OSWS/OSWS-Queues
 // Definitions by: Ivan S Glazunov <https://github.com/ivansglazunov>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
@@ -22,6 +22,9 @@ declare module 'osws-queues' {
     export interface IAsyncNode extends INode {
         action: IAsyncCallback;
     }
+    export interface IEachHandler {
+        (content: string|ISyncCallback|IAsyncCallback, index: number): void;
+    }
     export interface IConfig {
         timeout: number;
         sync: boolean;
@@ -36,10 +39,14 @@ declare module 'osws-queues' {
         addSync(node: ISyncCallback): ISyncNode;
         addAsync(node: IAsyncCallback): IAsyncNode;
         add(node: any): number | IAsyncNode | ISyncNode;
+        each(handler: IEachHandler): void;
         private _renderSync(result);
         private _renderAsyncNext(result, callback);
         renderAsync(callback: (error?: Error, result?: string) => void): void;
         renderSync(force?: boolean): string;
         render(argument?: any): any;
     }
+    export function isString(node: any): boolean;
+    export function isSync(node: any): boolean;
+    export function isAsync(node: any): boolean;
 }
