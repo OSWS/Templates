@@ -69,4 +69,51 @@ describe('OSWS-Templates', () => {
 			done();
 		});
 	});
+	it('each', (done) => {
+		var div = Templates.tags.div;
+
+		var tags = div('.class')()
+		tags.render((error, result) => {
+			assert.equal(result, '<div class="class"></div>');
+		});
+
+		tags.attr('#Id.container')
+		tags.render((error, result) => {
+			assert.equal(result, '<div class="class container" id="Id"></div>');
+		});
+
+		tags.content('content', div()())
+		tags.render((error, result) => {
+			assert.equal(result, '<div class="class container" id="Id">content<div></div></div>');
+		});
+		
+		tags.before('before')
+		tags.render((error, result) => {
+			assert.equal(result, '<div class="class container" id="Id">beforecontent<div></div></div>');
+		});
+
+		tags.after('after')
+		tags.render((error, result) => {
+			assert.equal(result, '<div class="class container" id="Id">beforecontent<div></div>after</div>');
+		});
+
+		tags.attributes.id = 'else';
+		tags.render((error, result) => {
+			assert.equal(result, '<div class="class container" id="else">beforecontent<div></div>after</div>');
+		});
+
+		tags.each(function(content, indexes: number[]) { // (content: selector:string|Queues.ISyncCallback|Queues.IAsyncCallback, indexes: number[])
+		    // indexes == [0,0] // content: string = "before"
+		    // indexes == [1,0] // content: string = "content"
+		    // indexes == [1,1] // content: Queues.IAsyncCallback // rendering div
+		    // indexes == [0,1] // content: string = "after"
+		});
+
+		tags.name = 'span';
+		tags.render((error, result) => {
+			assert.equal(result, '<span class="class container" id="else">beforecontent<div></div>after</span>');
+		});
+
+		done();
+	});
 });

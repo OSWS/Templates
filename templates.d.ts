@@ -35,10 +35,11 @@ declare module "osws-templates" {
 
 	export class Flow extends Prototype {
 		generator: Function;
-		before(...arguments: any[]): Prototype;
-		content(...arguments: any[]): Prototype;
-		after(...arguments: any[]): Prototype;
-		inherit(...arguments: any[]): Prototype;
+		before(...arguments: any[]): Flow;
+		content(...arguments: any[]): Flow;
+		after(...arguments: any[]): Flow;
+		inherit(...arguments: any[]): Flow;
+		each(handler: (node: string|Queues.ISyncCallback|Queues.IAsyncCallback, indexes: number[]) => void): Flow;
 	}
 
 	export function content(...arguments: IContent): Prototype;
@@ -54,13 +55,16 @@ declare module "osws-templates" {
 	}
 
 	export class Tag extends Flow {
-		parseSelectors(...arguments: string[]): void;
 		parseAttributes(...arguments: IAttributes[]): void;
+		attr(...arguments: string[]): Tag;
 		_singleOpen(): string;
 		_doubleOpen(): string;
 		_singleClose(): string;
 		_doubleClose(): string;
 		_attr(): string;
+		attr(...arguments: Array<string|IAttributes>): Tag;
+		attributes: any; // IAttributes in TypeScript not work with any keys...
+		name: string;
 	}
 
 	// Elements

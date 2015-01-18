@@ -137,12 +137,10 @@ var QueueContent = exports.QueueContent = function(queue, args) {
 |   | // Personal for each element Queues.Queue.
 |   +-- queue: Queues.Queue
 |   | // Can be overridden!
-|   | // Override in `constructor`.
 |   |
 |   | // Nice Queues.Queue .renderAsync wrapper.
 |   +-- render: (callback: Queues.IAsyncCallback) => void
 |   | // Can be overridden!
-|   | // Override in `constructor`.
 |
 */
 
@@ -205,7 +203,6 @@ var Prototype = exports.Prototype = function() {
 	// Queues.Queue
 	this.queue = undefined;
 	// Can be overridden!
-	// Override in `constructor`.
 
 	// (callback: Queues.IAsyncCallback) => void
 	this.render = function(callback) {
@@ -213,7 +210,6 @@ var Prototype = exports.Prototype = function() {
 			callback(error, result);
 		});
 	};
-	// Override in `constructor`.
 	// Can be overridden!
 };
 
@@ -228,27 +224,22 @@ var Prototype = exports.Prototype = function() {
 |   |
 |   | // Add contents flow to element queue
 |   +-- generator: () => void
-|   | // Override in `constructor`.
 |   | // Can be overridden!
 |   |
 |   | // Add content into tag before exists content
 |   +-- before: (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
-|   | // Override in `constructor`.
 |   | // Can be overridden!
 |   |
 |   | // Add content into tag after exists content
 |   +-- content: (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
-|   | // Override in `constructor`.
 |   | // Can be overridden!
 |   |
 |   | // Equal to content
 |   +-- after: (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
-|   | // Override in `constructor`.
 |   | // Can be overridden!
 |   |
 |   | // extend the one-time inheritance
 |   +-- inherit: () => constructor: Prototype
-|   | // Override in `constructor`.
 |   | // Can be overridden!
 |
 */
@@ -279,17 +270,15 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 			});
 		});
 	};
-	// Override in `constructor`.
 	// Can be overridden!
 
 	// (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
 	this.before = function() {
 		var queue = new Queues.Queue();
 		QueueContent(queue, arguments);
-		this.contents.unhift(queue);
+		this.contents.unshift(queue);
 		return this;
 	};
-	// Override in `constructor`.
 	// Can be overridden!
 
 	// (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
@@ -299,14 +288,12 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 		this.contents.push(queue);
 		return this;
 	};
-	// Override in `constructor`.
 	// Can be overridden!
 
 	// (...arguments: Array<selector:string|Prototype|Queues.Queue|Queues.ISyncCallback|Queues.IAsyncCallback>) => instance: Prototype
 	this.after = function() {
 		return this.content.apply(this, arguments);
 	};
-	// Override in `constructor`.
 	// Can be overridden!
 
 	this.inherit = function() {
@@ -324,7 +311,17 @@ var Flow = exports.Flow = (new Prototype()).extend(function(parent) {
 
 		return instance;
 	};
-	// Override in `constructor`.
+	// Can be overridden!
+
+	// (handler: (content: selector:string|Queues.ISyncCallback|Queues.IAsyncCallback, indexes: number[]) => void)=> instance: Prototype
+	this.each = function(handler) {
+		_.each(this.contents, function(content, contentIndex) {
+			content.each(function(node, nodeIndex){
+				handler(node, [contentIndex, nodeIndex]);
+			});
+		});
+		return this;
+	};
 	// Can be overridden!
 });
 
@@ -349,38 +346,31 @@ var content = exports.content = Flow().extend(function(parent) {
 |   // Not ready for manual use! Only inheritance.
 +-- Tag: [new] ([selector: string], [attributes: [name: string]: string]) => instance: Prototype
 |   |
-|   +-- parseSelectors: ([selector: string]) => void
-|   | // name priority: parent.name > instance.name > selector
-|   | // id priority: attributes > parent.attributes.id > instance.attributes.id > selector
-|   | // class prioryty: instance.attributes.class + parent.attributes.class + selector
-|   | // attributes priority: attributes > parent.attributes
-|   |
 |   +-- parseAttributes: ([attributes: [name: string]: string]) => void
 |   | // attributes priority: attributes > parent.attributes
 |   |
+|   | // Add new selectors
+|   +-- attr: ([selector: string]) => instance: Prototype
+|   | // Can be overridden!
+|   |
 |   | // Generate single/first double open tag quote
 |   +-- _singleOpen: () => string
-|   | // Override in `constructor`.
 |   | // Can be overridden!
 |   |
 |   | // Generate second double open tag quote
 |   +-- _doubleOpen: () => string
-|   | // Override in `constructor`.
 |   | // Can be overridden!
 |   |
 |   | // Generate close single tag quote
 |   +-- _singleClose: () => string
-|   | // Override in `constructor`.
 |   | // Can be overridden!
 |   |
 |   | // Generate close double tag quote
 |   +-- _doubleClose: () => string
-|   | // Override in `constructor`.
 |   | // Can be overridden!
 |   |
 |   | // Generate tag attributes
 |   +-- _attr: () => string
-|   | // Override in `constructor`.
 |   | // Can be overridden!
 |
 */
@@ -401,43 +391,13 @@ var Tag = exports.Tag = Flow().extend(function(parent) {
 			else if (_.isObject(argument)) attributes.push(argument);
 		});
 
-		instance.parseSelectors.apply(instance, selectors);
+		instance.attr.apply(instance, selectors);
 		instance.parseAttributes.apply(instance, attributes);
 
 		parent.constructor.call(instance);
 	};
 
 	// Tags logic
-	
-	// ([selector: string]) => void
-	this.parseSelectors = function() {
-		var instance = this;
-		var parent = this.parent;
-
-		// If attributes resetted
-		if (!_.isObject(instance.attributes)) instance.attributes = {};
-
-		if (parent.attributes) {
-			// id
-			instance.attributes.id = _.isString(parent.attributes.id)? parent.attributes.id : undefined;
-
-			// class
-			instance.attributes.class = _.isString(parent.attributes.class)? parent.attributes.class : undefined;
-		}
-
-		_.each(arguments, function(selector) {
-			if (_.isString(selector)) {
-				var results = RegExpSearchSelector(selector);
-
-				// Name only if name undefined...
-				if (!_.isString(instance.name)) instance.name = results.name;
-
-				_.each(results.attributes, function(value, key) {
-					instance.attributes[key] = (key == 'class' && _.isString(results.attributes[key]) && _.isString(instance.attributes[key]))? instance.attributes[key] + ' ' + results.attributes[key] : results.attributes[key];
-				});
-			}
-		});
-	};
 	
 	// ([attributes: [name: string]: string]) => void
 	this.parseAttributes = function() {
@@ -451,6 +411,30 @@ var Tag = exports.Tag = Flow().extend(function(parent) {
 		})
 	};
 
+	// ([selector: string]) => isntance: Prototype
+	this.attr = function() {
+		var instance = this;
+
+		// If attributes resetted
+		if (!_.isObject(instance.attributes)) instance.attributes = {};
+
+		_.each(arguments, function(selector) {
+			if (_.isString(selector)) {
+				var results = RegExpSearchSelector(selector);
+
+				// Name only if name undefined...
+				if (!_.isString(instance.name)) instance.name = results.name;
+
+				_.each(results.attributes, function(value, key) {
+					instance.attributes[key] = (key == 'class' && _.isString(results.attributes[key]) && _.isString(instance.attributes[key]))? instance.attributes[key] + ' ' + results.attributes[key] : results.attributes[key];
+				});
+			}
+		});
+
+		return this;
+	};
+	// Can be overridden!
+
 	// () => string
 	this._singleOpen = function() {
 		return '<';
@@ -460,21 +444,18 @@ var Tag = exports.Tag = Flow().extend(function(parent) {
 	this._doubleOpen = function() {
 		return '</';
 	};
-	// Override in `constructor`.
 	// Can be overridden!
 
 	// () => string
 	this._singleClose = function() {
 		return '/>';
 	};
-	// Override in `constructor`.
 	// Can be overridden!
 
 	// () => string
 	this._doubleClose = function() {
 		return '>';
 	};
-	// Override in `constructor`.
 	// Can be overridden!
 
 	// () => string
@@ -487,7 +468,6 @@ var Tag = exports.Tag = Flow().extend(function(parent) {
 		});
 		return result;
 	};
-	// Override in `constructor`.
 	// Can be overridden!
 });
 
@@ -499,7 +479,6 @@ var Tag = exports.Tag = Flow().extend(function(parent) {
 |   |
 |   | // Generate single tag structore from `_singleClose` `name` and `_close` options
 |   +-- generator: () => void
-|   | // Override in `constructor`.
 |   | // Can be overridden!
 |   |
 |   | // Clear double tag variables inheritance.
@@ -522,7 +501,6 @@ var Single = exports.Single = Tag().extend(function(parent) {
 		instance.queue.addSync(function() { return instance._attr(); });
 		instance.queue.addSync(function() { return instance._singleClose(); });
 	};
-	// Override in `constructor`.
 	// Can be overridden!
 
 	// Clear double tag variables inheritance.
@@ -540,7 +518,6 @@ var Single = exports.Single = Tag().extend(function(parent) {
 |   |
 |   | // Double tag returns content method when creates
 |   +-- returner: () => instance.content
-|   // Override in `constructor`.
 |   // Can be overridden!
 |
 */
@@ -563,14 +540,12 @@ var Double = exports.Double = Tag().extend(function(parent) {
 		});
 		instance.queue.addSync(function() { return instance._doubleClose(); });
 	};
-	// Override in `constructor`.
 	// Can be overridden!
 
 	// () => instance.content
 	this.returner = function(instance) {
 		return function(){ return instance.content.apply(instance, arguments); };
 	}
-	// Override in `constructor`.
 	// Can be overridden!
 
 });
