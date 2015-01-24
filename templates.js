@@ -1,6 +1,54 @@
 define(['exports', 'lodash', 'async'], function(exports, _, async) {
 
-// (data: string, reg: RegExp) => string[][]
+// (argument: any) => boolean;
+var isSync = exports.isSync = function(argument) { return _.isFunction(argument) && argument.length == 0; };
+
+// (argument: any) => boolean;
+var isAsync = exports.isAsync = function(argument) { return _.isFunction(argument) && argument.length == 1; };
+
+// (data: TData, callback: TCallback) => void;
+var dataRender = exports.dataRender = function(data, callback) {
+	if (_.isFunction(data)) {
+		if (data.prototype instanceof Content) {
+			if (data.prototype instanceof Double) data()()._render(callback);
+			else data()._render(callback);
+		} else if (data.__templatesInstance instanceof Content) data.__templatesInstance._render(callback);
+		else if (data.length == 1) data(callback);
+		else if (data.length == 0) callback(data());
+		else callback(data);
+	} else if (_.isObject(data)) {
+
+		if (data instanceof Content) data._render(callback);
+		else {
+					
+			var result;
+			
+			// typeof data?
+			if (_.isArray(data)) result = [];
+			else result = {};
+
+			var keys = _.keys(data);
+
+			async.each(keys, function(key, next) {
+				dataRender(data[key], function(value) {
+					result[key] = value;
+					next();
+				});
+			}, function() {
+				callback(result);
+			});
+		}
+
+	} else callback(data);
+};
+
+// (instance: Prototype, method: Function) => Function;
+var wrapMethod = exports.wrapMethod = function(instance, method) {
+	method.__templatesInstance = instance;
+	return method;
+};
+
+// (data: string, reg: RegExp) => string[][];
 var regExpSearch = exports.regExpSearch = function(data, reg) {
 	var result = [], temp = null;
 	while ((temp = reg.exec(data)) != null) {
@@ -11,95 +59,50 @@ var regExpSearch = exports.regExpSearch = function(data, reg) {
 }
 
 // https://www.regex101.com/r/cM5jC6/9
-var selectorRegExp = exports.selectorRegExp = (/(\[)|(\])|#([-\w\d]+)|\.([-\w\d]+)|([\w\d-]+)="(['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)"|([\w\d-]+)='(["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)'|([\w\d-]+)=([\w\d-:\\\/\.={}<>%@#$%^&*~`]*)|("['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+")|('["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+')|([_\w-:\\\/]+)/g);
+var _selectorRegExp = exports._selectorRegExp = (/(\[)|(\])|#([-\w\d]+)|\.([-\w\d]+)|([\w\d-]+)="(['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)"|([\w\d-]+)='(["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)'|([\w\d-]+)=([\w\d-:\\\/\.={}<>%@#$%^&*~`]*)|("['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+")|('["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+')|([_\w-:\\\/]+)/g);
 
-// (data) => { [name: string]: string }
-var parseSelector = exports.parseSelector = function(data) {
-	var matchs = regExpSearch(data, selectorRegExp);
-	var attributes = {};
+// (_attributes: IAttributes, selector: TSelector) => void;
+var parseSelector = exports.parseSelector = function(_attributes, selector) {
+	var matchs = regExpSearch(selector, _selectorRegExp);
 	var isAttr = false;
 	_.each(matchs, function(node) {
 		if (node[1]) { isAttr = true; return; } // [
 		else if (node[2]) { isAttr = false; return; } // ]
 
 		if (isAttr) {
-			if (node[9]) { attributes[node[9]] = node[10]; return; } // attr=value
-			if (node[7]) { attributes[node[7]] = node[8]; return; } // attr='value'
-			if (node[5]) { attributes[node[5]] = node[6]; return; } // attr="value"
-			if (node[13]) { attributes[node[13]] = null; return; } // [attr]
-			if (node[12]) { attributes[node[12]] = null; return; } // ['attr']
-			if (node[11]) { attributes[node[11]] = null; return; } // ["attr"]
+			if (node[9]) { _attributes[node[9]] = node[10]; return; } // attr=value
+			if (node[7]) { _attributes[node[7]] = node[8]; return; } // attr='value'
+			if (node[5]) { _attributes[node[5]] = node[6]; return; } // attr="value"
+			if (node[13]) { _attributes[node[13]] = null; return; } // [attr]
+			if (node[12]) { _attributes[node[12]] = null; return; } // ['attr']
+			if (node[11]) { _attributes[node[11]] = null; return; } // ["attr"]
 		} else {
-			if (node[3]) { attributes.id = node[3]; return; } // id
-			if (node[4]) { attributes.class? attributes.class += ' ' + node[4] : attributes.class = node[4]; return; } // class
+			if (node[3]) { _attributes.id = node[3]; return; } // id
+			if (node[4]) { _attributes.class? _attributes.class += ' ' + node[4] : _attributes.class = node[4]; return; } // class
 		}
 	});
-	return attributes;
 };
 
-// data ≈ Prototype|SyncFunction|AsyncFunction|stringify
-
-// (argument: ay|?() => any) => boolean
-var isSync = exports.isSync = function(argument) { return _.isFunction(argument) && argument.length == 0; };
-
-// (argument: any|?(callback) => any) => boolean
-var isAsync = exports.isAsync = function(argument) { return _.isFunction(argument) && argument.length > 0; };
-
-// (data: data, callback: (result) => void) => void
-var dataRender = exports.dataRender = function(data, callback) {
-	if (isSync(data)) callback(data());
-	else if (isAsync(data)) data(callback);
-	else if (_.isObject(data) && data instanceof Prototype) data._render(callback);
-	else callback(data);
+// (string: string, context: Object, callback: TCallback) => void;
+var _stringTemplate = exports._stringTemplate = function(string, context, callback) {
+	callback(_.template(string, context));
 };
-
-// (data: Object, result: Object, callback: (result: string[]) => void) => void
-var renderObjectData = exports.renderObjectData = function(data, result, callback) {
-	var keys = _.keys(data);
-	async.each(keys, function(key, next) {
-		dataRender(data[key], function(string) {
-			result[key] = string;
-			next();
-		});
-	}, function() {
-		callback(result);
-	});
-}
-
-// (hash: data[], callback: (result: string[]) => void) => void
-var renderArrayData = exports.renderArrayData = function(hash, callback) {
-	renderObjectData(hash, [], callback);
-}
-
-// (hash: [name: string]: data, callback: (result: [name: string]: string) => void) => void
-var renderHashData = exports.renderHashData = function(hash, callback) {
-	renderObjectData(hash, {}, callback);
-}
-
-// new () => instance: Prototype
+// new () => this;
 var Prototype = exports.Prototype = function() {
 
-	// Prototype
-	this._parent = null;
-	// set at inheritance
+	// Prototype;
+	this._parent = undefined;
 
-	// data[]
-	this._data = null;
-	// set at construct
+	// IArguments;
+	this._arguments = undefined;
 
-	// [name: string]: data
-	this._context = null;
-	// set at construct
+	// () => any;
+	this.return = function() { return this; };
 
-	// (...context) => this
-	this.context = function() {
-		for (var a in arguments) {
-			if (_.isObject(arguments[a])) _.merge(this._context, arguments[a]);
-		}
-		return this;
-	};
+	// (...arguments: IArguments) => any;
+	this.constructor = function() {};
 
-	// (injector?: (parent: Prototype).call(instance: Prototype) => void) => instance: Prototype
+	// (injector?: TInjector) => Function;
 	this.extend = function(injector) {
 		var parent = this;
 
@@ -107,7 +110,13 @@ var Prototype = exports.Prototype = function() {
 		
 		function Element() {
 			if (this instanceof Prototype) {
-				var __arguments = _.isArguments(_arguments)? _arguments : arguments;
+
+				if(_.isArguments(_arguments)) {
+					var __arguments = _arguments;
+					_arguments = undefined;
+				} else {
+					var __arguments = arguments;
+				}
 
 				this._parent = parent;
 				this._arguments = __arguments;
@@ -118,7 +127,7 @@ var Prototype = exports.Prototype = function() {
 			} else {
 				_arguments = arguments;
 				var instance = new Element();
-				return instance.returner(instance);
+				return instance.return(instance);
 			}
 		};
 
@@ -126,248 +135,218 @@ var Prototype = exports.Prototype = function() {
 
 		return Element;
 	};
-
-	// ().call(instance: Prototype) => any
-	this.returner = function() { return this; };
-
-	// (...arguments: any[]).call(instance: Prototype) => any
-	this.constructor = function() {
-		this._data = [];
-		this._context = {};
-	};
-
-	// (callback: (result: string) => void) => instance: Prototype
-	this._render = function(callback) {
-		renderArrayData(this._data, function(result) { callback(result.join('')); });
-		return this;
-	};
-
-	// (callback: (result: string) => void, ...context) => instance: Prototype
-	this.render = function(callback) {
-		var instance = this;
-
-		var contexts = Array.prototype.slice.call(arguments, 1);
-		var context = _.merge({}, instance._context);
-		for (var c in contexts) {
-			if (_.isObject(contexts[c])) _.merge(context, contexts[c]);
-		}
-
-		this._render(function(result) {
-			renderHashData(context, function(context) {
-				callback(_.template(result, context));
-			})
-		});
-
-		return this;
-	};
 };
 
-// [new] () => instance: Contents > Prototype
-var Contents = exports.Contents = (new Prototype()).extend(function(parent) {
+// [new] () => this
+var Content = exports.Content = (new Prototype()).extend(function(parent) {
 	
-	// data[][]
-	this._contents = null;
+	// Array<TData>;
+	this._content = undefined;
 	// set at inheritance
 
-	// ([data]*, [context]*) => instance: Prototype
+	// (...arguments: Array<TData>) => this;
 	this.prepend = function() {
-		this._contents.unshift.apply(this._contents, arguments);
+		this._content.unshift.apply(this._content, arguments);
 		return this;
 	};
 
-	// ([data]*, [context]*) => instance: Prototype
+	// (...arguments: Array<TData>) => this;
 	this.content = function() {
-		this._contents = Array.prototype.slice.call(arguments);
+		this._content = Array.prototype.slice.call(arguments);
 		return this;
 	};
 
-	// ([data]*, [context]*) => instance: Prototype
+	// (...arguments: Array<TData>) => this;
 	this.append = function() {
-		this._contents.push.apply(this._contents, arguments);
+		this._content.push.apply(this._content, arguments);
 		return this;
 	};
 
-	// () => void
-	this.generator = function() {
-		var instance = this;
-		this._data.push(function(callback) { renderArrayData(instance._contents, function(result) {
+	// IContext;
+	this._context = {};
+
+	// (callback: TCallback, context?: IContext) => this;
+	this.render = function(callback, _context) {
+		var context = _.merge(this._context, _context);
+		this._render(function(result) {
+			_stringTemplate(result, context, callback);
+		});
+	};
+
+	// (callback: TCallback) => this;
+	this._render = function(callback) {
+		dataRender(this._content, function(result) {
 			callback(result.join(''));
-		}); });
+		});
 	};
 
 	this.constructor = function() {
 		parent.constructor.apply(this);
-		this._contents = [];
-		if (_.isArray(this._parent._contents)) this._contents.push.apply(this._contents, this._parent._contents);
-		this.generator();
+		this._content = [];
+		if (_.isArray(this._parent._content)) this._content.push.apply(this._content, this._parent._content);
+		this.context = {};
 	};
 });
 
-// [new] ([selector: string]*, [attributes: attributes]*) => instance: Tag > Contents > Prototype
-var Tag = exports.Tag = Contents().extend(function(parent) {
-	
-	// string
-	this._name = null;
-	// set at construct
+var content = exports.content = Content().extend(function(parent) {
+	this.constructor = function() {
+		parent.constructor.apply(this);
+		if (arguments.length > 0) this.content.apply(this, arguments);
+	};
+});
 
-	// (name: string) => this
+// [new] (...arguments: Array<TSelector|IAttributes>) => this;
+var Tag = exports.Tag = Content().extend(function(parent) {
+	
+	// TData;
+	this._name = null;
+
+	// (name: TData) => this;
 	this.name = function(name) {
 		this._name = name;
 		return this;
 	};
 
-	// [name: string]: string
+	// IAttributes;
 	this._attributes = null;
-	// set at construct
 	
-	// ([attributes: [name: string]: string]) => void
-	this._parseAttributes = function(attributes) {
-		for (var key in attributes) {
-			this._attributes[key] = attributes[key];
-		}
+	// (attributes: IAttributes) => this;
+	this.attributes = function(attributes) {
+		_.extend(this._attributes, attributes);
 		return this;
 	};
 
-	// ([selector: string]) => this
-	this._parseSelector = function(selector) {
-		this._parseAttributes(parseSelector(selector));
+	// (callback: TCallback) => void
+	this.renderAttributes = function(callback) {
+		dataRender(this._attributes, function(attributes) {
+			var result = '';
+			for (var key in attributes) {
+				if (_.isNull(attributes[key])) result += ' '+key;
+				else result += ' '+key+'="'+attributes[key]+'"';
+			}
+			callback(result);
+		});
+	};
+
+	// (selector: TSelector) => this;
+	this.selector = function(selector) {
+		parseSelector(this._attributes, selector);
 		return this;
 	};
 
-	// (...arguments: [attributes: [name: string]: string]*) => this
-	this.parseAttributesArguments = function() {
-		for (var a in arguments) {
-			if (_.isObject(arguments[a])) this._parseAttributes(arguments[a]);
-		}
-		return this;
-	};
-
-	// (...arguments: [selector: string]*) => this
-	this.parseSelectorArguments = function() {
-		for (var a in arguments) {
-			if (_.isString(arguments[a])) this._parseSelector(arguments[a]);
-		}
-		return this;
-	};
-
-	// (...arguments: [selector: string]*|[attributes: [name: string]: string]*) => this
-	this.parseSelectorAndAttributesArguments = function() {
-		for (var a in arguments) {
-			if (_.isString(arguments[a])) this._parseSelector(arguments[a]);
-			else if (_.isObject(arguments[a])) this._parseAttributes(arguments[a]);
-		}
-		return this;
-	};
-
-	// ([selector: string]*, [attributes: attributes]*) => instance: Prototype
 	this.constructor = function() {
 		parent.constructor.call(this);
 		this._attributes = _.isObject(this._parent._attributes)? _.extend({}, this._parent._attributes) : {};
-		this.parseSelectorAndAttributesArguments.apply(this, arguments);
+		for (var a in arguments) {
+			if (_.isString(arguments[a])) this.selector(arguments[a]);
+			else this.attributes(arguments[a]);
+		}
 	};
 });
-
-// [new] ([selector: string]*, [attributes: attributes]*) => instance: Single > Tag > Contents > Prototype
+// [new] (...arguments: Array<IAttributes|TSelector>) => this;
 var Single = exports.Single = Tag().extend(function(parent) {
+
+	// string;
 	this._quotesLeft = '<';
+
+	// string;
 	this._quotesRight = '/>';
 
-	this.generator = function() {
+	// (callback: TCallback) => this;
+	this._render = function(callback) {
 		var instance = this;
-
-		this._data.push(this._quotesLeft);
-		this._data.push(function(callback) { dataRender(instance._name, function(result) {
-			callback(result);
-		}); });
-		this._data.push(function(callback) { renderArrayData(instance._attributes, function(attributes) {
-			var result = '';
-			for (var key in attributes) {
-				if (_.isNull(attributes[key])) result += ' '+key;
-				else result += ' '+key+'="'+attributes[key]+'"';
-			}
-			callback(result);
-		}); });
-		this._data.push(this._quotesRight);
+		parent._render(function(result) {
+			instance.renderAttributes(function(attributes) {
+				callback(
+instance._quotesLeft + instance._name + attributes + instance._quotesRight
+				);
+			});
+		})
 	};
 });
 
-// [new] ([selector: string]*, [attributes: attributes]*) => .content([data]*) => instance: Double > Tag > Contents > Prototype
+// [new] (...arguments: Array<IAttributes|TSelector>) => .content => this;
 var Double = exports.Double = Tag().extend(function(parent) {
+	
+	// string;
 	this._quotesOpenLeft = '<';
+	
+	// string;
 	this._quotesOpenRight = '>';
+	
+	// string;
 	this._quotesCloseLeft = '</';
+	
+	// string;
 	this._quotesCloseRight = '>';
 
-	this.generator = function() {
+	// () => any;
+	this.return = function() {
 		var instance = this;
-
-		this._data.push(this._quotesOpenLeft);
-		this._data.push(function(callback) { dataRender(instance._name, function(result) {
-			callback(result);
-		}); });
-		this._data.push(function(callback) { renderArrayData(instance._attributes, function(attributes) {
-			var result = '';
-			for (var key in attributes) {
-				if (_.isNull(attributes[key])) result += ' '+key;
-				else result += ' '+key+'="'+attributes[key]+'"';
-			}
-			callback(result);
-		}); });
-		this._data.push(this._quotesOpenRight);
-
-		parent.generator.apply(this);
-
-		this._data.push(this._quotesCloseLeft);
-		this._data.push(function(callback) { dataRender(instance._name, function(result) {
-			callback(result);
-		}); });
-		this._data.push(this._quotesCloseRight);
-	};
-	this.returner = function(instance) {
-		return function() {
+		return wrapMethod(instance, function() {
 			if (arguments.length > 0) return instance.content.apply(instance, arguments);
 			else return instance;
-		};
+		});
+	};
+
+	// (callback: TCallback) => this;
+	this._render = function(callback) {
+		var instance = this;
+		parent._render.call(instance, function(result) {
+			instance.renderAttributes(function(attributes) {
+				callback(
+instance._quotesOpenLeft + instance._name + attributes + instance._quotesOpenRight + result + instance._quotesCloseLeft + instance._name + instance._quotesCloseRight
+				);
+			});
+		})
 	};
 });
 
-// [new] ([selector: string]*, [attributes: attributes]*) => instance: Doctype > Single > Tag > Contents > Prototype
-var Doctype = exports.Doctype = Single().extend(function(parent) {
+// [new] (...arguments: Array<IAttributes|TSelector>) => this;
+var Doctype = exports.Doctype = Tag().extend(function(parent) {
+	
+	// string;
 	this._name = 'DOCTYPE';
+
+	// string;
 	this._quotesLeft = '<!';
+
+	// string;
 	this._quotesRight = '>';
-});
-
-var doctype = exports.doctype = {};
-
-doctype.html = Doctype('[html]').extend();
-doctype.transitional = Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"]').extend();
-doctype.strict = Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"').extend();
-doctype.frameset = Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd"]').extend();
-doctype.basic = Doctype('[html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd"]').extend();
-doctype.mobile = Doctype('[html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd"]').extend();
-
-var _single = exports._single = ['br', 'hr', 'img', 'input', 'base', 'frame', 'link', 'meta', 'style'];
-
-var single = exports.single = {};
-
-for (var key in _single) {
-	single[_single[key]] = Single().name(_single[key]).extend();
-}
-
-var _double = exports._double = ['html', 'body', 'head', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup', 'div', 'p', 'address', 'blockquote', 'pre', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'fieldset', 'legend', 'form', 'noscript', 'object', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'col', 'colgroup', 'caption', 'span', 'b', 'big', 'strong', 'i', 'var', 'cite', 'em', 'q', 'del', 's', 'strike', 'tt', 'code', 'kbd', 'samp', 'small', 'sub', 'sup', 'dfn', 'bdo', 'abbr', 'acronym', 'a', 'button', 'textarea', 'select', 'option', 'article', 'aside', 'figcaption', 'figure', 'footer', 'header', 'section', 'main', 'nav', 'menu', 'audio', 'video', 'embed', 'canvas', 'output', 'details', 'summary', 'mark', 'meter', 'progress', 'template', 'comment', 'title', 'script'];
-
-var double = exports.double = {};
-
-for (var key in _double) {
-	double[_double[key]] = Double()().name(_double[key]).extend();
-}
-
-var content = exports.content = Contents().extend(function(parent) {
-	this.constructor = function() {
-		parent.constructor.apply(this);
-		this.content.apply(this, arguments);
+	
+	// (callback: TCallback) => this;
+	this._render = function(callback) {
+		var instance = this;
+		parent._render(function(result) {
+			instance.renderAttributes(function(attributes) {
+				callback(
+instance._quotesLeft + instance._name + attributes + instance._quotesRight
+				);
+			});
+		})
 	};
 });
 
+var doctypes = exports.doctypes = {};
+
+doctypes.html = Doctype('[html]').extend();
+doctypes.transitional = Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"]').extend();
+doctypes.strict = Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"').extend();
+doctypes.frameset = Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd"]').extend();
+doctypes.basic = Doctype('[html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd"]').extend();
+doctypes.mobile = Doctype('[html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd"]').extend();
+var _singles = exports._singles = ['br', 'hr', 'img', 'input', 'base', 'frame', 'link', 'meta', 'style'];
+
+var singles = exports.singles = {};
+
+for (var key in _singles) {
+	singles[_singles[key]] = Single().name(_singles[key]).extend();
+}
+var _doubles = exports._doubles = ['html', 'body', 'head', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup', 'div', 'p', 'address', 'blockquote', 'pre', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'fieldset', 'legend', 'form', 'noscript', 'object', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'col', 'colgroup', 'caption', 'span', 'b', 'big', 'strong', 'i', 'var', 'cite', 'em', 'q', 'del', 's', 'strike', 'tt', 'code', 'kbd', 'samp', 'small', 'sub', 'sup', 'dfn', 'bdo', 'abbr', 'acronym', 'a', 'button', 'textarea', 'select', 'option', 'article', 'aside', 'figcaption', 'figure', 'footer', 'header', 'section', 'main', 'nav', 'menu', 'audio', 'video', 'embed', 'canvas', 'output', 'details', 'summary', 'mark', 'meter', 'progress', 'template', 'comment', 'title', 'script'];
+
+var doubles = exports.doubles = {};
+
+for (var key in _doubles) {
+	doubles[_doubles[key]] = Double()().name(_doubles[key]).extend();
+}
 });

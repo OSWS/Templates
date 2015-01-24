@@ -1,51 +1,51 @@
 var gulp = require('gulp');
 var concat = require('gulp-concat');
-var typescript = require('gulp-typescript');
+var uglify = require('gulp-uglify');
 var mocha = require('gulp-mocha');
 var plumber = require('gulp-plumber');
 var logger = require('gulp-logger');
 
 gulp.task('default', ['templates']);
 
-gulp.task('templates', ['templates-concat', 'templates-watch']);
+gulp.task('templates', ['templates-concat-commonjs', 'templates-concat-amd', 'templates-minify-amd', 'templates-watch']);
 
-gulp.task('templates-concat', function() {
-
+gulp.task('templates-concat-commonjs', function() {
 	gulp.src([
 		'sources/commonjs-open.js',
-		'sources/selector.js',
-		'sources/data.js',
-		'sources/prototypes/prototype.js',
-		'sources/prototypes/contents.js',
-		'sources/prototypes/tag.js',
-		'sources/prototypes/single.js',
-		'sources/prototypes/double.js',
-		'sources/prototypes/doctype.js',
-		'sources/implementations/doctype.js',
-		'sources/implementations/single.js',
-		'sources/implementations/double.js',
-		'sources/implementations/content.js',
-		'sources/implementations/struct.js',
+
+		'sources/index.js',
+		'sources/el/prototype.js',
+		'sources/el/content.js',
+		'sources/content.js',
+		'sources/el/tag.js',
+		'sources/el/single.js',
+		'sources/el/double.js',
+		'sources/el/doctype.js',
+		'sources/doctypes.js',
+		'sources/singles.js',
+		'sources/doubles.js'
 	])
 	.pipe(plumber())
 	.pipe(concat('index.js'))
 	.pipe(gulp.dest('./'));
-	
+});
+
+gulp.task('templates-concat-amd', function() {
 	gulp.src([
 		'sources/amd-open.js',
-		'sources/selector.js',
-		'sources/data.js',
-		'sources/prototypes/prototype.js',
-		'sources/prototypes/contents.js',
-		'sources/prototypes/tag.js',
-		'sources/prototypes/single.js',
-		'sources/prototypes/double.js',
-		'sources/prototypes/doctype.js',
-		'sources/implementations/doctype.js',
-		'sources/implementations/single.js',
-		'sources/implementations/double.js',
-		'sources/implementations/content.js',
-		'sources/implementations/struct.js',
+
+		'sources/index.js',
+		'sources/el/prototype.js',
+		'sources/el/content.js',
+		'sources/content.js',
+		'sources/el/tag.js',
+		'sources/el/single.js',
+		'sources/el/double.js',
+		'sources/el/doctype.js',
+		'sources/doctypes.js',
+		'sources/singles.js',
+		'sources/doubles.js',
+
 		'sources/amd-close.js'
 	])
 	.pipe(plumber())
@@ -53,28 +53,16 @@ gulp.task('templates-concat', function() {
 	.pipe(gulp.dest('./'));
 });
 
-gulp.task('templates-watch', function() {
-	gulp.watch(['sources/*', 'sources/**/*'], ['templates-concat']);
+gulp.task('templates-minify-amd', function() {
+	gulp.src('templates.js')
+	.pipe(plumber())
+	.pipe(uglify())
+	.pipe(concat('templates.min.js'))
+	.pipe(gulp.dest('./'));
 });
 
-// gulp.task('tests', ['tests-compile', 'tests-mocha', 'tests-watch']);
-
-// gulp.task('tests-compile', function() {
-// 	gulp.src(['tests/test.ts'])
-// 	.pipe(plumber())
-// 	.pipe(logger({ extname: '.ts' }))
-// 	.pipe(typescript())
-// 	.pipe(gulp.dest('./tests/'));
-// });
-
-// gulp.task('tests-mocha', function() {
-// 	gulp.src(['tests/test.js'], {read: false})
-// 	.pipe(plumber())
-// 	.pipe(mocha())
-// });
-
-// gulp.task('tests-watch', function() {
-// 	gulp.watch(['tests/*.ts'], ['tests-compile', 'tests-mocha']);
-// });
+gulp.task('templates-watch', function() {
+	gulp.watch(['sources/*', 'sources/**/*'], ['templates-concat-commonjs', 'templates-concat-amd', 'templates-minify-amd']);
+});
 
 process.stdin.on("data", process.exit);

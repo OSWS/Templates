@@ -1,177 +1,212 @@
 var Templates = require('../index.js');
 var _ = require('lodash');
-var assert = require('assert');
+var assert = require('chai').assert;
 
 var Prototype = Templates.Prototype;
-var Contents = Templates.Contents;
+var Content = Templates.Content;
+var content = Templates.content;
 var Tag = Templates.Tag;
 var Single = Templates.Single;
 var Double = Templates.Double;
 var Doctype = Templates.Doctype;
 
-var doctype = Templates.doctype;
-var single = Templates.single;
-var double = Templates.double;
-var content = Templates.content;
-
 describe('OSWS-Templates', function() {
-	describe('prototypes', function() {
-		describe('Prototype', function() {
-			it('new fixed', function() {
-				var El = (new Prototype()).extend();
-				var el = El();
-				assert.ok(_.isObject(el) && el instanceof El);
-			});
-			it('render', function(done) {
-				var El = (new Prototype()).extend();
-				var el = El();
-				el._data = [
-					'1',
-					function() { return '2'; },
-					function(callback) { callback('3'); },
-					(function() {
-						var e = El();
-						e._data = ['4'];
-						return e;
-					})()
-				];
-				el.render(function(result) {
-					assert.equal(result, '1234');
-					done();
-				});
-			});
-			it('render', function(done) {
-				var El = (new Prototype()).extend();
-				var el = El();
-				el._data = [
-					'1',
-					function() { return '2'; },
-					function(callback) { callback('3'); },
-					(function() {
-						var e = El();
-						e._data = ['4'];
-						return e;
-					})()
-				];
-				el.render(function(result) {
-					assert.equal(result, '1234');
-					done();
-				});
-			});
-			it('context', function(done) {
-				var El = (new Prototype()).extend();
-				var el = El();
-				el._data = [
-					'1<%= n2 %>',
-					function() { return '<%= n3 %>4'; },
-					function(callback) { callback('5'); },
-					(function() {
-						var e = El();
-						e._data = ['6<%= n7 %>'];
-						return e;
-					})()
-				];
-				el._context = {
-					n2: 2, n3: 3, n7: 7
-				};
-				el.render(function(result) {
-					assert.equal(result, '1234567');
-					done();
-				});
+	it('isSync', function() {
+		assert.equal(Templates.isSync(function() {}), true);
+		assert.equal(Templates.isSync(function(callback) {}), false);
+		assert.equal(Templates.isSync(function(callback, other) {}), false);
+		assert.equal(Templates.isSync(function(any, args) {}), false);
+	});
+	it('isAsync', function() {
+		assert.equal(Templates.isAsync(function() {}), false);
+		assert.equal(Templates.isAsync(function(callback) {}), true);
+		assert.equal(Templates.isAsync(function(callback, other) {}), false);
+		assert.equal(Templates.isAsync(function(any, args) {}), false);
+	});
+	describe('dataRender', function() {
+		it('string', function(done) {
+			Templates.dataRender('string', function(result) { assert.equal(result, 'string'); done(); });
+		});
+		it('TSync', function(done) {
+			Templates.dataRender(function() { return 'string'; }, function(result) { assert.equal(result, 'string'); done(); });
+		});
+		it('TAsync', function(done) {
+			Templates.dataRender(function(callback) { callback('string'); }, function(result) { assert.equal(result, 'string'); done(); });
+		});
+		it('Function', function(done) {
+			var bug = function(a, b, c) { return 'bug' };
+			Templates.dataRender(bug, function(result) { assert.equal(result, bug); done(); });
+		});
+		it('Content', function(done) {
+			var Temp = content().content(1).extend();
+			Templates.dataRender(Temp, function(result) { assert.equal(result, 1); done(); });
+		});
+		it('Object', function(done) {
+			Templates.dataRender({ key: 'value' }, function(result) { assert.equal(result.key, 'value'); done(); });
+		});
+		it('Array', function(done) {
+			Templates.dataRender(['key', function() { return 'value'; }], function(result) { assert.equal(result[1], 'value'); done(); });
+		});
+	});
+	describe('parseSelector', function() {
+		it('basic', function() {
+			var _attributes = {};
+			Templates.parseSelector(_attributes, ".class-.fdsaDss.pngClas-gfdreDS#Id1#Id2[attr1=http://google.com/images/logo.png,attr2='http://.com/images/logo.png'][attr3='.com/images/logo.png',attr4'attr5' 'attr6'][alt=#item]");
+			assert.deepEqual(_attributes, {
+				class: 'class- fdsaDss pngClas-gfdreDS',
+				id: 'Id2',
+				alt: '#item',
+				attr1: 'http://google.com/images/logo.png',
+				attr2: 'http://.com/images/logo.png',
+				attr3: '.com/images/logo.png',
+				attr4: null,
+				"'attr5'": null,
+				"'attr6'": null,
 			});
 		});
-		describe('Contents', function() {
-			it('prepend content append', function(done) {
-				var c0 = Contents();
-				c0.append('0');
-				c0.content('2');
-				c0.prepend('1');
-				var c1 = Contents();
-				c1.append(function(callback) { callback('4'); });
-				c0.append('3', c1);
-				c0.render(function(result) {
-					assert.equal(result, '1234');
-					done();
-				});
-			});
-		});
-		describe('Single', function() {
-			it('quotes, name, selector and attributes', function(done) {
-				var img = Single('.round[src=img.png]').name('img').extend();
-				img('.circle.big[src="img.jpg"]', { alt: 'text' }).render(function(result) {
-					assert.equal(result, '<img class="circle big" src="img.jpg" alt="text"/>');
-					done();
-				});
-			});
-		});
-		describe('Double', function() {
-			it('quotes, name, selector and attributes', function(done) {
-				var div = Double()().name('div').extend();
-				div()('content').render(function(result) {
-					assert.equal(result, '<div>content</div>');
-					done();
-				});
-			});
-		});
-		describe('Doctype', function() {
-			it('correct attributes', function(done) {
-				var doctypeHtml = Doctype().extend();
-				doctypeHtml('[html]').render(function(result) {
-					assert.equal(result, '<!DOCTYPE html>');
-					done();
-				});
+		it('overriding', function() {
+			var _attributes = {};
+			Templates.parseSelector(_attributes, ".class-.fdsaDss.pngClas-gfdreDS#Id1#Id2[attr1=http://google.com/images/logo.png,attr2='http://.com/images/logo.png'][attr3='.com/images/logo.png',attr4'attr5' 'attr6'][alt=#item]");
+			Templates.parseSelector(_attributes, ".addedClass[alt=overrided]");
+			assert.deepEqual(_attributes, {
+				class: 'class- fdsaDss pngClas-gfdreDS addedClass',
+				id: 'Id2',
+				alt: 'overrided',
+				attr1: 'http://google.com/images/logo.png',
+				attr2: 'http://.com/images/logo.png',
+				attr3: '.com/images/logo.png',
+				attr4: null,
+				"'attr5'": null,
+				"'attr6'": null,
 			});
 		});
 	});
-	describe('implementations', function() {
-		it('doctype', function() {
-			doctype.html().render(function(result) { assert.equal(result, '<!DOCTYPE html>'); });
-			doctype.transitional().render(function(result) { assert.equal(result, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'); });
-			doctype.strict().render(function(result) { assert.equal(result, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'); });
-			doctype.frameset().render(function(result) { assert.equal(result, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'); });
-			doctype.basic().render(function(result) { assert.equal(result, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">'); });
-			doctype.mobile().render(function(result) { assert.equal(result, '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">'); });
+	describe('Prototype', function() {
+		it('new', function() {
+			var parent = new Prototype();
+			var El = parent.extend();
+			var el = El(1,2,3);
+			assert.ok(el instanceof El);
+			assert.ok(el instanceof Prototype);
+			assert.ok(el._parent === parent);
+			assert.ok(el._arguments[1] === 2);
 		});
-		it('tags', function() {
-			var html = double.html, body = double.body, head = double.head, div = double.div, h1 = double.h1, img = single.img, meta = single.meta;
-
-			content(
-				doctype.html(),
-				html()(
-					head()(
-						meta('[charset=utf-8]')
-					),
-					body()(
-						div('.document')(
-							h1()('Example'),
-							img('[src=example.png]')
-						)
-					)
+		describe('Content', function() {
+			it('render', function(done) {
+				var el = Content().content(
+					'1',
+					function() { return '<%= n2 %>'; },
+					function(callback) { setTimeout(function() { callback('<%= n3 %>'); }, 150); },
+					Content().content('<%= n4 %>')
+				);
+				el.render(function(result) {
+					assert.equal(result, '1234');
+					done()
+				}, { n2: 2, n3: 3, n4: 4 });
+			});
+			it('multi-layered', function(done) {
+				var el = Content().content(
+					'1',
+					function() { return '<%= n2 %>'; },
+					function(callback) { setTimeout(function() { callback('<%= n3.val %>'); }, 150); },
+					Content().content('<%= n4 %>')
+				);
+				el.render(function(result) {
+					assert.equal(result, '1234');
+					done();
+				}, { n2: 2, n3: { val: 3 }, n4: 4 });
+			});
+			it('append prepend', function(done) {
+				var el = Content()
+				el.append(1).content(2).prepend(3).append(4);
+				el.render(function(result) {
+					assert.equal(result, '324');
+					done();
+				});
+			});
+			it('Tag', function(done) {
+				var div = Templates.doubles.div;
+				var el = Content()
+				el.content(
+					div,
+					div('.container'),
+					div('.container')('content')
 				)
-			).render(function(result) {
-				assert.equal(result, '<!DOCTYPE html><html><head><meta charset="utf-8"/></head><body><div class="document"><h1>Example</h1><img src="example.png"/></div></body></html>');
-			})
-		});
-		it('context', function() {
-			var div = double.div, h1 = double.h1;
-
-			div('.class[alt="<%= name %>"]')(
-				h1()('<%= title %>')
-			).render(function(result) {
-				assert.equal(result, '<div class="class" alt="semple"><h1>Example</h1></div>');
-			}, { title: 'Example', name: 'semple' });
-		});
-		it('content and attributes inheritance', function() {
-			var div = double.div;
-			
-			var el = div('[data-src=#item]')(
-				'data',
-				div()('div')
-			).extend();
-			
-			el()().render(function(result) {
-				assert.equal(result, '<div data-src="#item">data<div>div</div></div>');
-			})
+				el.render(function(result) {
+					assert.equal(result, '<div></div><div class="container"></div><div class="container">content</div>');
+					done();
+				});
+			});
+			describe('content', function() {
+				it('cosntructor', function(done) {
+					content(1,2,3).render(function(result) {
+						assert.equal(result, '123');
+						done();
+					})
+				});
+			});
+			describe('Tag', function() {
+				it('name and attributes', function() {
+					var tag = Tag('.class.name#id').name('div');
+					assert.equal(tag._name, 'div');
+					assert.deepEqual(tag._attributes, { class: "class name", id: "id" });
+				});
+				it('renderAttributes', function() {
+					var tag = Tag('.class.name#id').name('div');
+					tag.renderAttributes(function(result) { assert.equal(result, ' class="class name" id="id"'); });
+				});
+				describe('Single', function() {
+					it('img', function(done) {
+						var img = Single('.round').name('img').extend();
+						img().render(function(result) {
+							assert.equal(result, '<img class="round"/>');
+							done();
+						});
+					});
+					describe('singles', function() {
+						it('img', function(done) {
+							Templates.singles.img('.round').render(function(result) {
+								assert.equal(result, '<img class="round"/>');
+								done();
+							});
+						});
+					});
+				});
+				describe('Double', function() {
+					it('div', function(done) {
+						var div = Double('.container')('content').name('div').extend();
+						div()().render(function(result) {
+							assert.equal(result, '<div class="container">content</div>');
+							done();
+						});
+					});
+					describe('doubles', function() {
+						it('div', function(done) {
+							Templates.doubles.div('.container')('content').render(function(result) {
+								assert.equal(result, '<div class="container">content</div>');
+								done();
+							});
+						});
+					});
+				});
+				describe('Doctype', function() {
+					it('html', function(done) {
+						var html = Doctype('[html]').extend();
+						html().render(function(result) {
+							assert.equal(result, '<!DOCTYPE html>');
+							done();
+						});
+					});
+					describe('doctypes', function() {
+						it('html', function(done) {
+							Templates.doctypes.html().render(function(result) {
+								assert.equal(result, '<!DOCTYPE html>');
+								done();
+							});
+						});
+					});
+				});
+			});
 		});
 	});
 });
