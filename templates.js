@@ -1,10 +1,22 @@
 define(['exports', 'lodash', 'async'], function(exports, _, async) {
 
 // (argument: any) => boolean;
-var isSync = exports.isSync = function(argument) { return _.isFunction(argument) && argument.length == 0; };
+var isSync = exports.isSync = function(argument) { return _.isFunction(argument) && !!argument.__templatesSync; };
 
 // (argument: any) => boolean;
-var isAsync = exports.isAsync = function(argument) { return _.isFunction(argument) && argument.length == 1; };
+var isAsync = exports.isAsync = function(argument) { return _.isFunction(argument) && !!argument.__templatesAsync; };
+
+// (argument: Function) => Function;
+var asSync = exports.asSync = function(argument) {
+	if (_.isFunction(argument)) argument.__templatesSync = true;
+	return argument;
+};
+
+// (argument: Function) => Function;
+var asAsync = exports.asAsync = function(argument) {
+	if (_.isFunction(argument)) argument.__templatesAsync = true;
+	return argument;
+};
 
 // (data: TData, callback: TCallback) => void;
 var dataRender = exports.dataRender = function(data, callback) {
@@ -13,8 +25,8 @@ var dataRender = exports.dataRender = function(data, callback) {
 			if (data.prototype instanceof Double) data()()._render(callback);
 			else data()._render(callback);
 		} else if (data.__templatesInstance instanceof Content) data.__templatesInstance._render(callback);
-		else if (data.length == 1) data(callback);
-		else if (data.length == 0) callback(data());
+		else if (data.__templatesAsync) data(function(result) { dataRender(result, callback); });
+		else if (data.__templatesSync) dataRender(data(), callback);
 		else callback(data);
 	} else if (_.isObject(data)) {
 

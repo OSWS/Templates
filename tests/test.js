@@ -2,6 +2,8 @@ var Templates = require('../index.js');
 var _ = require('lodash');
 var assert = require('chai').assert;
 
+var asSync = Templates.asSync;
+var asAsync = Templates.asAsync;
 var Prototype = Templates.Prototype;
 var Content = Templates.Content;
 var content = Templates.content;
@@ -9,17 +11,18 @@ var Tag = Templates.Tag;
 var Single = Templates.Single;
 var Double = Templates.Double;
 var Doctype = Templates.Doctype;
+var div = Templates.doubles.div;
 
 describe('OSWS-Templates', function() {
 	it('isSync', function() {
-		assert.equal(Templates.isSync(function() {}), true);
-		assert.equal(Templates.isSync(function(callback) {}), false);
+		assert.equal(Templates.isSync(asSync(function() {})), true);
+		assert.equal(Templates.isSync(asAsync(function(callback) {})), false);
 		assert.equal(Templates.isSync(function(callback, other) {}), false);
 		assert.equal(Templates.isSync(function(any, args) {}), false);
 	});
 	it('isAsync', function() {
-		assert.equal(Templates.isAsync(function() {}), false);
-		assert.equal(Templates.isAsync(function(callback) {}), true);
+		assert.equal(Templates.isAsync(asSync(function() {})), false);
+		assert.equal(Templates.isAsync(asAsync(function(callback) {})), true);
 		assert.equal(Templates.isAsync(function(callback, other) {}), false);
 		assert.equal(Templates.isAsync(function(any, args) {}), false);
 	});
@@ -28,14 +31,17 @@ describe('OSWS-Templates', function() {
 			Templates.dataRender('string', function(result) { assert.equal(result, 'string'); done(); });
 		});
 		it('TSync', function(done) {
-			Templates.dataRender(function() { return 'string'; }, function(result) { assert.equal(result, 'string'); done(); });
+			Templates.dataRender(asSync(function() { return 'string'; }), function(result) { assert.equal(result, 'string'); done(); });
 		});
 		it('TAsync', function(done) {
-			Templates.dataRender(function(callback) { callback('string'); }, function(result) { assert.equal(result, 'string'); done(); });
+			Templates.dataRender(asAsync(function(callback) { callback('string'); }), function(result) { assert.equal(result, 'string'); done(); });
 		});
 		it('Function', function(done) {
 			var bug = function(a, b, c) { return 'bug' };
 			Templates.dataRender(bug, function(result) { assert.equal(result, bug); done(); });
+		});
+		it('Function with Element', function(done) {
+			Templates.dataRender(asSync(function() { return div; }), function(result) { assert.equal(result, '<div></div>'); done(); });
 		});
 		it('Content', function(done) {
 			var Temp = content().content(1).extend();
@@ -45,7 +51,7 @@ describe('OSWS-Templates', function() {
 			Templates.dataRender({ key: 'value' }, function(result) { assert.equal(result.key, 'value'); done(); });
 		});
 		it('Array', function(done) {
-			Templates.dataRender(['key', function() { return 'value'; }], function(result) { assert.equal(result[1], 'value'); done(); });
+			Templates.dataRender(['key', asSync(function() { return 'value'; })], function(result) { assert.equal(result[1], 'value'); done(); });
 		});
 	});
 	describe('parseSelector', function() {
@@ -95,8 +101,8 @@ describe('OSWS-Templates', function() {
 			it('render', function(done) {
 				var el = Content().content(
 					'1',
-					function() { return '<%= n2 %>'; },
-					function(callback) { setTimeout(function() { callback('<%= n3 %>'); }, 150); },
+					asSync(function() { return '<%= n2 %>'; }),
+					asAsync(function(callback) { setTimeout(function() { callback('<%= n3 %>'); }, 150); }),
 					Content().content('<%= n4 %>')
 				);
 				el.render(function(result) {
@@ -107,8 +113,8 @@ describe('OSWS-Templates', function() {
 			it('multi-layered', function(done) {
 				var el = Content().content(
 					'1',
-					function() { return '<%= n2 %>'; },
-					function(callback) { setTimeout(function() { callback('<%= n3.val %>'); }, 150); },
+					asSync(function() { return '<%= n2 %>'; }),
+					asAsync(function(callback) { setTimeout(function() { callback('<%= n3.val %>'); }, 150); }),
 					Content().content('<%= n4 %>')
 				);
 				el.render(function(result) {
