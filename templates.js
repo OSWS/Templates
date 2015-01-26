@@ -181,7 +181,9 @@ var Content = exports.Content = (new Prototype()).extend(function(parent) {
 	this.render = function(callback, _context) {
 		var context = _.merge(this._context, _context);
 		this._render(function(result) {
-			_stringTemplate(result, context, callback);
+			dataRender(context, function(context) {
+				_stringTemplate(result, context, callback);
+			});
 		});
 	};
 
