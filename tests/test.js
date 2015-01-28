@@ -12,6 +12,7 @@ var Single = Templates.Single;
 var Double = Templates.Double;
 var Doctype = Templates.Doctype;
 var div = Templates.doubles.div;
+var mixin = Templates.mixin;
 
 describe('OSWS-Templates', function() {
 	it('isSync', function() {
@@ -167,6 +168,14 @@ describe('OSWS-Templates', function() {
 						assert.equal(result, '123');
 						done();
 					})
+				});
+				it('mixin', function(done) {
+					var mix = mixin(function(a, b, c) { return div({ a: a })(b, div()(c)) });
+					assert.ok(mix() instanceof content);
+					mix(1,2,3).render(function(result) {
+						assert.equal(result, '<div a="1">2<div>3</div></div>');
+						done();
+					});
 				});
 			});
 			describe('Tag', function() {

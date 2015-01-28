@@ -107,7 +107,12 @@ var _stringTemplate = exports._stringTemplate = function(string, context, callba
 var mixin = exports.mixin = function(reconstructor) {
 	if (!_.isFunction(reconstructor)) throw new Error('reconstructor must be a function');
 	
-	content().extend(function() {
-		
+	return content().extend(function() {
+		var parent = this._parent;
+		this.constructor = function() {
+			parent.constructor.apply(this);
+			
+			this.content(asSync(reconstructor.apply(this, arguments)));
+		};
 	});
 };
