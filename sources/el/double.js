@@ -22,15 +22,15 @@ var Double = exports.Double = Tag().extend(function(parent) {
 		});
 	};
 
-	// (callback: TCallback) => this;
-	this._render = function(callback) {
+	// (callback: TCallback, context: IContext) => this;
+	this._render = function(callback, context) {
 		var instance = this;
 		parent._render.call(instance, function(result) {
 			instance.renderAttributes(function(attributes) {
 				callback(
 instance._quotesOpenLeft + instance._name + attributes + instance._quotesOpenRight + result + instance._quotesCloseLeft + instance._name + instance._quotesCloseRight
 				);
-			});
-		})
+			}, context);
+		}, context);
 	};
 });

@@ -18,19 +18,24 @@ var asAsync = exports.asAsync = function(argument) {
 	return argument;
 };
 
-// (data: TData, callback: TCallback) => void;
-var dataRender = exports.dataRender = function(data, callback) {
+// (instance: Prototype, callback: TCallback, context: Object) => void
+var dataRenderInstance = function(instance, callback, context) {
+	instance._render(callback, context);
+};
+
+// (data: TData, callback: TCallback, context: Object) => void;
+var dataRender = exports.dataRender = function(data, callback, context) {
 	if (_.isFunction(data)) {
 		if (data.prototype instanceof Content) {
-			if (data.prototype instanceof Double) data()()._render(callback);
-			else data()._render(callback);
-		} else if (data.__templatesInstance instanceof Content) data.__templatesInstance._render(callback);
-		else if (data.__templatesAsync) data(function(result) { dataRender(result, callback); });
-		else if (data.__templatesSync) dataRender(data(), callback);
+			if (data.prototype instanceof Double) dataRenderInstance(data()(), callback, context);
+			else dataRenderInstance(data(), callback, context);
+		} else if (data.__templatesInstance instanceof Content) dataRenderInstance(data.__templatesInstance, callback, context);
+		else if (data.__templatesAsync) data(function(result) { dataRender(result, callback, context); });
+		else if (data.__templatesSync) dataRender(data(), callback, context);
 		else callback(data);
 	} else if (_.isObject(data)) {
-
-		if (data instanceof Content) data._render(callback);
+		
+		if (data instanceof Content) dataRenderInstance(data, callback, context);
 		else {
 					
 			var result;
@@ -45,7 +50,7 @@ var dataRender = exports.dataRender = function(data, callback) {
 				dataRender(data[key], function(value) {
 					result[key] = value;
 					next();
-				});
+				}, context);
 			}, function() {
 				callback(result);
 			});
@@ -176,29 +181,47 @@ var Content = exports.Content = (new Prototype()).extend(function(parent) {
 
 	// IContext;
 	this._context = {};
+	
+	// (...arguments: Array<IContext>) => this;
+	this.context = function() {
+		for (var a in arguments) {
+			_.extend(this._context, arguments[a]);
+		};
+		return this;
+	};
 
-	// (callback: TCallback, context?: IContext) => this;
-	this.render = function(callback, _context) {
-		var context = _.merge(this._context, _context);
-		this._render(function(result) {
-			dataRender(context, function(context) {
-				_stringTemplate(result, context, callback);
-			});
+	// (...arguments: Array<TCallback{1}, IContext>) => TAsync(callback: (result: any) => void) => void;
+	this.render = function() {
+		var callback = false;
+		var context = {};
+		for (var a in arguments) {
+			if (_.isFunction(arguments[a])) callback = arguments[a];
+			else if (_.isObject(arguments[a])) _.extend(context, arguments[a]); 
+		}
+		if (callback) this._render(callback, context);
+		
+		var instance = this;
+		return asAsync(function(callback) {
+			instance._render(callback, context);
 		});
 	};
 
-	// (callback: TCallback) => this;
-	this._render = function(callback) {
+	// (callback: TCallback, context: IContext) => this;
+	this._render = function(callback, _context) {
+		var context = _.extend({}, this._context);
+		_.extend(context, _context);
 		dataRender(this._content, function(result) {
-			callback(result.join(''));
-		});
+			dataRender(context, function(renderedContext) {
+				_stringTemplate(result.join(''), renderedContext, callback);
+			}, context);
+		}, context);
 	};
 
 	this.constructor = function() {
 		parent.constructor.apply(this);
 		this._content = [];
 		if (_.isArray(this._parent._content)) this._content.push.apply(this._content, this._parent._content);
-		this.context = {};
+		this._context = {};
 	};
 });
 
@@ -230,8 +253,8 @@ var Tag = exports.Tag = Content().extend(function(parent) {
 		return this;
 	};
 
-	// (callback: TCallback) => void
-	this.renderAttributes = function(callback) {
+	// (callback: TCallback, context: IContext) => void
+	this.renderAttributes = function(callback, context) {
 		dataRender(this._attributes, function(attributes) {
 			var result = '';
 			for (var key in attributes) {
@@ -239,7 +262,7 @@ var Tag = exports.Tag = Content().extend(function(parent) {
 				else result += ' '+key+'="'+attributes[key]+'"';
 			}
 			callback(result);
-		});
+		}, context);
 	};
 
 	// (selector: TSelector) => this;
@@ -266,16 +289,16 @@ var Single = exports.Single = Tag().extend(function(parent) {
 	// string;
 	this._quotesRight = '/>';
 
-	// (callback: TCallback) => this;
-	this._render = function(callback) {
+	// (callback: TCallback, context: IContext) => this;
+	this._render = function(callback, context) {
 		var instance = this;
 		parent._render(function(result) {
 			instance.renderAttributes(function(attributes) {
 				callback(
 instance._quotesLeft + instance._name + attributes + instance._quotesRight
 				);
-			});
-		})
+			}, context);
+		}, context);
 	};
 });
 
@@ -303,16 +326,16 @@ var Double = exports.Double = Tag().extend(function(parent) {
 		});
 	};
 
-	// (callback: TCallback) => this;
-	this._render = function(callback) {
+	// (callback: TCallback, context: IContext) => this;
+	this._render = function(callback, context) {
 		var instance = this;
 		parent._render.call(instance, function(result) {
 			instance.renderAttributes(function(attributes) {
 				callback(
 instance._quotesOpenLeft + instance._name + attributes + instance._quotesOpenRight + result + instance._quotesCloseLeft + instance._name + instance._quotesCloseRight
 				);
-			});
-		})
+			}, context);
+		}, context);
 	};
 });
 
@@ -328,16 +351,16 @@ var Doctype = exports.Doctype = Tag().extend(function(parent) {
 	// string;
 	this._quotesRight = '>';
 	
-	// (callback: TCallback) => this;
-	this._render = function(callback) {
+	// (callback: TCallback, context: IContext) => this;
+	this._render = function(callback, context) {
 		var instance = this;
 		parent._render(function(result) {
 			instance.renderAttributes(function(attributes) {
 				callback(
 instance._quotesLeft + instance._name + attributes + instance._quotesRight
 				);
-			});
-		})
+			}, context);
+		}, context);
 	};
 });
 

@@ -53,6 +53,15 @@ describe('OSWS-Templates', function() {
 		it('Array', function(done) {
 			Templates.dataRender(['key', asSync(function() { return 'value'; })], function(result) { assert.equal(result[1], 'value'); done(); });
 		});
+		it('context', function(done) {
+			Templates.dataRender(div()(
+				'<%= n1 %>',
+				div()('<%= n2 %><%= n3 %>').context({ n2: 2, n3: 3 })
+			), function(result) {
+				assert.equal(result, '<div>1<div>43</div></div>');
+				done();
+			}, { n1: 1, n2: 4 });
+		});
 	});
 	describe('parseSelector', function() {
 		it('basic', function() {
@@ -142,6 +151,15 @@ describe('OSWS-Templates', function() {
 					assert.equal(result, '<div></div><div class="container"></div><div class="container">content</div>');
 					done();
 				});
+			});
+			it('async result', function(done) {
+				content(
+					content('<%= n1 %>').context({ n1: 1 }),
+					content('<%= n1 %>').render({ n1: 2 })
+				).render({ n1: 3 }, function(result) {
+					assert.equal(result, '32');
+					done();
+				})
 			});
 			describe('content', function() {
 				it('cosntructor', function(done) {

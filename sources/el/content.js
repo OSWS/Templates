@@ -25,28 +25,46 @@ var Content = exports.Content = (new Prototype()).extend(function(parent) {
 
 	// IContext;
 	this._context = {};
+	
+	// (...arguments: Array<IContext>) => this;
+	this.context = function() {
+		for (var a in arguments) {
+			_.extend(this._context, arguments[a]);
+		};
+		return this;
+	};
 
-	// (callback: TCallback, context?: IContext) => this;
-	this.render = function(callback, _context) {
-		var context = _.merge(this._context, _context);
-		this._render(function(result) {
-			dataRender(context, function(context) {
-				_stringTemplate(result, context, callback);
-			});
+	// (...arguments: Array<TCallback{1}, IContext>) => TAsync(callback: (result: any) => void) => void;
+	this.render = function() {
+		var callback = false;
+		var context = {};
+		for (var a in arguments) {
+			if (_.isFunction(arguments[a])) callback = arguments[a];
+			else if (_.isObject(arguments[a])) _.extend(context, arguments[a]); 
+		}
+		if (callback) this._render(callback, context);
+		
+		var instance = this;
+		return asAsync(function(callback) {
+			instance._render(callback, context);
 		});
 	};
 
-	// (callback: TCallback) => this;
-	this._render = function(callback) {
+	// (callback: TCallback, context: IContext) => this;
+	this._render = function(callback, _context) {
+		var context = _.extend({}, this._context);
+		_.extend(context, _context);
 		dataRender(this._content, function(result) {
-			callback(result.join(''));
-		});
+			dataRender(context, function(renderedContext) {
+				_stringTemplate(result.join(''), renderedContext, callback);
+			}, context);
+		}, context);
 	};
 
 	this.constructor = function() {
 		parent.constructor.apply(this);
 		this._content = [];
 		if (_.isArray(this._parent._content)) this._content.push.apply(this._content, this._parent._content);
-		this.context = {};
+		this._context = {};
 	};
 });

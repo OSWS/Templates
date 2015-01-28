@@ -16,19 +16,24 @@ var asAsync = exports.asAsync = function(argument) {
 	return argument;
 };
 
-// (data: TData, callback: TCallback) => void;
-var dataRender = exports.dataRender = function(data, callback) {
+// (instance: Prototype, callback: TCallback, context: Object) => void
+var dataRenderInstance = function(instance, callback, context) {
+	instance._render(callback, context);
+};
+
+// (data: TData, callback: TCallback, context: Object) => void;
+var dataRender = exports.dataRender = function(data, callback, context) {
 	if (_.isFunction(data)) {
 		if (data.prototype instanceof Content) {
-			if (data.prototype instanceof Double) data()()._render(callback);
-			else data()._render(callback);
-		} else if (data.__templatesInstance instanceof Content) data.__templatesInstance._render(callback);
-		else if (data.__templatesAsync) data(function(result) { dataRender(result, callback); });
-		else if (data.__templatesSync) dataRender(data(), callback);
+			if (data.prototype instanceof Double) dataRenderInstance(data()(), callback, context);
+			else dataRenderInstance(data(), callback, context);
+		} else if (data.__templatesInstance instanceof Content) dataRenderInstance(data.__templatesInstance, callback, context);
+		else if (data.__templatesAsync) data(function(result) { dataRender(result, callback, context); });
+		else if (data.__templatesSync) dataRender(data(), callback, context);
 		else callback(data);
 	} else if (_.isObject(data)) {
-
-		if (data instanceof Content) data._render(callback);
+		
+		if (data instanceof Content) dataRenderInstance(data, callback, context);
 		else {
 					
 			var result;
@@ -43,7 +48,7 @@ var dataRender = exports.dataRender = function(data, callback) {
 				dataRender(data[key], function(value) {
 					result[key] = value;
 					next();
-				});
+				}, context);
 			}, function() {
 				callback(result);
 			});

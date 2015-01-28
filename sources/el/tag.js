@@ -19,8 +19,8 @@ var Tag = exports.Tag = Content().extend(function(parent) {
 		return this;
 	};
 
-	// (callback: TCallback) => void
-	this.renderAttributes = function(callback) {
+	// (callback: TCallback, context: IContext) => void
+	this.renderAttributes = function(callback, context) {
 		dataRender(this._attributes, function(attributes) {
 			var result = '';
 			for (var key in attributes) {
@@ -28,7 +28,7 @@ var Tag = exports.Tag = Content().extend(function(parent) {
 				else result += ' '+key+'="'+attributes[key]+'"';
 			}
 			callback(result);
-		});
+		}, context);
 	};
 
 	// (selector: TSelector) => this;
