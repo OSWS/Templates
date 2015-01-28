@@ -8,7 +8,7 @@ var Prototype = exports.Prototype = function() {
 	this._arguments = undefined;
 
 	// () => any;
-	this.return = function() { return this; };
+	this.returner = function() { return this; };
 
 	// (...arguments: IArguments) => any;
 	this.constructor = function() {};
@@ -28,17 +28,17 @@ var Prototype = exports.Prototype = function() {
 				} else {
 					var __arguments = arguments;
 				}
-
+				
 				this._parent = parent;
 				this._arguments = __arguments;
 
-				if (_.isFunction(injector)) injector.call(this, parent);
+				if (_.isFunction(injector)) injector.call(this);
 				if (_.isFunction(this.constructor)) this.constructor.apply(this, __arguments);
 
 			} else {
 				_arguments = arguments;
 				var instance = new Element();
-				return instance.return(instance);
+				return instance.returner(instance);
 			}
 		};
 

@@ -102,3 +102,12 @@ var parseSelector = exports.parseSelector = function(_attributes, selector) {
 var _stringTemplate = exports._stringTemplate = function(string, context, callback) {
 	callback(_.template(string, context));
 };
+
+// (reconstructor: Function) => Content;
+var mixin = exports.mixin = function(reconstructor) {
+	if (!_.isFunction(reconstructor)) throw new Error('reconstructor must be a function');
+	
+	content().extend(function() {
+		
+	});
+};

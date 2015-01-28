@@ -1,5 +1,6 @@
 // [new] (...arguments: Array<IAttributes|TSelector>) => this;
-var Doctype = exports.Doctype = Tag().extend(function(parent) {
+var Doctype = exports.Doctype = Tag().extend(function() {
+	var parent = this._parent;
 	
 	// string;
 	this._name = 'DOCTYPE';

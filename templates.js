@@ -104,6 +104,15 @@ var parseSelector = exports.parseSelector = function(_attributes, selector) {
 var _stringTemplate = exports._stringTemplate = function(string, context, callback) {
 	callback(_.template(string, context));
 };
+
+// (reconstructor: Function) => Content;
+var mixin = exports.mixin = function(reconstructor) {
+	if (!_.isFunction(reconstructor)) throw new Error('reconstructor must be a function');
+	
+	content().extend(function() {
+		
+	});
+};
 // new () => this;
 var Prototype = exports.Prototype = function() {
 
@@ -114,7 +123,7 @@ var Prototype = exports.Prototype = function() {
 	this._arguments = undefined;
 
 	// () => any;
-	this.return = function() { return this; };
+	this.returner = function() { return this; };
 
 	// (...arguments: IArguments) => any;
 	this.constructor = function() {};
@@ -134,17 +143,17 @@ var Prototype = exports.Prototype = function() {
 				} else {
 					var __arguments = arguments;
 				}
-
+				
 				this._parent = parent;
 				this._arguments = __arguments;
 
-				if (_.isFunction(injector)) injector.call(this, parent);
+				if (_.isFunction(injector)) injector.call(this);
 				if (_.isFunction(this.constructor)) this.constructor.apply(this, __arguments);
 
 			} else {
 				_arguments = arguments;
 				var instance = new Element();
-				return instance.return(instance);
+				return instance.returner(instance);
 			}
 		};
 
@@ -155,7 +164,8 @@ var Prototype = exports.Prototype = function() {
 };
 
 // [new] () => this
-var Content = exports.Content = (new Prototype()).extend(function(parent) {
+var Content = exports.Content = (new Prototype()).extend(function() {
+	var parent = this._parent;
 	
 	// Array<TData>;
 	this._content = undefined;
@@ -225,7 +235,8 @@ var Content = exports.Content = (new Prototype()).extend(function(parent) {
 	};
 });
 
-var content = exports.content = Content().extend(function(parent) {
+var content = exports.content = Content().extend(function() {
+	var parent = this._parent;
 	this.constructor = function() {
 		parent.constructor.apply(this);
 		if (arguments.length > 0) this.content.apply(this, arguments);
@@ -233,7 +244,8 @@ var content = exports.content = Content().extend(function(parent) {
 });
 
 // [new] (...arguments: Array<TSelector|IAttributes>) => this;
-var Tag = exports.Tag = Content().extend(function(parent) {
+var Tag = exports.Tag = Content().extend(function() {
+	var parent = this._parent;
 	
 	// TData;
 	this._name = null;
@@ -281,8 +293,9 @@ var Tag = exports.Tag = Content().extend(function(parent) {
 	};
 });
 // [new] (...arguments: Array<IAttributes|TSelector>) => this;
-var Single = exports.Single = Tag().extend(function(parent) {
-
+var Single = exports.Single = Tag().extend(function() {
+	var parent = this._parent;
+	
 	// string;
 	this._quotesLeft = '<';
 
@@ -303,7 +316,8 @@ instance._quotesLeft + instance._name + attributes + instance._quotesRight
 });
 
 // [new] (...arguments: Array<IAttributes|TSelector>) => .content => this;
-var Double = exports.Double = Tag().extend(function(parent) {
+var Double = exports.Double = Tag().extend(function() {
+	var parent = this._parent;
 	
 	// string;
 	this._quotesOpenLeft = '<';
@@ -318,7 +332,7 @@ var Double = exports.Double = Tag().extend(function(parent) {
 	this._quotesCloseRight = '>';
 
 	// () => any;
-	this.return = function() {
+	this.returner = function() {
 		var instance = this;
 		return wrapMethod(instance, function() {
 			if (arguments.length > 0) return instance.content.apply(instance, arguments);
@@ -340,7 +354,8 @@ instance._quotesOpenLeft + instance._name + attributes + instance._quotesOpenRig
 });
 
 // [new] (...arguments: Array<IAttributes|TSelector>) => this;
-var Doctype = exports.Doctype = Tag().extend(function(parent) {
+var Doctype = exports.Doctype = Tag().extend(function() {
+	var parent = this._parent;
 	
 	// string;
 	this._name = 'DOCTYPE';

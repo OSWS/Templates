@@ -1,5 +1,6 @@
 // [new] (...arguments: Array<IAttributes|TSelector>) => .content => this;
-var Double = exports.Double = Tag().extend(function(parent) {
+var Double = exports.Double = Tag().extend(function() {
+	var parent = this._parent;
 	
 	// string;
 	this._quotesOpenLeft = '<';
@@ -14,7 +15,7 @@ var Double = exports.Double = Tag().extend(function(parent) {
 	this._quotesCloseRight = '>';
 
 	// () => any;
-	this.return = function() {
+	this.returner = function() {
 		var instance = this;
 		return wrapMethod(instance, function() {
 			if (arguments.length > 0) return instance.content.apply(instance, arguments);

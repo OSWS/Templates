@@ -1,5 +1,6 @@
 // [new] (...arguments: Array<TSelector|IAttributes>) => this;
-var Tag = exports.Tag = Content().extend(function(parent) {
+var Tag = exports.Tag = Content().extend(function() {
+	var parent = this._parent;
 	
 	// TData;
 	this._name = null;

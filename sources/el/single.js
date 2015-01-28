@@ -1,6 +1,7 @@
 // [new] (...arguments: Array<IAttributes|TSelector>) => this;
-var Single = exports.Single = Tag().extend(function(parent) {
-
+var Single = exports.Single = Tag().extend(function() {
+	var parent = this._parent;
+	
 	// string;
 	this._quotesLeft = '<';
 

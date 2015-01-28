@@ -1,5 +1,6 @@
 // [new] () => this
-var Content = exports.Content = (new Prototype()).extend(function(parent) {
+var Content = exports.Content = (new Prototype()).extend(function() {
+	var parent = this._parent;
 	
 	// Array<TData>;
 	this._content = undefined;
