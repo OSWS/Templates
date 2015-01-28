@@ -242,4 +242,12 @@ describe('OSWS-Templates', function() {
 			});
 		});
 	});
+	it('with', function(done) {
+		with (Templates.with) {
+			h1()('content').render(function(result) {
+				assert.equal(result, '<h1>content</h1>');
+				done();
+			})
+		}
+	});
 });

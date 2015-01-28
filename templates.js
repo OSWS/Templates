@@ -406,4 +406,11 @@ var doubles = exports.doubles = {};
 for (var key in _doubles) {
 	doubles[_doubles[key]] = Double()().name(_doubles[key]).extend();
 }
+exports.with = {};
+
+exports.with.mixin = exports.mixin;
+exports.with.content = exports.content;
+exports.with.doctype = exports.doctypes;
+_.extend(exports.with, exports.singles);
+_.extend(exports.with, exports.doubles);
 });

@@ -23,7 +23,8 @@ gulp.task('templates-concat-commonjs', function() {
 		'sources/el/doctype.js',
 		'sources/doctypes.js',
 		'sources/singles.js',
-		'sources/doubles.js'
+		'sources/doubles.js',
+		'sources/with.js'
 	])
 	.pipe(plumber())
 	.pipe(concat('index.js'))
@@ -45,6 +46,7 @@ gulp.task('templates-concat-amd', function() {
 		'sources/doctypes.js',
 		'sources/singles.js',
 		'sources/doubles.js',
+		'sources/with.js',
 
 		'sources/amd-close.js'
 	])
