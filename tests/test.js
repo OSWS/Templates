@@ -12,6 +12,7 @@ var Single = Templates.Single;
 var Double = Templates.Double;
 var Doctype = Templates.Doctype;
 var div = Templates.doubles.div;
+var Mixin = Templates.Mixin;
 var mixin = Templates.mixin;
 
 describe('OSWS-Templates', function() {
@@ -162,20 +163,22 @@ describe('OSWS-Templates', function() {
 					done();
 				})
 			});
+			describe('Mixin', function() {
+				it('mixin', function(done) {
+					var mix = mixin(function(a, b, c) { return div({ a: a })(b, div()(c)) });
+					assert.ok(mix() instanceof Mixin && mix() instanceof Content);
+					mix(1,2,3).render(function(result) {
+						assert.equal(result, '<div a="1">2<div>3</div></div>');
+						done();
+					});
+				});
+			});
 			describe('content', function() {
 				it('cosntructor', function(done) {
 					content(1,2,3).render(function(result) {
 						assert.equal(result, '123');
 						done();
 					})
-				});
-				it('mixin', function(done) {
-					var mix = mixin(function(a, b, c) { return div({ a: a })(b, div()(c)) });
-					assert.ok(mix() instanceof content);
-					mix(1,2,3).render(function(result) {
-						assert.equal(result, '<div a="1">2<div>3</div></div>');
-						done();
-					});
 				});
 			});
 			describe('Tag', function() {

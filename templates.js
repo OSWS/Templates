@@ -104,20 +104,6 @@ var parseSelector = exports.parseSelector = function(_attributes, selector) {
 var _stringTemplate = exports._stringTemplate = function(string, context, callback) {
 	callback(_.template(string, context));
 };
-
-// (reconstructor: Function) => Content;
-var mixin = exports.mixin = function(reconstructor) {
-	if (!_.isFunction(reconstructor)) throw new Error('reconstructor must be a function');
-	
-	return content().extend(function() {
-		var parent = this._parent;
-		this.constructor = function() {
-			parent.constructor.apply(this);
-			
-			this.content(asSync(reconstructor.apply(this, arguments)));
-		};
-	});
-};
 // new () => this;
 var Prototype = exports.Prototype = function() {
 
@@ -406,11 +392,35 @@ var doubles = exports.doubles = {};
 for (var key in _doubles) {
 	doubles[_doubles[key]] = Double()().name(_doubles[key]).extend();
 }
+var Mixin = exports.Mixin = Content().extend();
+
+// (reconstructor: Function) => Content;
+var mixin = exports.mixin = function(reconstructor) {
+	if (!_.isFunction(reconstructor)) throw new Error('reconstructor must be a function');
+	
+	return Mixin().extend(function() {
+		var parent = this._parent;
+		this.constructor = function() {
+			parent.constructor.apply(this);
+			
+			this.content(asSync(reconstructor.apply(this, arguments)));
+		};
+	});
+};
 exports.with = {};
 
+exports.with.Mixin = exports.Mixin;
 exports.with.mixin = exports.mixin;
+
 exports.with.content = exports.content;
+exports.with.Content = exports.Content;
+
 exports.with.doctype = exports.doctypes;
+exports.with.Doctype = exports.Doctype;
+
 _.extend(exports.with, exports.singles);
+exports.with.Single = exports.Single;
+
 _.extend(exports.with, exports.doubles);
+exports.with.Double = exports.Double;
 });
