@@ -14,6 +14,7 @@ var Doctype = Templates.Doctype;
 var div = Templates.doubles.div;
 var Mixin = Templates.Mixin;
 var mixin = Templates.mixin;
+var Module = Templates.Module;
 
 describe('OSWS-Templates', function() {
 	it('isSync', function() {
@@ -241,6 +242,28 @@ describe('OSWS-Templates', function() {
 							});
 						});
 					});
+				});
+			});
+			describe('Module', function() {
+				it('string', function(done) {
+					Module('<%= a %>')().render(function(result) {
+						assert.equal(result, '1');
+						done();
+					}, { a: 1 });
+				});
+				it('errors', function() {
+					assert.throws(function() {
+						Module('<%= a %>')().render(function(result) {});
+					});
+				});
+				it('mixin', function(done) {
+					Module(mixin(function(b) { return b + '<%= a %>'; }))(2).render(function(result) {
+						assert.equal(result, '21');
+						done();
+					}, { a: 1 });
+				});
+				it('inherit', function() {
+					assert.ok(Module(mixin(function(b) { return b + '<%= a %>'; }))(2) instanceof Module);
 				});
 			});
 		});

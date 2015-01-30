@@ -12,7 +12,7 @@ gulp.task('templates', ['templates-concat-commonjs', 'templates-concat-amd', 'te
 gulp.task('templates-concat-commonjs', function() {
 	gulp.src([
 		'sources/commonjs-open.js',
-
+		
 		'sources/index.js',
 		'sources/el/prototype.js',
 		'sources/el/content.js',
@@ -21,6 +21,7 @@ gulp.task('templates-concat-commonjs', function() {
 		'sources/el/single.js',
 		'sources/el/double.js',
 		'sources/el/doctype.js',
+		'sources/el/module.js',
 		'sources/doctypes.js',
 		'sources/singles.js',
 		'sources/doubles.js',
@@ -44,6 +45,7 @@ gulp.task('templates-concat-amd', function() {
 		'sources/el/single.js',
 		'sources/el/double.js',
 		'sources/el/doctype.js',
+		'sources/el/module.js',
 		'sources/doctypes.js',
 		'sources/singles.js',
 		'sources/doubles.js',
