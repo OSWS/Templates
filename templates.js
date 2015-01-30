@@ -104,6 +104,7 @@ var parseSelector = exports.parseSelector = function(_attributes, selector) {
 var _stringTemplate = exports._stringTemplate = function(string, context, callback) {
 	callback(_.template(string, context));
 };
+
 // new () => this;
 var Prototype = exports.Prototype = function() {
 
@@ -226,6 +227,14 @@ var Content = exports.Content = (new Prototype()).extend(function() {
 	};
 });
 
+var content = exports.content = Content().extend(function() {
+	var parent = this._parent;
+	this.constructor = function() {
+		parent.constructor.apply(this);
+		if (arguments.length > 0) this.content.apply(this, arguments);
+	};
+});
+
 // [new] (...arguments: Array<TSelector|IAttributes>) => this;
 var Tag = exports.Tag = Content().extend(function() {
 	var parent = this._parent;
@@ -275,6 +284,7 @@ var Tag = exports.Tag = Content().extend(function() {
 		}
 	};
 });
+
 // [new] (...arguments: Array<IAttributes|TSelector>) => this;
 var Single = exports.Single = Tag().extend(function() {
 	var parent = this._parent;
@@ -363,7 +373,7 @@ instance._quotesLeft + instance._name + attributes + instance._quotesRight
 });
 
 // (data: TData) => Module
-var Module = exports.Module = Content().extend(function() {
+exports.Module = Content().extend(function() {
     var parent = this._parent;
     
     var extending = function() {
@@ -393,14 +403,6 @@ var Module = exports.Module = Content().extend(function() {
     };
 });
 
-var content = exports.content = Content().extend(function() {
-	var parent = this._parent;
-	this.constructor = function() {
-		parent.constructor.apply(this);
-		if (arguments.length > 0) this.content.apply(this, arguments);
-	};
-});
-
 var doctypes = exports.doctypes = {};
 
 doctypes.html = Doctype('[html]').extend();
@@ -409,6 +411,7 @@ doctypes.strict = Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http
 doctypes.frameset = Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd"]').extend();
 doctypes.basic = Doctype('[html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd"]').extend();
 doctypes.mobile = Doctype('[html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd"]').extend();
+
 var _singles = exports._singles = ['br', 'hr', 'img', 'input', 'base', 'frame', 'link', 'meta', 'style'];
 
 var singles = exports.singles = {};
@@ -438,6 +441,7 @@ var mixin = exports.mixin = function(reconstructor) {
 		};
 	});
 };
+
 exports.with = {};
 
 exports.with.Mixin = exports.Mixin;
@@ -454,4 +458,5 @@ exports.with.Single = exports.Single;
 
 _.extend(exports.with, exports.doubles);
 exports.with.Double = exports.Double;
+
 });

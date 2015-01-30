@@ -1,5 +1,5 @@
 // (data: TData) => Module
-var Module = exports.Module = Content().extend(function() {
+exports.Module = Content().extend(function() {
     var parent = this._parent;
     
     var extending = function() {
