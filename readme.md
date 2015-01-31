@@ -1,3 +1,3 @@
-# [OSWS](https://github.com/OSWS) [Templates](https://github.com/OSWS/OSWS-Templates) [0.2.6](https://github.com/OSWS/OSWS-Templates/wiki/0.2.6)
+# [OSWS](https://github.com/OSWS) [Templates](https://github.com/OSWS/OSWS-Templates) [0.2.7](https://github.com/OSWS/OSWS-Templates/wiki/0.2.7)
 
 [documentation](https://github.com/OSWS/OSWS-Templates/wiki)

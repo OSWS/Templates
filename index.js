@@ -2,23 +2,29 @@ var _ = require('lodash');
 var async = require('async');
 var fs = require('fs');
 var vm = require('vm');
+var Module = require('module');
+var path = require('path');
 
-var _stringRequire = exports._stringRequire = function(file, path) {
-    var m = new module.constructor();
-    vm.runInThisContext(require('module').wrap(file))(m.exports, m.require, m, path, require('path').dirname(path));
+var _jsContentRequire = exports._jsContentRequire = function(content, filename) {
+    var m = new Module(filename, module);
+    Module._cache[filename] = m;
+    m.filename = filename;
+    m.paths = Module._nodeModulePaths(path.dirname(filename));
+    m._compile(content, filename);
+    m.loaded = true;
     return m.exports;
 };
 
-var includeString = exports.includeString = function(file, path) {
-    return exports.Module(_stringRequire(file, path));
+var includeString = exports.includeString = function(content, filename) {
+    return exports.Module(_jsContentRequire(content, filename));
 };
 
-var include = exports.include = function(path, callback) {
+var include = exports.include = function(filename, callback) {
     var result = asAsync(function(callback) {
-        fs.readFile(path, 'utf-8', function(error, file) {
+        fs.readFile(filename, 'utf-8', function(error, content) {
             if (error) throw new error;
             else {
-                var result = includeString(file, path);
+                var result = includeString(content, filename);
                 callback(result);
             }
         });
@@ -27,8 +33,8 @@ var include = exports.include = function(path, callback) {
     return result;
 };
 
-var includeSync = exports.includeSync = function(path) {
-    return includeString(fs.readFileSync(path, 'utf-8'), path);
+var includeSync = exports.includeSync = function(filename) {
+    return includeString(fs.readFileSync(filename, 'utf-8'), filename);
 };
 // (argument: any) => boolean;
 var isSync = exports.isSync = function(argument) { return _.isFunction(argument) && !!argument.__templatesSync; };

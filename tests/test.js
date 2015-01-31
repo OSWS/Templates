@@ -276,35 +276,37 @@ describe('OSWS-Templates', function() {
 			})
 		}
 	});
-	it('_stringRequire', function() {
-		assert.equal(Templates._stringRequire('module.exports = __dirname;', __dirname + '/module.js'),  __dirname);
-	});
-	it('includeString', function(done) {
-		Templates.includeString(fs.readFileSync(__dirname + '/module.js', 'utf-8'), __dirname + '/module.js')().render(function(result) {
-			assert.equal(result, '<div>content</div>');
-			done();
+	describe('includes', function() {
+		it('_stringRequire', function() {
+			assert.equal(Templates._jsContentRequire('module.exports = __dirname;', __dirname + '/module.js'),  __dirname);
 		});
-	});
-	it('includeSync', function(done) {
-		Templates.includeSync(__dirname + '/module.js')().render(function(result) {
-			assert.equal(result, '<div>content</div>');
-			done();
-		});
-	});
-	it('include', function(done) {
-		Templates.include(__dirname + '/module.js', function(result) {
-			result().render(function(result) {
+		it('includeString', function(done) {
+			Templates.includeString(fs.readFileSync(__dirname + '/module.js', 'utf-8'), __dirname + '/module.js')().render(function(result) {
 				assert.equal(result, '<div>content</div>');
 				done();
 			});
 		});
-	});
-	it('include asAsync', function(done) {
-		var async = Templates.include(__dirname + '/module.js');
-		async(function(result) {
-			result().render(function(result) {
+		it('includeSync', function(done) {
+			Templates.includeSync(__dirname + '/module.js')().render(function(result) {
 				assert.equal(result, '<div>content</div>');
 				done();
+			});
+		});
+		it('include', function(done) {
+			Templates.include(__dirname + '/module.js', function(result) {
+				result().render(function(result) {
+					assert.equal(result, '<div>content</div>');
+					done();
+				});
+			});
+		});
+		it('include asAsync', function(done) {
+			var async = Templates.include(__dirname + '/module.js');
+			async(function(result) {
+				result().render(function(result) {
+					assert.equal(result, '<div>content</div>');
+					done();
+				});
 			});
 		});
 	});
