@@ -2,7 +2,6 @@ var Templates = require('../index.js');
 var _ = require('lodash');
 var assert = require('chai').assert;
 var fs = require('fs');
-
 var asSync = Templates.asSync;
 var asAsync = Templates.asAsync;
 var Prototype = Templates.Prototype;

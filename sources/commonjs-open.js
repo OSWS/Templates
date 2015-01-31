@@ -1,10 +1,11 @@
 var _ = require('lodash');
 var async = require('async');
 var fs = require('fs');
+var vm = require('vm');
 
 var _stringRequire = exports._stringRequire = function(file, path) {
     var m = new module.constructor();
-    m._compile(file, path);
+    vm.runInThisContext(require('module').wrap(file))(m.exports, m.require, m, path, require('path').dirname(path));
     return m.exports;
 };
 
