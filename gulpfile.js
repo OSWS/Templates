@@ -3,7 +3,6 @@ var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var mocha = require('gulp-mocha');
 var plumber = require('gulp-plumber');
-var logger = require('gulp-logger');
 
 gulp.task('default', ['templates']);
 
@@ -12,6 +11,7 @@ gulp.task('templates', ['templates-concat-commonjs', 'templates-concat-amd', 'te
 gulp.task('templates-concat-commonjs', function() {
 	gulp.src([
 		'sources/commonjs-open.js',
+		'sources/commonjs.js',
 		
 		'sources/index.js',
 		'sources/elements/prototype.js',

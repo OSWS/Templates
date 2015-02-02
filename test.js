@@ -1,4 +1,4 @@
-var Templates = require('../index.js');
+var Templates = require('./');
 var _ = require('lodash');
 var assert = require('chai').assert;
 var fs = require('fs');
@@ -262,6 +262,12 @@ describe('OSWS-Templates', function() {
 						done();
 					}, { a: 1 });
 				});
+				it('mixin tag', function(done) {
+					Module(mixin(function(b) { return content(b + '<%= a %>'); }))(2).render(function(result) {
+						assert.equal(result, '21');
+						done();
+					}, { a: 1 });
+				});
 				it('inherit', function() {
 					assert.ok(Module(mixin(function(b) { return b + '<%= a %>'; }))(2) instanceof Module);
 				});
@@ -277,36 +283,16 @@ describe('OSWS-Templates', function() {
 		}
 	});
 	describe('includes', function() {
-		it('_stringRequire', function() {
-			assert.equal(Templates._jsContentRequire('module.exports = __dirname;', __dirname + '/module.js'),  __dirname);
-		});
-		it('includeString', function(done) {
-			Templates.includeString(fs.readFileSync(__dirname + '/module.js', 'utf-8'), __dirname + '/module.js')().render(function(result) {
-				assert.equal(result, '<div>content</div>');
-				done();
-			});
-		});
-		it('includeSync', function(done) {
-			Templates.includeSync(__dirname + '/module.js')().render(function(result) {
-				assert.equal(result, '<div>content</div>');
-				done();
-			});
-		});
 		it('include', function(done) {
-			Templates.include(__dirname + '/module.js', function(result) {
-				result().render(function(result) {
-					assert.equal(result, '<div>content</div>');
-					done();
-				});
+			Templates.include('tests/m1.js')().render(function(result) {
+				assert.equal(result, '<div>content</div>');
+				done();
 			});
 		});
-		it('include asAsync', function(done) {
-			var async = Templates.include(__dirname + '/module.js');
-			async(function(result) {
-				result().render(function(result) {
-					assert.equal(result, '<div>content</div>');
-					done();
-				});
+		it('compile', function(done) {
+			Templates.compile(fs.readFileSync(__dirname + '/tests/m1.js', 'utf-8'), __dirname + '/tests/m1.js')().render(function(result) {
+				assert.equal(result, '<div>content</div>');
+				done();
 			});
 		});
 	});
