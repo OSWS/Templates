@@ -3,8 +3,7 @@
         define(['module', 'lodash'], function(module, _) {
             module.exports = factory({}, _);
         });
-    }
-    if(typeof exports === 'object') {
+    } else if(typeof exports === 'object') {
         module.exports = factory({}, require('lodash'));
     }
 })(function(T, _) {
