@@ -1,65 +1,49 @@
 var gulp = require('gulp');
 var concat = require('gulp-concat');
+var sourcemap = require('gulp-concat-sourcemap');
 var uglify = require('gulp-uglify');
 var mocha = require('gulp-mocha');
 var plumber = require('gulp-plumber');
 
 gulp.task('default', ['templates']);
 
-gulp.task('templates', ['templates-concat-commonjs', 'templates-concat-amd', 'templates-minify-amd', 'templates-watch']);
+gulp.task('templates', ['templates-concat', 'templates-minify', 'templates-watch']);
 
-gulp.task('templates-concat-commonjs', function() {
+gulp.task('templates-concat', function() {
 	gulp.src([
-		'sources/commonjs-open.js',
-		'sources/commonjs.js',
+		'sources/open.js',
 		
-		'sources/index.js',
-		'sources/elements/prototype.js',
-		'sources/elements/content.js',
-		'sources/content.js',
-		'sources/elements/tag.js',
-		'sources/elements/single.js',
-		'sources/elements/double.js',
-		'sources/elements/doctype.js',
-		'sources/elements/module.js',
-		'sources/doctypes.js',
-		'sources/singles.js',
-		'sources/doubles.js',
-		'sources/mixin.js',
-		'sources/with.js'
+		'sources/compiler/index.js',
+		
+		'sources/helpers.js',
+		
+		'sources/sync/index.js',
+		'sources/async/index.js',
+		
+		'sources/prototype/index.js',
+		'sources/data/index.js',
+		'sources/tag/index.js',
+		'sources/single/index.js',
+		'sources/double/index.js',
+		'sources/doctype/index.js',
+		'sources/xml/index.js',
+		
+		'sources/singles/index.js',
+		'sources/doubles/index.js',
+		'sources/doctype/index.js',
+		
+		'sources/mixin/index.js',
+		
+		'sources/render/index.js',
+		
+		'sources/close.js'
 	])
 	.pipe(plumber())
-	.pipe(concat('index.js'))
+	.pipe(sourcemap('templates.js'))
 	.pipe(gulp.dest('./'));
 });
 
-gulp.task('templates-concat-amd', function() {
-	gulp.src([
-		'sources/amd-open.js',
-
-		'sources/index.js',
-		'sources/elements/prototype.js',
-		'sources/elements/content.js',
-		'sources/content.js',
-		'sources/elements/tag.js',
-		'sources/elements/single.js',
-		'sources/elements/double.js',
-		'sources/elements/doctype.js',
-		'sources/elements/module.js',
-		'sources/doctypes.js',
-		'sources/singles.js',
-		'sources/doubles.js',
-		'sources/mixin.js',
-		'sources/with.js',
-
-		'sources/amd-close.js'
-	])
-	.pipe(plumber())
-	.pipe(concat('templates.js'))
-	.pipe(gulp.dest('./'));
-});
-
-gulp.task('templates-minify-amd', function() {
+gulp.task('templates-minify', function() {
 	gulp.src('templates.js')
 	.pipe(plumber())
 	.pipe(uglify())
@@ -68,7 +52,7 @@ gulp.task('templates-minify-amd', function() {
 });
 
 gulp.task('templates-watch', function() {
-	gulp.watch(['sources/*', 'sources/**/*'], ['templates-concat-commonjs', 'templates-concat-amd', 'templates-minify-amd']);
+	gulp.watch(['sources/*', 'sources/**/*'], ['templates-concat', 'templates-minify']);
 });
 
 process.stdin.on("data", process.exit);
