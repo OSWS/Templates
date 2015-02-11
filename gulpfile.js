@@ -17,6 +17,8 @@ gulp.task('templates-concat', function() {
 		
 		'sources/helpers.js',
 		
+		'sources/render/index.js',
+		
 		'sources/sync/index.js',
 		'sources/async/index.js',
 		
@@ -24,17 +26,16 @@ gulp.task('templates-concat', function() {
 		'sources/data/index.js',
 		'sources/tag/index.js',
 		'sources/single/index.js',
-		'sources/double/index.js',
-		'sources/doctype/index.js',
-		'sources/xml/index.js',
-		
 		'sources/singles/index.js',
+		'sources/double/index.js',
 		'sources/doubles/index.js',
 		'sources/doctype/index.js',
+		'sources/doctypes/index.js',
+		'sources/xml/index.js',
 		
 		'sources/mixin/index.js',
 		
-		'sources/render/index.js',
+		'sources/with/index.js',
 		
 		'sources/close.js'
 	])

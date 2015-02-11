@@ -52,6 +52,80 @@ T.static = function() {
 
 (function() {
 
+// (data: TData, callback: TCallback, context?: TContext) => void
+T.render = function(data, callback, context) {
+    if (_.isFunction(data)) {
+        if (T.isSyncFunction(data)) callback(null, data());
+        else if (T.isAsyncFunction(data)) data(function(error, result) { callback(error, result); });
+        else if (data.prototype instanceof T.Data) data._render(callback, context);
+        else callback(null, data);
+    } else if (_.isObject(data)) {
+        if (data instanceof T.Data) data._render(callback, context);
+        else callback(null, data);
+    } else callback(null, data);
+};
+
+// (string: string, context: Object, callback: TCallback) => void;
+T.renderContext = function(string, context, callback) {
+    callback(null, _.template(string, context));
+};
+
+// (attributes: TAttributes, callback: TCallback, context: IContext) => void
+T.renderAttributes = function(attributes, callback, context) {
+    T.render(attributes, function(error, attributes) {
+        if (error) callback(error);
+        else {
+            var result = '';
+            
+            for (var key in attributes) {
+                if (_.isNull(attributes[key])) result += ' '+key;
+                else result += ' '+key+'="'+attributes[key]+'"';
+            }
+            
+            callback(null, result);
+        }
+    }, context);
+};
+
+// (data: string, reg: RegExp) => string[][];
+T.regExpSearch = function(data, reg) {
+    var result = [], temp = null;
+    while ((temp = reg.exec(data)) != null) {
+        if (temp.index === reg.lastIndex) reg.lastIndex++;
+        result.push(temp);
+    }
+    return result;
+}
+
+// https://www.regex101.com/r/cM5jC6/9
+T._renderSelectorRegExp = (/(\[)|(\])|#([-\w\d]+)|\.([-\w\d]+)|([\w\d-]+)="(['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)"|([\w\d-]+)='(["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)'|([\w\d-]+)=([\w\d-:\\\/\.={}<>%@#$%^&*~`]*)|("['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+")|('["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+')|([_\w-:\\\/]+)/g);
+
+// (attributes: IAttributes, selector: TSelector) => void;
+T.renderSelector = function(attributes, selector) {
+    var matchs = T.regExpSearch(selector, T._renderSelectorRegExp);
+    var isAttr = false;
+    _.each(matchs, function(node) {
+        if (node[1]) { isAttr = true; return; } // [
+        else if (node[2]) { isAttr = false; return; } // ]
+
+        if (isAttr) {
+            if (node[9]) { attributes[node[9]] = node[10]; return; } // attr=value
+            if (node[7]) { attributes[node[7]] = node[8]; return; } // attr='value'
+            if (node[5]) { attributes[node[5]] = node[6]; return; } // attr="value"
+            if (node[13]) { attributes[node[13]] = null; return; } // [attr]
+            if (node[12]) { attributes[node[12]] = null; return; } // ['attr']
+            if (node[11]) { attributes[node[11]] = null; return; } // ["attr"]
+        } else {
+            if (node[3]) { attributes.id = node[3]; return; } // id
+            if (node[4]) { attributes.class? attributes.class += ' ' + node[4] : attributes.class = node[4]; return; } // class
+        }
+    });
+};
+
+})();
+
+(function() {
+
 // (argument: Function) => Function;
 // unsafe
 T.sync = function(argument) {
@@ -382,6 +456,18 @@ T.Single = T.Tag.extend(function() {
 
 (function() {
 
+T._singles = ['br', 'hr', 'img', 'input', 'base', 'frame', 'link', 'meta', 'style'];
+
+T.singles = {};
+
+for (var key in T._singles) {
+    T.singles[T._singles[key]] = T.Single().name(T._singles[key]).extend();
+}
+
+})();
+
+(function() {
+
 // [new] (...arguments: Array<TSelector|IAttributes>) => [new] (...arguments: Array<TData>) => this;
 T.Double = T.Tag.extend(function() {
     this.construct = function() {
@@ -405,6 +491,18 @@ T.Double = T.Tag.extend(function() {
 
 (function() {
 
+T._doubles = ['html', 'body', 'head', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup', 'div', 'p', 'address', 'blockquote', 'pre', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'fieldset', 'legend', 'form', 'noscript', 'object', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'col', 'colgroup', 'caption', 'span', 'b', 'big', 'strong', 'i', 'var', 'cite', 'em', 'q', 'del', 's', 'strike', 'tt', 'code', 'kbd', 'samp', 'small', 'sub', 'sup', 'dfn', 'bdo', 'abbr', 'acronym', 'a', 'button', 'textarea', 'select', 'option', 'article', 'aside', 'figcaption', 'figure', 'footer', 'header', 'section', 'main', 'nav', 'menu', 'audio', 'video', 'embed', 'canvas', 'output', 'details', 'summary', 'mark', 'meter', 'progress', 'template', 'comment', 'title', 'script'];
+
+T.doubles = {};
+
+for (var key in T._doubles) {
+    T.doubles[T._doubles[key]] = T.Double()().name(T._doubles[key]).extend();
+}
+
+})();
+
+(function() {
+
 // [new] (...arguments: Array<TSelector|IAttributes>) => this;
 T.Doctype = T.Tag.extend(function() {
     this._name = 'DOCTYPE';
@@ -417,6 +515,19 @@ T.Doctype = T.Tag.extend(function() {
 
 (function() {
 
+T.doctypes = {};
+
+T.doctypes.html = T.Doctype('[html]').extend();
+T.doctypes.transitional = T.Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"]').extend();
+T.doctypes.strict = T.Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"').extend();
+T.doctypes.frameset = T.Doctype('[html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd"]').extend();
+T.doctypes.basic = T.Doctype('[html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd"]').extend();
+T.doctypes.mobile = T.Doctype('[html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd"]').extend();
+
+})();
+
+(function() {
+
 // [new] (...arguments: Array<TSelector|IAttributes>) => this;
 T.xml = T.Tag.extend(function() {
     this._name = 'xml';
@@ -424,30 +535,6 @@ T.xml = T.Tag.extend(function() {
         callback(null, '<?' + name + attributes + '?>');
     };
 });
-
-})();
-
-(function() {
-
-T._singles = ['br', 'hr', 'img', 'input', 'base', 'frame', 'link', 'meta', 'style'];
-
-T.singles = {};
-
-for (var key in T._singles) {
-    T.singles[T._singles[key]] = T.Single().name(T._singles[key]).extend();
-}
-
-})();
-
-(function() {
-
-T._doubles = ['html', 'body', 'head', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup', 'div', 'p', 'address', 'blockquote', 'pre', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'fieldset', 'legend', 'form', 'noscript', 'object', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'col', 'colgroup', 'caption', 'span', 'b', 'big', 'strong', 'i', 'var', 'cite', 'em', 'q', 'del', 's', 'strike', 'tt', 'code', 'kbd', 'samp', 'small', 'sub', 'sup', 'dfn', 'bdo', 'abbr', 'acronym', 'a', 'button', 'textarea', 'select', 'option', 'article', 'aside', 'figcaption', 'figure', 'footer', 'header', 'section', 'main', 'nav', 'menu', 'audio', 'video', 'embed', 'canvas', 'output', 'details', 'summary', 'mark', 'meter', 'progress', 'template', 'comment', 'title', 'script'];
-
-T.doubles = {};
-
-for (var key in T._doubles) {
-    T.doubles[T._doubles[key]] = T.Double()().name(T._doubles[key]).extend();
-}
 
 })();
 
@@ -474,75 +561,27 @@ T.mixin = function(reconstructor) {
 
 (function() {
 
-// (data: TData, callback: TCallback, context?: TContext) => void
-T.render = function(data, callback, context) {
-    if (_.isFunction(data)) {
-        if (T.isSyncFunction(data)) callback(null, data());
-        else if (T.isAsyncFunction(data)) data(function(error, result) { callback(error, result); });
-        else if (data.prototype instanceof T.Data) data._render(callback, context);
-        else callback(null, data);
-    } else if (_.isObject(data)) {
-        if (data instanceof T.Data) data._render(callback, context);
-        else callback(null, data);
-    } else callback(null, data);
-};
+T.with = {};
 
-// (string: string, context: Object, callback: TCallback) => void;
-T.renderContext = function(string, context, callback) {
-    callback(null, _.template(string, context));
-};
+T.with.Mixin = T.Mixin;
+T.with.mixin = T.mixin;
 
-// (attributes: TAttributes, callback: TCallback, context: IContext) => void
-T.renderAttributes = function(attributes, callback, context) {
-    T.render(attributes, function(error, attributes) {
-        if (error) callback(error);
-        else {
-            var result = '';
-            
-            for (var key in attributes) {
-                if (_.isNull(attributes[key])) result += ' '+key;
-                else result += ' '+key+'="'+attributes[key]+'"';
-            }
-            
-            callback(null, result);
-        }
-    }, context);
-};
+T.with.data = T.data;
+T.with.Data = T.Data;
 
-// (data: string, reg: RegExp) => string[][];
-T.regExpSearch = function(data, reg) {
-    var result = [], temp = null;
-    while ((temp = reg.exec(data)) != null) {
-        if (temp.index === reg.lastIndex) reg.lastIndex++;
-        result.push(temp);
-    }
-    return result;
-}
+T.with.xml = T.xml;
 
-// https://www.regex101.com/r/cM5jC6/9
-T._renderSelectorRegExp = (/(\[)|(\])|#([-\w\d]+)|\.([-\w\d]+)|([\w\d-]+)="(['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)"|([\w\d-]+)='(["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)'|([\w\d-]+)=([\w\d-:\\\/\.={}<>%@#$%^&*~`]*)|("['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+")|('["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+')|([_\w-:\\\/]+)/g);
+T.with.doctypes = T.doctypes;
+T.with.Doctype = T.Doctype;
 
-// (attributes: IAttributes, selector: TSelector) => void;
-T.renderSelector = function(attributes, selector) {
-    var matchs = T.regExpSearch(selector, T._renderSelectorRegExp);
-    var isAttr = false;
-    _.each(matchs, function(node) {
-        if (node[1]) { isAttr = true; return; } // [
-        else if (node[2]) { isAttr = false; return; } // ]
+_.extend(T.with, T.singles);
+T.with.Single = T.Single;
 
-        if (isAttr) {
-            if (node[9]) { attributes[node[9]] = node[10]; return; } // attr=value
-            if (node[7]) { attributes[node[7]] = node[8]; return; } // attr='value'
-            if (node[5]) { attributes[node[5]] = node[6]; return; } // attr="value"
-            if (node[13]) { attributes[node[13]] = null; return; } // [attr]
-            if (node[12]) { attributes[node[12]] = null; return; } // ['attr']
-            if (node[11]) { attributes[node[11]] = null; return; } // ["attr"]
-        } else {
-            if (node[3]) { attributes.id = node[3]; return; } // id
-            if (node[4]) { attributes.class? attributes.class += ' ' + node[4] : attributes.class = node[4]; return; } // class
-        }
-    });
-};
+_.extend(T.with, T.doubles);
+T.with.Double = T.Double;
+
+T.with.sync = T.sync;
+T.with.async = T.async;
 
 })();
 

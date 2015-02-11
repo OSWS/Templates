@@ -13,7 +13,7 @@ describe('render', function() {
     });
     it('Templates.async', function() {
         T.render(T.async(function(callback) {
-            setTimeout(function() { callback(123); }, 10);
+            setTimeout(function() { callback(null, 123); }, 10);
         }), function(error, result) {
             if (error) throw error;
             assert.equal(result, 123);

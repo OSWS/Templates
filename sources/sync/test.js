@@ -6,6 +6,6 @@ describe('sync', function() {
         assert.equal(T.sync(function() { return 123; })(), 123);
     });
     it('.toString', function() {
-        assert.equal(T.sync(function() { return 123; }), 123);
+        assert.equal(T.sync(function() { return 123; }) + '', 123);
     });
 });
