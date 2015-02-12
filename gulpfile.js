@@ -34,6 +34,7 @@ gulp.task('templates-concat', function() {
 		'sources/xml/index.js',
 		
 		'sources/mixin/index.js',
+		'sources/mixins/index.js',
 		
 		'sources/with/index.js',
 		

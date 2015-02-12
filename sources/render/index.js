@@ -6,10 +6,24 @@ T.render = function(data, callback, context) {
         if (T.isSyncFunction(data)) callback(null, data());
         else if (T.isAsyncFunction(data)) data(function(error, result) { callback(error, result); });
         else if (data.prototype instanceof T.Data) data._render(callback, context);
-        else callback(null, data);
+        else {
+            callback(null, data);
+        }
     } else if (_.isObject(data)) {
         if (data instanceof T.Data) data._render(callback, context);
-        else callback(null, data);
+        else {
+            if (_.isArray(data)) var result = [];
+            else var result = {};
+            var keys = _.keys(data);
+            async.each(keys, function(key, next) {
+                T.render(data[key], function(error, r) {
+                    result[key] = r;
+                    next(error);
+                }, context);
+            }, function(error) {
+                callback(error, result);
+            });
+        }
     } else callback(null, data);
 };
 

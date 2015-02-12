@@ -1,12 +1,12 @@
 (function(factory) {
     if(typeof define === 'function' && define.amd) {
-        define(['module', 'lodash'], function(module, _) {
-            module.exports = factory({}, _);
+        define(['module', 'lodash', 'async'], function(module, _, async) {
+            module.exports = factory({}, _, async);
         });
     } else if(typeof exports === 'object') {
-        module.exports = factory({}, require('lodash'));
+        module.exports = factory({}, require('lodash'), require('async'));
     }
-})(function(T, _) {
+})(function(T, _, async) {
 
 if(typeof exports === 'object') {
 
@@ -58,10 +58,24 @@ T.render = function(data, callback, context) {
         if (T.isSyncFunction(data)) callback(null, data());
         else if (T.isAsyncFunction(data)) data(function(error, result) { callback(error, result); });
         else if (data.prototype instanceof T.Data) data._render(callback, context);
-        else callback(null, data);
+        else {
+            callback(null, data);
+        }
     } else if (_.isObject(data)) {
         if (data instanceof T.Data) data._render(callback, context);
-        else callback(null, data);
+        else {
+            if (_.isArray(data)) var result = [];
+            else var result = {};
+            var keys = _.keys(data);
+            async.each(keys, function(key, next) {
+                T.render(data[key], function(error, r) {
+                    result[key] = r;
+                    next(error);
+                }, context);
+            }, function(error) {
+                callback(error, result);
+            });
+        }
     } else callback(null, data);
 };
 
@@ -561,10 +575,54 @@ T.mixin = function(reconstructor) {
 
 (function() {
 
+T.mixins = {
+	
+	// (src: string|function, ...arguments: Array<TSelector, TAttributes>)
+	js: T.mixin(function(src) {
+		var script = T.doubles.script('[type="text/javascript"]');
+		
+		if (typeof src === 'string') script.attributes({ src: src });
+		else if (typeof src === 'function') {
+			var str = String(src);
+			script.data(str.substring(str.indexOf("{") + 1, str.lastIndexOf("}")));
+		} else throw new Error('Unexpected src.');
+		
+		var args = Array.prototype.slice.call(arguments, 1);
+		
+		for (var a in args) {
+            if (_.isString(args[a])) script.selector(args[a]);
+            else if (_.isObject(args[a])) script.attributes(args[a]);
+        }
+        
+        return script;
+	}), 
+	
+	// (href: string|function, ...arguments: Array<TSelector, TAttributes>)
+	css: T.mixin(function(href) {
+		var link = T.singles.link('[rel="stylesheet"]');
+		
+		if (typeof href === 'string') link.attributes({ href: href });
+		else throw new Error('Unexpected href.');
+		
+		var args = Array.prototype.slice.call(arguments, 1);
+		
+		for (var a in args) {
+            if (_.isString(args[a])) link.selector(args[a]);
+            else if (_.isObject(args[a])) link.attributes(args[a]);
+        }
+        
+        return link;
+	})
+};
+
+})();
+
+(function() {
+
 T.with = {};
 
-T.with.Mixin = T.Mixin;
-T.with.mixin = T.mixin;
+T.with.sync = T.sync;
+T.with.async = T.async;
 
 T.with.data = T.data;
 T.with.Data = T.Data;
@@ -580,8 +638,10 @@ T.with.Single = T.Single;
 _.extend(T.with, T.doubles);
 T.with.Double = T.Double;
 
-T.with.sync = T.sync;
-T.with.async = T.async;
+T.with.Mixin = T.Mixin;
+T.with.mixin = T.mixin;
+
+_.extend(T.with, T.mixins);
 
 })();
 

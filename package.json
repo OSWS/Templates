@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "lodash": "^2.4.1",
-    "callsite": "^1.0.0"
+    "callsite": "^1.0.0",
+    "async": "^0.9.0"
   },
   "devDependencies": {
     "mocha": "^2.1.0",

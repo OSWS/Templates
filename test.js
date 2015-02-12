@@ -1,4 +1,4 @@
-// require('source-map-support').install();
+require('source-map-support').install();
 
 global.T = require('./');
 global._ = require('lodash');
@@ -25,10 +25,42 @@ describe('osws-templates@0.3.0', function() {
     require(__dirname + '/sources/xml/test.js');
     
     require(__dirname + '/sources/mixin/test.js');
+    require(__dirname + '/sources/mixins/test.js');
     
     require(__dirname + '/sources/with/test.js');
     
     it('context', function() {
         assert.equal(T.doubles.div()('<%= a %>').context({ a: 1 }), '<div>1</div>');
+    });
+    
+    it('example', function() {
+        with (T.with) {
+            assert.equal(
+                String(data(
+                    doctypes.html(),
+                    html()(
+                        head()(
+                            title()('example'),
+                            css('style.css'),
+                            js('require.js', {'data-main': 'index.js'})
+                        ),
+                        body()(sync(function() {
+                            var b = data();
+                            for (var a in [1,2,3,4,5]) {
+                                b.append(div({'data-index': a})())
+                            }
+                            return b;
+                        }), async(function(callback) {
+                            var b = data();
+                            for (var a in [1,2,3,4,5]) {
+                                b.append(div({'data-index': a})())
+                            }
+                            callback(null, b);
+                        }))
+                    )
+                )),
+                '<!DOCTYPE html><html><head><title>example</title><link rel="stylesheet" href="style.css"/><script type="text/javascript" src="require.js" data-main="index.js"></script></head><body><div data-index="0"></div><div data-index="1"></div><div data-index="2"></div><div data-index="3"></div><div data-index="4"></div><div data-index="0"></div><div data-index="1"></div><div data-index="2"></div><div data-index="3"></div><div data-index="4"></div></body></html>'
+            );
+        }
     });
 });

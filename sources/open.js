@@ -1,9 +1,9 @@
 (function(factory) {
     if(typeof define === 'function' && define.amd) {
-        define(['module', 'lodash'], function(module, _) {
-            module.exports = factory({}, _);
+        define(['module', 'lodash', 'async'], function(module, _, async) {
+            module.exports = factory({}, _, async);
         });
     } else if(typeof exports === 'object') {
-        module.exports = factory({}, require('lodash'));
+        module.exports = factory({}, require('lodash'), require('async'));
     }
-})(function(T, _) {
+})(function(T, _, async) {

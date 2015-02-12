@@ -2,8 +2,8 @@
 
 T.with = {};
 
-T.with.Mixin = T.Mixin;
-T.with.mixin = T.mixin;
+T.with.sync = T.sync;
+T.with.async = T.async;
 
 T.with.data = T.data;
 T.with.Data = T.Data;
@@ -19,7 +19,9 @@ T.with.Single = T.Single;
 _.extend(T.with, T.doubles);
 T.with.Double = T.Double;
 
-T.with.sync = T.sync;
-T.with.async = T.async;
+T.with.Mixin = T.Mixin;
+T.with.mixin = T.mixin;
+
+_.extend(T.with, T.mixins);
 
 })();
