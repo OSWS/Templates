@@ -20,7 +20,7 @@ T.compile = function(filebody, filepath) {
     template.paths = Module._nodeModulePaths(path.dirname(filepath));
     template._compile(filebody, filepath);
     template.loaded = true;
-    return template.T;
+    return template.exports;
 };
 
 // (id: string) => // .T
