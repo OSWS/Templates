@@ -36,4 +36,7 @@ describe('async', function() {
             }).toString();
         });
     });
+    it('rerender', function() {
+        assert.equal(String(T.async(function(callback) { callback(null, T.data(123)); })), 123);
+    });
 });

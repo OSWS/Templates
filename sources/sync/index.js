@@ -6,7 +6,13 @@ T.sync = function(argument) {
     var sync = function() { return argument(); };
 	sync.__templatesSync = true;
 	sync.toString = function() {
-	    return sync();
+	    var _result = new Error('Asynchrony can not be converted into synchronicity!');
+        T.render(sync, function(error, result) {
+	        if (error) throw error;
+            else _result = result;
+        }, {});
+	    if (_.isObject(_result) && _result instanceof Error) throw _result;
+	    return _result;
 	};
 	return sync;
 };

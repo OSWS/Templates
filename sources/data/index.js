@@ -29,10 +29,10 @@ T.Data = (new T.Prototype()).extend('render', '_render', 'toString', 'prepend', 
     
     // context
     
-    // IContext;
+    // TContext;
     this._context = {};
     
-    // (...arguments: Array<IContext>) => this;
+    // (...arguments: Array<TContext>) => this;
     this.context = function() {
         for (var a in arguments) {
             _.extend(this._context, arguments[a]);
@@ -57,7 +57,7 @@ T.Data = (new T.Prototype()).extend('render', '_render', 'toString', 'prepend', 
     
     // render
     
-    // (...arguments: Array<TCallback{1}, IContext>) => TAsync(callback: TCallback) => void;
+    // (...arguments: Array<TCallback{1}, TContext>) => TAsync(callback: TCallback) => void;
     this.render = function() {
         var callback = false;
         var context = {};
@@ -76,7 +76,7 @@ T.Data = (new T.Prototype()).extend('render', '_render', 'toString', 'prepend', 
         });
     };
     
-    // (callback: TCallback, context: IContext) => this;
+    // (callback: TCallback, context: TContext) => this;
     this._render = function(callback, _context) {
         var context = _.extend({}, this._context);
         _.extend(context, _context);

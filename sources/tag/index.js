@@ -1,6 +1,6 @@
 (function() {
 
-// [new] (...arguments: Array<TSelector|IAttributes>) => this
+// [new] (...arguments: Array<TSelector|TAttributes>) => this
 T.Tag = T.Data.extend('name', 'attributes', 'selector', function() {
     var parent = this._parent;
     

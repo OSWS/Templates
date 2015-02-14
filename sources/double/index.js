@@ -1,6 +1,6 @@
 (function() {
 
-// [new] (...arguments: Array<TSelector|IAttributes>) => [new] (...arguments: Array<TData>) => this;
+// [new] (...arguments: Array<TSelector|TAttributes>) => [new] (...arguments: Array<TData>) => this;
 T.Double = T.Tag.extend(function() {
     this.construct = function() {
         return this()();

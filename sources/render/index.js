@@ -3,12 +3,10 @@
 // (data: TData, callback: TCallback, context?: TContext) => void
 T.render = function(data, callback, context) {
     if (_.isFunction(data)) {
-        if (T.isSyncFunction(data)) callback(null, data());
-        else if (T.isAsyncFunction(data)) data(function(error, result) { callback(error, result); });
+        if (T.isSyncFunction(data)) T.render(data(), callback, context);
+        else if (T.isAsyncFunction(data)) data(function(error, result) { T.render(result, callback, context); });
         else if (data.prototype instanceof T.Data) data._render(callback, context);
-        else {
-            callback(null, data);
-        }
+        else callback(null, data);
     } else if (_.isObject(data)) {
         if (data instanceof T.Data) data._render(callback, context);
         else {
@@ -32,7 +30,7 @@ T.renderContext = function(string, context, callback) {
     callback(null, _.template(string, context));
 };
 
-// (attributes: TAttributes, callback: TCallback, context: IContext) => void
+// (attributes: TAttributes, callback: TCallback, context: TContext) => void
 T.renderAttributes = function(attributes, callback, context) {
     T.render(attributes, function(error, attributes) {
         if (error) callback(error);
@@ -62,7 +60,7 @@ T.regExpSearch = function(data, reg) {
 // https://www.regex101.com/r/cM5jC6/9
 T._renderSelectorRegExp = (/(\[)|(\])|#([-\w\d]+)|\.([-\w\d]+)|([\w\d-]+)="(['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)"|([\w\d-]+)='(["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)'|([\w\d-]+)=([\w\d-:\\\/\.={}<>%@#$%^&*~`]*)|("['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+")|('["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+')|([_\w-:\\\/]+)/g);
 
-// (attributes: IAttributes, selector: TSelector) => void;
+// (attributes: TAttributes, selector: TSelector) => void;
 T.renderSelector = function(attributes, selector) {
     var matchs = T.regExpSearch(selector, T._renderSelectorRegExp);
     var isAttr = false;

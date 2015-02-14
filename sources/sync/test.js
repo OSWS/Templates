@@ -8,4 +8,7 @@ describe('sync', function() {
     it('.toString', function() {
         assert.equal(T.sync(function() { return 123; }) + '', 123);
     });
+    it('rerender', function() {
+        assert.equal(String(T.sync(function() { return T.data(123); })), 123);
+    });
 });

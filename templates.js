@@ -55,12 +55,10 @@ T.static = function() {
 // (data: TData, callback: TCallback, context?: TContext) => void
 T.render = function(data, callback, context) {
     if (_.isFunction(data)) {
-        if (T.isSyncFunction(data)) callback(null, data());
-        else if (T.isAsyncFunction(data)) data(function(error, result) { callback(error, result); });
+        if (T.isSyncFunction(data)) T.render(data(), callback, context);
+        else if (T.isAsyncFunction(data)) data(function(error, result) { T.render(result, callback, context); });
         else if (data.prototype instanceof T.Data) data._render(callback, context);
-        else {
-            callback(null, data);
-        }
+        else callback(null, data);
     } else if (_.isObject(data)) {
         if (data instanceof T.Data) data._render(callback, context);
         else {
@@ -84,7 +82,7 @@ T.renderContext = function(string, context, callback) {
     callback(null, _.template(string, context));
 };
 
-// (attributes: TAttributes, callback: TCallback, context: IContext) => void
+// (attributes: TAttributes, callback: TCallback, context: TContext) => void
 T.renderAttributes = function(attributes, callback, context) {
     T.render(attributes, function(error, attributes) {
         if (error) callback(error);
@@ -114,7 +112,7 @@ T.regExpSearch = function(data, reg) {
 // https://www.regex101.com/r/cM5jC6/9
 T._renderSelectorRegExp = (/(\[)|(\])|#([-\w\d]+)|\.([-\w\d]+)|([\w\d-]+)="(['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)"|([\w\d-]+)='(["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)'|([\w\d-]+)=([\w\d-:\\\/\.={}<>%@#$%^&*~`]*)|("['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+")|('["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+')|([_\w-:\\\/]+)/g);
 
-// (attributes: IAttributes, selector: TSelector) => void;
+// (attributes: TAttributes, selector: TSelector) => void;
 T.renderSelector = function(attributes, selector) {
     var matchs = T.regExpSearch(selector, T._renderSelectorRegExp);
     var isAttr = false;
@@ -146,7 +144,13 @@ T.sync = function(argument) {
     var sync = function() { return argument(); };
 	sync.__templatesSync = true;
 	sync.toString = function() {
-	    return sync();
+	    var _result = new Error('Asynchrony can not be converted into synchronicity!');
+        T.render(sync, function(error, result) {
+	        if (error) throw error;
+            else _result = result;
+        }, {});
+	    if (_.isObject(_result) && _result instanceof Error) throw _result;
+	    return _result;
 	};
 	return sync;
 };
@@ -175,10 +179,10 @@ T.async = function(argument) {
     async.__templatesAsync = true;
 	async.toString = function() {
 	    var _result = new Error('Asynchrony can not be converted into synchronicity!');
-	    async(function(error, result) {
+        T.render(async, function(error, result) {
 	        if (error) throw error;
-	        else _result = result;
-	    });
+            else _result = result;
+        }, {});
 	    if (_.isObject(_result) && _result instanceof Error) throw _result;
 	    return _result;
 	};
@@ -311,10 +315,10 @@ T.Data = (new T.Prototype()).extend('render', '_render', 'toString', 'prepend', 
     
     // context
     
-    // IContext;
+    // TContext;
     this._context = {};
     
-    // (...arguments: Array<IContext>) => this;
+    // (...arguments: Array<TContext>) => this;
     this.context = function() {
         for (var a in arguments) {
             _.extend(this._context, arguments[a]);
@@ -339,7 +343,7 @@ T.Data = (new T.Prototype()).extend('render', '_render', 'toString', 'prepend', 
     
     // render
     
-    // (...arguments: Array<TCallback{1}, IContext>) => TAsync(callback: TCallback) => void;
+    // (...arguments: Array<TCallback{1}, TContext>) => TAsync(callback: TCallback) => void;
     this.render = function() {
         var callback = false;
         var context = {};
@@ -358,7 +362,7 @@ T.Data = (new T.Prototype()).extend('render', '_render', 'toString', 'prepend', 
         });
     };
     
-    // (callback: TCallback, context: IContext) => this;
+    // (callback: TCallback, context: TContext) => this;
     this._render = function(callback, _context) {
         var context = _.extend({}, this._context);
         _.extend(context, _context);
@@ -391,7 +395,7 @@ T.data = T.Data.extend(function() {
 
 (function() {
 
-// [new] (...arguments: Array<TSelector|IAttributes>) => this
+// [new] (...arguments: Array<TSelector|TAttributes>) => this
 T.Tag = T.Data.extend('name', 'attributes', 'selector', function() {
     var parent = this._parent;
     
@@ -459,7 +463,7 @@ T.Tag = T.Data.extend('name', 'attributes', 'selector', function() {
 
 (function() {
 
-// [new] (...arguments: Array<TSelector|IAttributes>) => this;
+// [new] (...arguments: Array<TSelector|TAttributes>) => this;
 T.Single = T.Tag.extend(function() {
     this._renderTag = function(name, data, attributes, callback) {
         callback(null, '<'+name + attributes+'/>');
@@ -482,7 +486,7 @@ for (var key in T._singles) {
 
 (function() {
 
-// [new] (...arguments: Array<TSelector|IAttributes>) => [new] (...arguments: Array<TData>) => this;
+// [new] (...arguments: Array<TSelector|TAttributes>) => [new] (...arguments: Array<TData>) => this;
 T.Double = T.Tag.extend(function() {
     this.construct = function() {
         return this()();
@@ -517,7 +521,7 @@ for (var key in T._doubles) {
 
 (function() {
 
-// [new] (...arguments: Array<TSelector|IAttributes>) => this;
+// [new] (...arguments: Array<TSelector|TAttributes>) => this;
 T.Doctype = T.Tag.extend(function() {
     this._name = 'DOCTYPE';
     this._renderTag = function(name, data, attributes, callback) {
@@ -542,7 +546,7 @@ T.doctypes.mobile = T.Doctype('[html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//
 
 (function() {
 
-// [new] (...arguments: Array<TSelector|IAttributes>) => this;
+// [new] (...arguments: Array<TSelector|TAttributes>) => this;
 T.xml = T.Tag.extend(function() {
     this._name = 'xml';
     this._renderTag = function(name, data, attributes, callback) {

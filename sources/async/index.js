@@ -15,10 +15,10 @@ T.async = function(argument) {
     async.__templatesAsync = true;
 	async.toString = function() {
 	    var _result = new Error('Asynchrony can not be converted into synchronicity!');
-	    async(function(error, result) {
+        T.render(async, function(error, result) {
 	        if (error) throw error;
-	        else _result = result;
-	    });
+            else _result = result;
+        }, {});
 	    if (_.isObject(_result) && _result instanceof Error) throw _result;
 	    return _result;
 	};
