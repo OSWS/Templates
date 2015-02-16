@@ -5,6 +5,8 @@ T.with = {};
 T.with.sync = T.sync;
 T.with.async = T.async;
 
+T.with.Renderer = T.Renderer;
+
 T.with.data = T.data;
 T.with.Data = T.Data;
 
@@ -23,5 +25,7 @@ T.with.Mixin = T.Mixin;
 T.with.mixin = T.mixin;
 
 _.extend(T.with, T.mixins);
+
+T.with.Module = T.Module;
 
 })();

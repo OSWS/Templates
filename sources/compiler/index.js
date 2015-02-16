@@ -1,7 +1,10 @@
+// Available only on the server!
+
 if(typeof exports === 'object') {
 
 (function(Module, path, callsite) {
 
+// Connects the line as a separate module.
 // (filebody: string, filepath: string) => // .T
 // Only absolute filepath!
 T.compile = function(filebody, filepath) {
@@ -13,6 +16,7 @@ T.compile = function(filebody, filepath) {
     return template.exports;
 };
 
+// // Forgets and reconnecting unit.
 // (id: string) => // .T
 // Only relative paths! No module names.
 T.include = function(id) {

@@ -3,15 +3,28 @@
 // (data: TData, callback: TCallback, context?: TContext) => void
 T.render = function(data, callback, context) {
     if (_.isFunction(data)) {
+        
+        // Templates.sync
         if (T.isSyncFunction(data)) T.render(data(), callback, context);
+        
+        // Templates.async
         else if (T.isAsyncFunction(data)) data(function(error, result) { T.render(result, callback, context); });
-        else if (data.prototype instanceof T.Data) data._render(callback, context);
+        
+        // Templates.Renderer
+        else if (data.prototype instanceof T.Renderer) data._render(callback, context);
+        
+        // any function
         else callback(null, data);
     } else if (_.isObject(data)) {
-        if (data instanceof T.Data) data._render(callback, context);
+        
+        // > Renderer
+        if (data instanceof T.Renderer) data._render(callback, context);
+        
+        // any object
         else {
             if (_.isArray(data)) var result = [];
             else var result = {};
+            
             var keys = _.keys(data);
             async.each(keys, function(key, next) {
                 T.render(data[key], function(error, r) {
@@ -22,6 +35,8 @@ T.render = function(data, callback, context) {
                 callback(error, result);
             });
         }
+    
+    // any alse
     } else callback(null, data);
 };
 

@@ -8,10 +8,13 @@
     }
 })(function(T, _, async) {
 
+// Available only on the server!
+
 if(typeof exports === 'object') {
 
 (function(Module, path, callsite) {
 
+// Connects the line as a separate module.
 // (filebody: string, filepath: string) => // .T
 // Only absolute filepath!
 T.compile = function(filebody, filepath) {
@@ -23,6 +26,7 @@ T.compile = function(filebody, filepath) {
     return template.exports;
 };
 
+// // Forgets and reconnecting unit.
 // (id: string) => // .T
 // Only relative paths! No module names.
 T.include = function(id) {
@@ -55,15 +59,28 @@ T.static = function() {
 // (data: TData, callback: TCallback, context?: TContext) => void
 T.render = function(data, callback, context) {
     if (_.isFunction(data)) {
+        
+        // Templates.sync
         if (T.isSyncFunction(data)) T.render(data(), callback, context);
+        
+        // Templates.async
         else if (T.isAsyncFunction(data)) data(function(error, result) { T.render(result, callback, context); });
-        else if (data.prototype instanceof T.Data) data._render(callback, context);
+        
+        // Templates.Renderer
+        else if (data.prototype instanceof T.Renderer) data._render(callback, context);
+        
+        // any function
         else callback(null, data);
     } else if (_.isObject(data)) {
-        if (data instanceof T.Data) data._render(callback, context);
+        
+        // > Renderer
+        if (data instanceof T.Renderer) data._render(callback, context);
+        
+        // any object
         else {
             if (_.isArray(data)) var result = [];
             else var result = {};
+            
             var keys = _.keys(data);
             async.each(keys, function(key, next) {
                 T.render(data[key], function(error, r) {
@@ -74,6 +91,8 @@ T.render = function(data, callback, context) {
                 callback(error, result);
             });
         }
+    
+    // any alse
     } else callback(null, data);
 };
 
@@ -286,30 +305,23 @@ T.Prototype = function() {
 
 (function() {
 
-// new () => this;
-T.Data = (new T.Prototype()).extend('render', '_render', 'toString', 'prepend', 'data', 'append', function() {
+// Simple data rendering from instance or static element.
+// Supports basic functionality works with contexts.
+
+// Not for end-use! Only as a prototype!
+
+// [new] () => this;
+T.Renderer = (new T.Prototype()).extend('data', 'context', 'render', '_render', 'toString', function() {
     var parent = this._parent;
     
     // data
     
-    // Array<TData>;
+    // TData;
     this._data = undefined;
 
-    // (...arguments: Array<TData>) => this;
-    this.prepend = function() {
-        this._data.unshift.apply(this._data, arguments);
-        return this;
-    };
-
-    // (...arguments: Array<TData>) => this;
-    this.data = function() {
-        this._data = Array.prototype.slice.call(arguments);
-        return this;
-    };
-
-    // (...arguments: Array<TData>) => this;
-    this.append = function() {
-        this._data.push.apply(this._data, arguments);
+    // (data: TData) => this;
+    this.data = function(data) {
+        this._data = data;
         return this;
     };
     
@@ -330,11 +342,6 @@ T.Data = (new T.Prototype()).extend('render', '_render', 'toString', 'prepend', 
     
     this.constructor = function() {
         parent.constructor.call(this);
-        
-        // data
-        
-        this._data = [];
-        if (_.isArray(this._parent._data)) this._data = this._parent._data.slice(0);
         
         // context
         
@@ -370,7 +377,7 @@ T.Data = (new T.Prototype()).extend('render', '_render', 'toString', 'prepend', 
             if (error) callback(error);
             else T.render(context, function(error, renderedContext) {
                 if (error) callback(error);
-                else T.renderContext(result.join(''), renderedContext, callback);
+                else T.renderContext(_.isArray(result)? result.join('') : result, renderedContext, callback);
             }, context);
         }, context);
     };
@@ -380,6 +387,55 @@ T.Data = (new T.Prototype()).extend('render', '_render', 'toString', 'prepend', 
         return String(this.render());
     };
 });
+
+})();
+
+(function() {
+
+// Array data managment from instance or static element.
+
+// Not for end-use! Only as a prototype!
+
+// [new] () => this;
+T.Data = T.Renderer.extend('prepend', 'append', function() {
+    var parent = this._parent;
+    
+    // data
+    
+    // Array<TData>;
+    this._data = undefined;
+
+    // (...arguments: Array<TData>) => this;
+    this.prepend = function() {
+        this._data.unshift.apply(this._data, arguments);
+        return this;
+    };
+
+    // (...arguments: Array<TData>) => this;
+    this.data = function() {
+        this._data = Array.prototype.slice.call(arguments);
+        return this;
+    };
+
+    // (...arguments: Array<TData>) => this;
+    this.append = function() {
+        this._data.push.apply(this._data, arguments);
+        return this;
+    };
+    
+    // constructor
+    
+    this.constructor = function() {
+        parent.constructor.call(this);
+        
+        // data
+        
+        this._data = [];
+        if (_.isArray(this._parent._data)) this._data = this._parent._data.slice(0);
+    };
+});
+
+// Useful extension.
 
 T.data = T.Data.extend(function() {
     var parent = this._parent;
@@ -395,8 +451,14 @@ T.data = T.Data.extend(function() {
 
 (function() {
 
+// Basic XML/XHML/HTML tags tools.
+
+// Method .name is not static.
+
+// Not for end-use! Only as a prototype!
+
 // [new] (...arguments: Array<TSelector|TAttributes>) => this
-T.Tag = T.Data.extend('name', 'attributes', 'selector', function() {
+T.Tag = T.Data.extend('attributes', 'selector', function() {
     var parent = this._parent;
     
     // name
@@ -623,10 +685,49 @@ T.mixins = {
 
 (function() {
 
+// Universal renderer for any type data.
+
+// Arguments for data-mixin send to second call quotes.
+// var module = T.Module(anyData)(...mixinArguments);
+
+// [new] (data: TData) => (...arguments: any[]) => this;
+T.Module = T.Renderer.extend(function() {
+    var parent = this._parent;
+    
+    // (data: TData)
+    this.constructor = function(data) {
+        parent.constructor.call(this);
+        
+        if (!_.isUndefined(data)) this._data = data;
+    };
+    
+    this.returner = function() {
+        var instance = this;
+        return instance.extend(function() {
+            var parent = this._parent;
+            
+            this.constructor = function() {
+                parent.constructor.call(this);
+                
+                if (_.isFunction(this._data) && this._data.prototype instanceof T.Mixin) this._data = T.data(this._data.apply(this, arguments));
+                else this._data = T.data(this._data);
+            };
+            
+            this.returner = function() { return this; };
+        });
+    };
+});
+
+})();
+
+(function() {
+
 T.with = {};
 
 T.with.sync = T.sync;
 T.with.async = T.async;
+
+T.with.Renderer = T.Renderer;
 
 T.with.data = T.data;
 T.with.Data = T.Data;
@@ -646,6 +747,8 @@ T.with.Mixin = T.Mixin;
 T.with.mixin = T.mixin;
 
 _.extend(T.with, T.mixins);
+
+T.with.Module = T.Module;
 
 })();
 

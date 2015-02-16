@@ -14,6 +14,7 @@ describe('osws-templates@0.3.0', function() {
     require(__dirname + '/sources/async/test.js');
     
     require(__dirname + '/sources/prototype/test.js');
+    require(__dirname + '/sources/renderer/test.js');
     require(__dirname + '/sources/data/test.js');
     require(__dirname + '/sources/tag/test.js');
     require(__dirname + '/sources/single/test.js');
@@ -27,11 +28,9 @@ describe('osws-templates@0.3.0', function() {
     require(__dirname + '/sources/mixin/test.js');
     require(__dirname + '/sources/mixins/test.js');
     
-    require(__dirname + '/sources/with/test.js');
+    require(__dirname + '/sources/module/test.js');
     
-    it('context', function() {
-        assert.equal(T.doubles.div()('<%= a %>').context({ a: 1 }), '<div>1</div>');
-    });
+    require(__dirname + '/sources/with/test.js');
     
     it('example', function() {
         with (T.with) {

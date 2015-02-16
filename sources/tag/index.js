@@ -1,7 +1,13 @@
 (function() {
 
+// Basic XML/XHML/HTML tags tools.
+
+// Method .name is not static.
+
+// Not for end-use! Only as a prototype!
+
 // [new] (...arguments: Array<TSelector|TAttributes>) => this
-T.Tag = T.Data.extend('name', 'attributes', 'selector', function() {
+T.Tag = T.Data.extend('attributes', 'selector', function() {
     var parent = this._parent;
     
     // name

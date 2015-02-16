@@ -23,6 +23,7 @@ gulp.task('templates-concat', function() {
 		'sources/async/index.js',
 		
 		'sources/prototype/index.js',
+		'sources/renderer/index.js',
 		'sources/data/index.js',
 		'sources/tag/index.js',
 		'sources/single/index.js',
@@ -35,6 +36,8 @@ gulp.task('templates-concat', function() {
 		
 		'sources/mixin/index.js',
 		'sources/mixins/index.js',
+		
+		'sources/module/index.js',
 		
 		'sources/with/index.js',
 		
