@@ -24,8 +24,7 @@ T.Module = T.Renderer.extend(function() {
             this.constructor = function() {
                 parent.constructor.call(this);
                 
-                if (_.isFunction(this._data) && this._data.prototype instanceof T.Mixin) this._data = T.data(this._data.apply(this, arguments));
-                else this._data = T.data(this._data);
+                if (_.isFunction(this._data) && this._data.prototype instanceof T.Mixin) this.data(this._data.apply(null, arguments));
             };
             
             this.returner = function() { return this; };
