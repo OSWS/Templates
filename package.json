@@ -1,6 +1,6 @@
 {
   "name": "osws-templates",
-  "version": "0.2.8",
+  "version": "0.3.0",
   "description": "Tools for generating, extending and rendering HTML.",
   "keywords": [],
   "author": "Open Source Web Standards <opensourcewebstandards@gmail.com> (http://osws.github.io/OSWS)",
@@ -37,6 +37,7 @@
     "source-map-support": "^0.2.9"
   },
   "main": "./templates.js",
+  "bin": "./cli.js",
   "scripts": {
     "test": "mocha"
   }

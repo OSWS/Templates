@@ -1,3 +1,7 @@
+var C = require('colors');
+
+console.log(C.gray('OSWS Templates'), C.blue('CLI'));
+
 var commander = require('commander');
 
 commander
@@ -19,7 +23,6 @@ var plumber = require('gulp-plumber');
 var rename = require('gulp-rename');
 var templates = require('gulp-osws-templates');
 var _ = require('lodash');
-var C = require('colors');
 var path = require('path');
 
 if (!commander.source) throw new Error('!source');
