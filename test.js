@@ -4,6 +4,7 @@ global.T = require('./');
 global._ = require('lodash');
 global.assert = require('chai').assert;
 global.is = require('is_js');
+global.fs = require('fs');
 
 describe('osws-templates@0.3.0', function() {
     require(__dirname + '/sources/compiler/test.js');
@@ -31,6 +32,8 @@ describe('osws-templates@0.3.0', function() {
     require(__dirname + '/sources/module/test.js');
     
     require(__dirname + '/sources/with/test.js');
+    
+    require(__dirname + '/cli/test.js');
     
     it('example', function() {
         with (T.with) {

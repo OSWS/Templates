@@ -9,7 +9,9 @@ commander
 .option('-s, --source <path>', 'Specify source files. By default - all in this directory.')
 .option('-d, --dest <path>', 'Set output directory. By default - this directory.')
 .option('-w, --watch', 'Watch to source files.')
-.option('-a, --auto-exit', 'Enable auto exit by pressing Enter.')
+.option('-c, --context [json]', 'Specify context.')
+.option('-a, --arguments [json]', 'Specify arguments.')
+.option('-u, --auto-exit', 'Enable auto exit by pressing Enter.')
 .option('--dirname <path>', 'Specify gulp-rename option.')
 .option('--basename <path>', 'Specify gulp-rename option.')
 .option('--prefix <path>', 'Specify gulp-rename option.')
@@ -35,17 +37,24 @@ console.log('dest:', C.blue(commander.dest));
 console.log('watch:', commander.watch ? C.green(true) : C.red(false));
 console.log('auto exit:', commander.autoExit ? C.green(true) : C.red(false));
 
-console.log('dirname', commander.dirname? C.blue(commander.dirname) : C.gray(undefined));
-console.log('basename', commander.basename? C.blue(commander.basename) : C.gray(undefined));
-console.log('prefix', commander.prefix? C.blue(commander.prefix) : C.gray(undefined));
-console.log('suffix', commander.suffix? C.blue(commander.suffix) : C.gray(undefined));
-console.log('extname', commander.extname? C.blue(commander.extname) : C.gray(undefined));
+if (commander.dirname) console.log('dirname', C.blue(commander.dirname));
+if (commander.basename) console.log('basename', C.blue(commander.basename));
+if (commander.prefix) console.log('prefix', C.blue(commander.prefix));
+if (commander.suffix) console.log('suffix', C.blue(commander.suffix));
+if (commander.extname) console.log('extname', C.blue(commander.extname));
+
+if (commander.context) console.log('context', C.blue(commander.context));
+if (commander.arguments) console.log('arguments', C.blue(commander.arguments));
+
+var options = {};
+if (commander.context) options.context = JSON.parse(commander.context);
+if (commander.arguments) options.arguments = JSON.parse(commander.arguments);
 
 gulp.task('compile', function() {
     gulp.src(commander.source)
     .pipe(debug({ title: 'source:' }))
     .pipe(plumber())
-    .pipe(templates())
+    .pipe(templates(options))
     .pipe(rename(function(path) {
         if (commander.dirname) path.dirname = commander.dirname;
         if (commander.basename) path.basename = commander.basename;
