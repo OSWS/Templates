@@ -17,18 +17,23 @@
   "dependencies": {
     "lodash": "^2.4.1",
     "callsite": "^1.0.0",
-    "async": "^0.9.0"
+    "async": "^0.9.0",
+    "commander": "^2.6.0",
+    "gulp": "^3.8.10",
+    "gulp-plumber": "^0.6.6",
+    "gulp-debug": "^2.0.0",
+    "gulp-rename": "^1.2.0",
+    "gulp-uglifyjs": "^0.6.0",
+    "gulp-osws-templates": "git://github.com/OSWS/gulp-osws-templates#0.3.0",
+    "colors": "^1.0.3"
   },
   "devDependencies": {
     "mocha": "^2.1.0",
     "chai": "^1.10.0",
     "is_js": "^0.4.0",
-    "gulp": "^3.8.10",
     "gulp-concat": "^2.4.3",
     "gulp-concat-sourcemap": "^1.3.1",
     "gulp-mocha": "^2.0.0",
-    "gulp-plumber": "^0.6.6",
-    "gulp-uglifyjs": "^0.6.0",
     "source-map-support": "^0.2.9"
   },
   "main": "./templates.js",

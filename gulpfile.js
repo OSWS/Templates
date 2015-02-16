@@ -4,6 +4,7 @@ var sourcemap = require('gulp-concat-sourcemap');
 var uglify = require('gulp-uglifyjs');
 var mocha = require('gulp-mocha');
 var plumber = require('gulp-plumber');
+var debug = require('gulp-debug');
 
 gulp.task('default', ['templates']);
 
@@ -43,6 +44,7 @@ gulp.task('templates-concat', function() {
 		
 		'sources/close.js'
 	])
+	.pipe(debug({ title: 'concat:' }))
 	.pipe(plumber())
 	.pipe(sourcemap('templates.js'))
 	.pipe(gulp.dest('./'));
@@ -50,6 +52,7 @@ gulp.task('templates-concat', function() {
 
 gulp.task('templates-minify', function() {
 	gulp.src('templates.js')
+	.pipe(debug({ title: 'minify:' }))
 	.pipe(plumber())
 	.pipe(concat('templates.min.js'))
 	.pipe(uglify({ outSourceMap: true, inSourceMap: 'templates.js.map' }))
