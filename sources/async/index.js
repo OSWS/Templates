@@ -1,16 +1,20 @@
 (function() {
 
-// (argument: Function) => Function;
+// (argument: (callback: (error, result) => void) => void) => Function;
 // unsafe
 T.async = function(argument) {
     var async = function(callback) {
-        var called = false;
-        argument(function(error, result) {
-            if (!called) {
-                called = true;
-                if (_.isFunction(callback)) callback(error, result);
-            } else throw new Error('Repeated call callback unexpected!');
-        });
+        if (callback) {
+            var called = false;
+            argument(function(error, result) {
+                if (!called) {
+                    called = true;
+                    if (_.isFunction(callback)) callback(error, result);
+                } else throw new Error('Repeated call callback unexpected!');
+            });
+        } else {
+            return async.toString();
+        }
     };
     async.__templatesAsync = true;
 	async.toString = function() {
@@ -25,7 +29,7 @@ T.async = function(argument) {
 	return async;
 };
 
-// (argument: any) => boolean;
+// (argument: Function) => boolean;
 T.isAsyncFunction = function(argument) {
     return !!argument.__templatesAsync;
 };
