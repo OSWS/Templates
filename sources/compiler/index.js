@@ -7,7 +7,7 @@ if(typeof exports === 'object') {
 // String as a separate module.
 // Do not cache the result.
 
-// (filebody: string, filepath: string) => Module.exports
+// (filebody: string, filepath: string) => Module.exports;
 T.compile = function(filebody, filepath) {
     var template = new Module(filepath, module);
     template.filename = filepath;
@@ -19,7 +19,7 @@ T.compile = function(filebody, filepath) {
 
 // As require, but do not cache the result.
 
-// (id: string) => Module.exports
+// (id: string) => Module.exports;
 // Only relative paths! No module names.
 T.include = function(id) {
     var dirname = path.dirname(callsite()[1].getFileName());

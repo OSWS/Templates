@@ -6,13 +6,13 @@ T.Prototype = function() {
     // Prototype;
     this._parent = undefined;
 
-    // TArguments;
+    // arguments;
     this._arguments = undefined;
     
     // () => any;
     this.returner = function() { return this; };
     
-    // (...arguments: TArguments) => any;
+    // (...arguments: arguments) => any;
     this.constructor = function() {};
 
     // (...arguments: Array<TInjector|string>) => Function;
@@ -76,7 +76,7 @@ T.Prototype = function() {
         return Element;
     };
     
-    // () => void
+    // () => void;
     this._static = function() {
         this.toString = function() { return ''; };
         this.construct = function() { return this.apply(this, arguments); };

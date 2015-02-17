@@ -17,7 +17,7 @@ if(typeof exports === 'object') {
 // String as a separate module.
 // Do not cache the result.
 
-// (filebody: string, filepath: string) => Module.exports
+// (filebody: string, filepath: string) => Module.exports;
 T.compile = function(filebody, filepath) {
     var template = new Module(filepath, module);
     template.filename = filepath;
@@ -29,7 +29,7 @@ T.compile = function(filebody, filepath) {
 
 // As require, but do not cache the result.
 
-// (id: string) => Module.exports
+// (id: string) => Module.exports;
 // Only relative paths! No module names.
 T.include = function(id) {
     var dirname = path.dirname(callsite()[1].getFileName());
@@ -61,7 +61,7 @@ T.static = function() {
 // Universal renderer.
 // Ignores static native data JavaScript. Processes only the data of module.
 
-// (data: TData, callback: TCallback, context?: TContext) => void
+// (data: TData, callback: TCallback, context?: TContext) => void;
 T.render = function(data, callback, context) {
     if (_.isFunction(data)) {
         
@@ -106,7 +106,7 @@ T.renderContext = function(string, context, callback) {
     callback(null, _.template(string, context));
 };
 
-// (attributes: TAttributes, callback: TCallback, context?: TContext) => void
+// (attributes: TAttributes, callback: TCallback, context?: TContext) => void;
 T.renderAttributes = function(attributes, callback, context) {
     T.render(attributes, function(error, attributes) {
         if (error) callback(error);
@@ -232,13 +232,13 @@ T.Prototype = function() {
     // Prototype;
     this._parent = undefined;
 
-    // TArguments;
+    // arguments;
     this._arguments = undefined;
     
     // () => any;
     this.returner = function() { return this; };
     
-    // (...arguments: TArguments) => any;
+    // (...arguments: arguments) => any;
     this.constructor = function() {};
 
     // (...arguments: Array<TInjector|string>) => Function;
@@ -302,7 +302,7 @@ T.Prototype = function() {
         return Element;
     };
     
-    // () => void
+    // () => void;
     this._static = function() {
         this.toString = function() { return ''; };
         this.construct = function() { return this.apply(this, arguments); };
