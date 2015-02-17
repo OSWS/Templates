@@ -226,20 +226,33 @@ T.isAsyncFunction = function(argument) {
 
 (function() {
 
+// The main class for all classes.
+// Remove need for using new operator.
+
 // new () => this;
 T.Prototype = function() {
     
     // Prototype;
     this._parent = undefined;
 
+    // Set at construction.
+    // Always available arguments passed to the .constructor.
+    
     // arguments;
     this._arguments = undefined;
+    
+    // Sets the behavior at the time of construction.
     
     // () => any;
     this.returner = function() { return this; };
     
+    // Sets the behavior at the time of construction in TInjector.
+    
     // (...arguments: arguments) => any;
     this.constructor = function() {};
+    
+    // Set at inheritance in .extend.
+    // Reference to prototype of this instance.
 
     // (...arguments: Array<TInjector|string>) => Function;
     this.extend = function() {
@@ -301,6 +314,9 @@ T.Prototype = function() {
         
         return Element;
     };
+    
+    // Is called when a successor constructor.
+    // Allows you to create static options.
     
     // () => void;
     this._static = function() {
