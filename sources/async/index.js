@@ -1,7 +1,7 @@
 (function() {
 
+// Wrap function. Says how perform this function to get the result.
 // (argument: (callback: (error, result) => void) => void) => Function;
-// unsafe
 T.async = function(argument) {
     var async = function(callback) {
         if (callback) {
