@@ -1,62 +1,57 @@
 describe('render', function() {
-    describe('Templates.render', function() {
-        describe('function', function() {
-            it('any', function() {
-                T.render(function() {}, function(error, result) {
-                    if (error) throw error;
-                    assert.equal(result, (function() {}).toString());
-                });
-            });
-            it('Templates.sync', function() {
-                T.render(T.sync(function() { return 123; }), function(error, result) {
-                    if (error) throw error;
-                    assert.equal(result, 123);
-                });
-            });
-            it('Templates.async', function() {
-                T.render(T.async(function(callback) {
-                    setTimeout(function() { callback(null, 123); }, 10);
-                }), function(error, result) {
-                    if (error) throw error;
-                    assert.equal(result, 123);
-                });
-            });
-        });
-        describe('object', function() {
-            it('Templates.Renderer', function() {
-                T.render(T.Renderer().data(123), function(error, result) {
-                    if (error) throw error;
-                    assert.equal(result, 123);
-                });
-            });
-            it('Templates.data', function() {
-                T.render(T.data(1, 2, 3), function(error, result) {
-                    if (error) throw error;
-                    assert.equal(result, 123);
-                });
-            });
-            it('Templates.mixin', function() {
-                T.render(T.mixin(function(a) { return T.data(a, '<%= b %>'); })(12), function(error, result) {
-                    if (error) throw error;
-                    assert.equal(result, 123);
-                }, { b: 3 });
-            });
-        });
+    it('Templates.render', function() {
+        var check = function(assert, wait) {
+            return function(error, result) {
+                if (error) throw error;
+                assert(result, wait);
+            }
+        };
+        T.render(123, check(assert.equal, 123));
+        T.render('string', check(assert.equal, "string"));
+        var f = function() {};
+        T.render(f, check(assert.equal, f));
+        T.render([1, 2, 3], check(assert.deepEqual, [1, 2, 3]));
+        T.render({ a: 1, b: 2, c: 3}, check(assert.deepEqual, { a: 1, b: 2, c: 3 }));
+        T.render(T.sync(function() { return 123; }), check(assert.equal, 123));
+        T.render(T.async(function(callback) { callback(null, 123); }), check(assert.equal, 123));
+        T.render(T.Renderer().data(123), check(assert.equal, 123));
+        T.render([
+            T.sync(function() { return 1; }),
+            T.async(function(callback) { callback(null, 2); }),
+            T.Renderer().data(3)
+        ], check(assert.deepEqual, [1, 2, '3']));
+        T.render({
+            a: T.sync(function() { return 1; }),
+            b: T.async(function(callback) { callback(null, 2); }),
+            c: T.Renderer().data(3)
+        }, check(assert.deepEqual, { a: 1, b: 2, c: '3' }));
+    });
+    it('Templates.renderAttributes', function() {
+        T.renderAttributes({
+            a: 'string',
+            b: null,
+            c: T.sync(function() { return 'sync' }),
+            d: T.async(function(callback) { callback(null, 'async'); }),
+            e: T.Renderer().data('<%= e %>')
+        }, function(error, result) {
+            if (error) throw error;
+            assert.equal(result, ' a="string" b c="sync" d="async" e="data"');
+        }, { e: 'data' });
     });
     it('Templates.renderSelector', function() {
-        var selector = ".class-.fdsaDss.pngClas-gfdreDS#Id1#Id2[attr1=http://google.com/images/logo.png,attr2='http://.com/images/logo.png']" + '[attr3=".com/images/logo.png"' + ",attr4'attr5'" + '"attr6"][alt=#item]';
+        var selector = '.class-name.withBig.letters.AndFromIt#Id1#Id2[attr1=http://link.without/quotes.png,attr2=' + "'http://link.with/single/quotes'" + '][attr3="http://link.with/double/quotes",attr4' + "'attr5'"+' "attr6"][alt=#simple!]';
         var attributes = {};
         T.renderSelector(attributes, selector);
         assert.deepEqual(attributes, {
-            class: 'class- fdsaDss pngClas-gfdreDS',
+            class: 'class-name withBig letters AndFromIt',
             id: 'Id2',
-            attr1: 'http://google.com/images/logo.png',
-            attr2: 'http://.com/images/logo.png',
-            attr3: ".com/images/logo.png",
+            attr1: 'http://link.without/quotes.png',
+            attr2: 'http://link.with/single/quotes',
+            attr3: "http://link.with/double/quotes",
             attr4: null,
             "'attr5'": null,
             '"attr6"': null,
-            alt: "#item"
+            alt: "#simple"
         });
     });
 });

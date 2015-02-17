@@ -4,9 +4,10 @@ if(typeof exports === 'object') {
 
 (function(Module, path, callsite) {
 
-// Connects the line as a separate module.
-// (filebody: string, filepath: string) => // .T
-// Only absolute filepath!
+// String as a separate module.
+// Do not cache the result.
+
+// (filebody: string, filepath: string) => Module.exports
 T.compile = function(filebody, filepath) {
     var template = new Module(filepath, module);
     template.filename = filepath;
@@ -16,8 +17,9 @@ T.compile = function(filebody, filepath) {
     return template.exports;
 };
 
-// // Forgets and reconnecting unit.
-// (id: string) => // .T
+// As require, but do not cache the result.
+
+// (id: string) => Module.exports
 // Only relative paths! No module names.
 T.include = function(id) {
     var dirname = path.dirname(callsite()[1].getFileName());

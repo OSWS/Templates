@@ -37,7 +37,7 @@
     "source-map-support": "^0.2.9"
   },
   "main": "./templates.js",
-  "bin": "./cli.js",
+  "bin": "./sources/cli/index.js",
   "scripts": {
     "test": "mocha"
   }

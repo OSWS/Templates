@@ -1,5 +1,8 @@
 (function() {
 
+// Universal renderer.
+// Ignores static native data JavaScript. Processes only the data of module.
+
 // (data: TData, callback: TCallback, context?: TContext) => void
 T.render = function(data, callback, context) {
     if (_.isFunction(data)) {
@@ -45,7 +48,7 @@ T.renderContext = function(string, context, callback) {
     callback(null, _.template(string, context));
 };
 
-// (attributes: TAttributes, callback: TCallback, context: TContext) => void
+// (attributes: TAttributes, callback: TCallback, context?: TContext) => void
 T.renderAttributes = function(attributes, callback, context) {
     T.render(attributes, function(error, attributes) {
         if (error) callback(error);
@@ -72,7 +75,7 @@ T.regExpSearch = function(data, reg) {
     return result;
 }
 
-// https://www.regex101.com/r/cM5jC6/9
+// https://www.regex101.com/r/cM5jC6/13
 T._renderSelectorRegExp = (/(\[)|(\])|#([-\w\d]+)|\.([-\w\d]+)|([\w\d-]+)="(['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)"|([\w\d-]+)='(["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]*)'|([\w\d-]+)=([\w\d-:\\\/\.={}<>%@#$%^&*~`]*)|("['\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+")|('["\w\d\s-:\\\/\.\,\]\[={}<>%@#$%^&*~`]+')|([_\w-:\\\/]+)/g);
 
 // (attributes: TAttributes, selector: TSelector) => void;
