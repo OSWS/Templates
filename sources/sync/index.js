@@ -1,7 +1,7 @@
 (function() {
 
+// Wrap function. Says how perform this function to get the result.
 // (argument: Function) => Function;
-// unsafe
 T.sync = function(argument) {
     var sync = function() { return argument(); };
 	sync.__templatesSync = true;

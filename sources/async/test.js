@@ -2,7 +2,7 @@ describe('async', function() {
     it('function', function() {
         assert(is.function(T.async(function() {})));
     });
-    it('()', function(done) {
+    it('calling', function(done) {
         T.async(function(callback) {
             callback(null, 123);
         })(function(error, result) {
