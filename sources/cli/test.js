@@ -1,5 +1,5 @@
 describe('cli', function() {
-    var bash = function(s, a, c) { return 'node cli.js -s '+s+' -a \''+a+'\' -c \''+c+'\''; };
+    var bash = function(s, a, c) { return 'node sources/cli/index.js -s '+s+' -a \''+a+'\' -c \''+c+'\''; };
     
     it('mixin', function(done) {
         this.timeout(5000);

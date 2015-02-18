@@ -5,7 +5,7 @@ console.log(C.gray('OSWS Templates'), C.blue('CLI'));
 var commander = require('commander');
 
 commander
-.version(require('./package.json').version)
+.version(require('../../package.json').version)
 .option('-s, --source <path>', 'Specify source files. By default - all in this directory.')
 .option('-d, --dest <path>', 'Set output directory. By default - this directory.')
 .option('-w, --watch', 'Watch to source files.')
