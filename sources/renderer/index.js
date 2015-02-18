@@ -1,10 +1,9 @@
 (function() {
 
 // Simple data rendering from instance or static element.
-// Not intended for use immediately! Only inheritance!
 // Supports basic functionality works with contexts.
 
-// Not for end-use! Only as a prototype!
+// Not intended for use immediately! Only inheritance!
 
 // [new] () => this;
 T.Renderer = (new T.Prototype()).extend('data', 'context', 'render', '_render', 'toString', function() {
@@ -65,7 +64,7 @@ T.Renderer = (new T.Prototype()).extend('data', 'context', 'render', '_render', 
         });
     };
     
-    // (callback: TCallback, context: TContext) => this;
+    // (callback: TCallback, context: TContext) => void;
     this._render = function(callback, _context) {
         var context = _.extend({}, this._context);
         _.extend(context, _context);
@@ -76,7 +75,6 @@ T.Renderer = (new T.Prototype()).extend('data', 'context', 'render', '_render', 
                 else T.renderContext(_.isArray(result)? result.join('') : result, renderedContext, callback);
             }, context);
         }, context);
-        return this;
     };
     
     // () => string;

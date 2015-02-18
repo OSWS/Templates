@@ -4,7 +4,7 @@
 
 // Method .name is not static.
 
-// Not for end-use! Only as a prototype!
+// Not intended for use immediately! Only inheritance!
 
 // [new] (...arguments: Array<TSelector|TAttributes>) => this
 T.Tag = T.Data.extend('attributes', 'selector', function() {

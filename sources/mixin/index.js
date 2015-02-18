@@ -2,7 +2,7 @@
 
 T.Mixin = T.Data().extend();
 
-// (reconstructor: Function) => Content;
+// (reconstructor: Function) => this;
 T.mixin = function(reconstructor) {
 	if (!_.isFunction(reconstructor)) throw new Error('reconstructor must be a function');
 	

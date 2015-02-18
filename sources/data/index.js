@@ -2,7 +2,7 @@
 
 // Array data managment from instance or static element.
 
-// Not for end-use! Only as a prototype!
+// Not intended for use immediately! Only inheritance!
 
 // [new] () => this;
 T.Data = T.Renderer.extend('prepend', 'append', function() {
