@@ -669,7 +669,7 @@ T.mixin = function(reconstructor) {
 
 T.mixins = {
 	
-	// (src: string|function, ...arguments: Array<TSelector, TAttributes>)
+	// (src: string|function, ...arguments: Array<TSelector, TAttributes>) => this;
 	js: T.mixin(function(src) {
 		var script = T.doubles.script('[type="text/javascript"]');
 		
@@ -689,7 +689,7 @@ T.mixins = {
         return script;
 	}), 
 	
-	// (href: string|function, ...arguments: Array<TSelector, TAttributes>)
+	// (href: string, ...arguments: Array<TSelector, TAttributes>) => this;
 	css: T.mixin(function(href) {
 		var link = T.singles.link('[rel="stylesheet"]');
 		
