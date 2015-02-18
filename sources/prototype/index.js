@@ -1,6 +1,7 @@
 (function() {
 
 // The main class for all classes.
+// Not intended for use immediately! Only inheritance!
 // Remove need for using new operator.
 
 // new () => this;

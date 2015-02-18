@@ -227,6 +227,7 @@ T.isAsyncFunction = function(argument) {
 (function() {
 
 // The main class for all classes.
+// Not intended for use immediately! Only inheritance!
 // Remove need for using new operator.
 
 // new () => this;
@@ -331,6 +332,7 @@ T.Prototype = function() {
 (function() {
 
 // Simple data rendering from instance or static element.
+// Not intended for use immediately! Only inheritance!
 // Supports basic functionality works with contexts.
 
 // Not for end-use! Only as a prototype!
@@ -405,9 +407,10 @@ T.Renderer = (new T.Prototype()).extend('data', 'context', 'render', '_render', 
                 else T.renderContext(_.isArray(result)? result.join('') : result, renderedContext, callback);
             }, context);
         }, context);
+        return this;
     };
     
-    // () => string
+    // () => string;
     this.toString = function() {
         return String(this.render());
     };
