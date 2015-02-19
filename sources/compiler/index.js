@@ -20,10 +20,12 @@ T.compile = function(filebody, filepath) {
 // As require, but do not cache the result.
 
 // (id: string) => Module.exports;
-// Only relative paths! No module names.
 T.include = function(id) {
-    var dirname = path.dirname(callsite()[1].getFileName());
-    var filename = path.normalize(path.join(dirname, id));
+    if (path.resolve(id) == path.normalize(id)) var filename = id;
+    else {
+        var dirname = path.dirname(callsite()[1].getFileName());
+        var filename = path.normalize(path.join(dirname, id));
+    }
     if(require.cache[filename]) delete require.cache[filename];
     return require(filename);
 };

@@ -6,7 +6,7 @@ var commander = require('commander');
 
 commander
 .version(require('../../package.json').version)
-.option('-s, --source <path>', 'Specify source files. By default - all in this directory.')
+.option('-s, --source <path>', 'Specify source files. By default - all in this directory.', '*.js')
 .option('-d, --dest <path>', 'Set output directory. By default - this directory.')
 .option('-w, --watch', 'Watch to source files.')
 .option('-c, --context [json]', 'Specify context.')
@@ -16,8 +16,8 @@ commander
 .option('--basename <path>', 'Specify gulp-rename option.')
 .option('--prefix <path>', 'Specify gulp-rename option.')
 .option('--suffix <path>', 'Specify gulp-rename option.')
-.option('--extname <path>', 'Specify gulp-rename option.')
-.parse(process.argv)
+.option('--extname <path>', 'Specify gulp-rename option.', '.html')
+.parse(process.argv);
 
 var gulp = require('gulp');
 var debug = require('gulp-debug');
