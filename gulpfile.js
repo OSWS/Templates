@@ -8,9 +8,9 @@ var debug = require('gulp-debug');
 
 gulp.task('default', ['templates']);
 
-gulp.task('templates', ['templates-concat', 'templates-minify', 'templates-watch']);
+gulp.task('templates', ['concat', 'minify', 'watch']);
 
-gulp.task('templates-concat', function() {
+gulp.task('concat', function() {
 	gulp.src([
 		'sources/open.js',
 		
@@ -46,21 +46,21 @@ gulp.task('templates-concat', function() {
 	])
 	.pipe(debug({ title: 'concat:' }))
 	.pipe(plumber())
-	.pipe(sourcemap('templates.js'))
+	.pipe(sourcemap('oswst.js'))
 	.pipe(gulp.dest('./'));
 });
 
-gulp.task('templates-minify', function() {
-	gulp.src('templates.js')
+gulp.task('minify', function() {
+	gulp.src('oswst.js')
 	.pipe(debug({ title: 'minify:' }))
 	.pipe(plumber())
-	.pipe(concat('templates.min.js'))
-	.pipe(uglify({ outSourceMap: true, inSourceMap: 'templates.js.map' }))
+	.pipe(concat('oswst.min.js'))
+	.pipe(uglify({ outSourceMap: true, inSourceMap: 'oswst.js.map' }))
 	.pipe(gulp.dest('./'));
 });
 
-gulp.task('templates-watch', function() {
-	gulp.watch(['sources/*', 'sources/**/*'], ['templates-concat', 'templates-minify']);
+gulp.task('watch', function() {
+	gulp.watch(['sources/*', 'sources/**/*'], ['concat', 'minify']);
 });
 
 process.stdin.on("data", process.exit);

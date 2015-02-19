@@ -1,7 +1,7 @@
 describe('cli', function() {
     var bash = function(s, a, c) {
         if (fs.existsSync(__dirname+'/'+s+'.html')) fs.unlinkSync(__dirname+'/'+s+'.html');
-        return 'node '+__dirname+'/index.js -s '+__dirname+'/'+s+'.js -a \''+a+'\' -c \''+c+'\'';
+        return 'node '+__dirname+'/oswst.js -s '+__dirname+'/'+s+'.js -a \''+a+'\' -c \''+c+'\'';
     };
     
     it('mixin', function(done) {

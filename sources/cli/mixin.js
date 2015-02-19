@@ -1,4 +1,4 @@
-var T = require('../../templates.js');
+var T = require('../../');
 
 with (T.with) {
 

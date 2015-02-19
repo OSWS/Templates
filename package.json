@@ -36,9 +36,9 @@
     "gulp-mocha": "^2.0.0",
     "source-map-support": "^0.2.9"
   },
-  "main": "./templates.js",
+  "main": "./oswst.js",
   "bin": {
-    "oswst": "./sources/cli/index.js"
+    "oswst": "./sources/cli/oswst.js"
   },
   "scripts": {
     "test": "mocha"
