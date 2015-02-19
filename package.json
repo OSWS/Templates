@@ -38,7 +38,7 @@
   },
   "main": "./templates.js",
   "bin": {
-    "oswst": "./sources/cli/index.js",
+    "oswst": "./sources/cli/index.js"
   },
   "scripts": {
     "test": "mocha"
