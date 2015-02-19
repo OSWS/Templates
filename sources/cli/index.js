@@ -47,9 +47,8 @@ if (commander.context) console.log('context', C.blue(commander.context));
 if (commander.arguments) console.log('arguments', C.blue(commander.arguments));
 
 var options = {};
-console.dir(commander);
-if (commander.context) options.context = JSON.parse(commander.context);
-if (commander.arguments) options.arguments = JSON.parse(commander.arguments);
+if (_.isString(commander.context)) options.context = JSON.parse(commander.context);
+if (_.isString(commander.arguments)) options.arguments = JSON.parse(commander.arguments);
 
 gulp.task('compile', function() {
     gulp.src(commander.source)
