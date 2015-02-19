@@ -1,5 +1,5 @@
 {
-  "name": "osws-templates",
+  "name": "oswst",
   "version": "0.3.0",
   "description": "Tools for generating, extending and rendering HTML.",
   "keywords": [],
@@ -37,7 +37,9 @@
     "source-map-support": "^0.2.9"
   },
   "main": "./templates.js",
-  "bin": "./sources/cli/index.js",
+  "bin": {
+    "oswst": "./sources/cli/index.js",
+  },
   "scripts": {
     "test": "mocha"
   }
