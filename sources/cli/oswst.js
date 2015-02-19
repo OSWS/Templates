@@ -23,7 +23,7 @@ var gulp = require('gulp');
 var debug = require('gulp-debug');
 var plumber = require('gulp-plumber');
 var rename = require('gulp-rename');
-var templates = require('gulp-osws-templates');
+var templates = require('gulp-oswst');
 var _ = require('lodash');
 var path = require('path');
 
