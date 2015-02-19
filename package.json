@@ -1,6 +1,6 @@
 {
   "name": "oswst",
-  "version": "0.3.0-alpha.5",
+  "version": "0.3.0-alpha.7",
   "description": "Tools for generating, extending and rendering HTML.",
   "keywords": [],
   "author": "Open Source Web Standards <opensourcewebstandards@gmail.com> (http://osws.github.io/OSWS)",
@@ -24,7 +24,7 @@
     "gulp-debug": "^2.0.0",
     "gulp-rename": "^1.2.0",
     "gulp-uglifyjs": "^0.6.0",
-    "gulp-oswst": "0.3.0-beta.6",
+    "gulp-oswst": "0.3.0-beta.7",
     "colors": "^1.0.3"
   },
   "devDependencies": {
