@@ -6,7 +6,7 @@ global.assert = require('chai').assert;
 global.is = require('is_js');
 global.fs = require('fs');
 
-describe('osws-templates@0.3.0', function() {
+describe('osws-templates@'+require('./package.json').version, function() {
     require(__dirname + '/sources/compiler/test.js');
     
     require(__dirname + '/sources/render/test.js');
