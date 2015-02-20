@@ -9,8 +9,6 @@ commander
 .option('-s, --source <path>', 'Specify source files. By default - all in this directory.', '*.js')
 .option('-d, --dest <path>', 'Set output directory. By default - this directory.')
 .option('-w, --watch', 'Watch to source files.')
-.option('-c, --context [json]', 'Specify context.')
-.option('-a, --arguments [json]', 'Specify arguments.')
 .option('-u, --auto-exit', 'Enable auto exit by pressing Enter.')
 .option('--dirname <path>', 'Specify gulp-rename option.')
 .option('--basename <path>', 'Specify gulp-rename option.')
@@ -44,34 +42,11 @@ if (commander.prefix) console.log('prefix', C.blue(commander.prefix));
 if (commander.suffix) console.log('suffix', C.blue(commander.suffix));
 if (commander.extname) console.log('extname', C.blue(commander.extname));
 
-if (commander.context) console.log('context', C.blue(commander.context));
-if (commander.arguments) console.log('arguments', C.blue(commander.arguments));
-
-function json(input) {
-    try {
-        return JSON.parse(fs.readFileSync(input));
-    } catch (error) {
-        try {
-            return eval('(' + input + ')');
-        } catch (error) {
-            try {
-                return JSON.parse(input);
-            } catch(error) {
-                throw new Error('Unexpected JSON: '+input);
-            }
-        }
-    }
-}
-
-var options = {};
-if (_.isString(commander.context)) options.context = json(commander.context);
-if (_.isString(commander.arguments)) options.arguments = json(commander.arguments);
-
 gulp.task('compile', function() {
     gulp.src(commander.source)
     .pipe(debug({ title: 'source:' }))
     .pipe(plumber())
-    .pipe(templates(options))
+    .pipe(templates())
     .pipe(rename(function(path) {
         if (commander.dirname) path.dirname = commander.dirname;
         if (commander.basename) path.basename = commander.basename;
