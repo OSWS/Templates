@@ -16,7 +16,7 @@ commander
 .option('--basename <path>', 'Specify gulp-rename option.')
 .option('--prefix <path>', 'Specify gulp-rename option.')
 .option('--suffix <path>', 'Specify gulp-rename option.')
-.option('--extname <path>', 'Specify gulp-rename option.', '.html')
+.option('-e, --extname <path>', 'Specify gulp-rename option.', '.html')
 .parse(process.argv);
 
 var gulp = require('gulp');
