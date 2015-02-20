@@ -6,7 +6,7 @@ describe('cli', function() {
     
     it('mixin', function(done) {
         this.timeout(5000);
-        require('child_process').exec(bash('mixin', '[2]', '{"b": 3}'), function(error, stdout, stderr) {
+        require('child_process').exec(bash('mixin', '[2]', "{'b': 3}"), function(error, stdout, stderr) {
             setTimeout(function() {
                 if (error) throw error;
                 fs.readFile(__dirname+'/mixin.log', 'utf-8', function(error, result) {
@@ -18,7 +18,7 @@ describe('cli', function() {
     });
     it('tag', function(done) {
         this.timeout(5000);
-        require('child_process').exec(bash('tag', '[]', '{"a": 2}'), function(error, stdout, stderr) {
+        require('child_process').exec(bash('tag', '[]', "{'a': 2}"), function(error, stdout, stderr) {
             setTimeout(function() {
                 if (error) throw error;
                 fs.readFile(__dirname+'/tag.log', 'utf-8', function(error, result) {
@@ -30,7 +30,7 @@ describe('cli', function() {
     });
     it('data', function(done) {
         this.timeout(5000);
-        require('child_process').exec(bash('data', '[]', '{"a": 3}'), function(error, stdout, stderr) {
+        require('child_process').exec(bash('data', '[]', "{'a': 3}"), function(error, stdout, stderr) {
             setTimeout(function() {
                 if (error) throw error;
                 fs.readFile(__dirname+'/data.log', 'utf-8', function(error, result) {
