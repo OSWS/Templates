@@ -19,6 +19,7 @@ commander
 .option('-e, --extname <path>', 'Specify gulp-rename option.', '.html')
 .parse(process.argv);
 
+var fs = require('fs');
 var gulp = require('gulp');
 var debug = require('gulp-debug');
 var plumber = require('gulp-plumber');
@@ -46,9 +47,18 @@ if (commander.extname) console.log('extname', C.blue(commander.extname));
 if (commander.context) console.log('context', C.blue(commander.context));
 if (commander.arguments) console.log('arguments', C.blue(commander.arguments));
 
+function json(input) {
+  try {
+        var str = fs.readFileSync(input);
+  } catch (error) {
+        return eval('(' + input + ')');
+  }
+  return JSON.parse(str);
+}
+
 var options = {};
-if (_.isString(commander.context)) options.context = JSON.parse(commander.context);
-if (_.isString(commander.arguments)) options.arguments = JSON.parse(commander.arguments);
+if (_.isString(commander.context)) options.context = json(commander.context);
+if (_.isString(commander.arguments)) options.arguments = json(commander.arguments);
 
 gulp.task('compile', function() {
     gulp.src(commander.source)
