@@ -48,12 +48,19 @@ if (commander.context) console.log('context', C.blue(commander.context));
 if (commander.arguments) console.log('arguments', C.blue(commander.arguments));
 
 function json(input) {
-  try {
-        var str = fs.readFileSync(input);
-  } catch (error) {
-        return eval('(' + input + ')');
-  }
-  return JSON.parse(str);
+    try {
+        return JSON.parse(fs.readFileSync(input));
+    } catch (error) {
+        try {
+            return eval('(' + input + ')');
+        } catch (error) {
+            try {
+                return JSON.parse(input);
+            } catch(error) {
+                throw new Error('Unexpected JSON: '+input);
+            }
+        }
+    }
 }
 
 var options = {};
