@@ -5,6 +5,7 @@ global._ = require('lodash');
 global.assert = require('chai').assert;
 global.is = require('is_js');
 global.fs = require('fs');
+global.path = require('path');
 
 describe('osws-templates@'+require('./package.json').version, function() {
     require(__dirname + '/sources/compiler/test.js');

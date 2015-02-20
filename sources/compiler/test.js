@@ -9,6 +9,6 @@ describe('compiler', function() {
         });
     });
     it('Templates.include', function() {
-        assert.equal(T.include('include0.js'), __dirname + '/include0.js');
+        assert.equal(T.include('include0.js'), path.join(__dirname, 'include0.js'));
     });
 });
