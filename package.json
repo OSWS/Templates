@@ -1,18 +1,18 @@
 {
   "name": "oswst",
-  "version": "0.3.0-alpha.7",
+  "version": "0.3.0-alpha.9",
   "description": "Tools for generating, extending and rendering HTML.",
   "keywords": [],
   "author": "Open Source Web Standards <opensourcewebstandards@gmail.com> (http://osws.github.io/OSWS)",
-  "homepage": "http://osws.github.io/OSWS-Templates",
+  "homepage": "http://osws.github.io/Templates",
   "bugs": {
-    "url": "https://github.com/OSWS/OSWS-Templates/issues",
+    "url": "https://github.com/OSWS/Templates/issues",
     "email": "opensourcewebstandards@gmail.com"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OSWS/OSWS-Templates"
+    "url": "https://github.com/OSWS/Templates"
   },
   "dependencies": {
     "lodash": "^2.4.1",
@@ -24,7 +24,7 @@
     "gulp-debug": "^2.0.0",
     "gulp-rename": "^1.2.0",
     "gulp-uglifyjs": "^0.6.0",
-    "gulp-oswst": "0.3.0-beta.7",
+    "gulp-oswst": "0.3.0-beta.9",
     "colors": "^1.0.3"
   },
   "devDependencies": {
