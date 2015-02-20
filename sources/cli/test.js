@@ -7,7 +7,7 @@ describe('cli', function() {
             function(error, stdout, stderr) {
                 if (error) throw error;
                 fs.readFile(__dirname+'/template.log', 'utf-8', function(error, result) {
-                    assert.equal(result, '<div>123</div>');
+                    assert.equal(result + '', '<div>123</div>');
                     done();
                 });
             }
