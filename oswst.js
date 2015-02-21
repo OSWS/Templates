@@ -7,7 +7,7 @@
         module.exports = factory(require('lodash'), require('async'));
     }
     var Factory = function() {
-        return factory(arguments);
+        return factory.apply(factory, arguments);
     };
     if (typeof(window) == 'object') window.oswst = Factory;
     if (typeof(global) == 'object') global.oswst = Factory;
