@@ -385,19 +385,20 @@ T.Renderer = (new T.Prototype()).extend('data', 'context', 'render', '_render', 
     this.render = function() {
         var callback = false;
         var context = {};
+        var instance = this;
         
         for (var a in arguments) {
             if (_.isFunction(arguments[a])) callback = arguments[a];
             else if (_.isObject(arguments[a])) _.extend(context, arguments[a]); 
         }
-        
-        if (callback) this._render(callback, context);
-        
-        var instance = this;
-        
-        return T.async(function(callback) {
+
+        var async = T.async(function(callback) {
             instance._render(callback, context);
         });
+        
+        if (callback) async(callback);
+
+        return async;
     };
     
     // (callback: TCallback, context: TContext) => void;
