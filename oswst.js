@@ -108,7 +108,7 @@ T.render = function(data, callback, context) {
 
 // (string: string, context: Object, callback: TCallback) => void;
 T.renderContext = function(string, context, callback) {
-    callback(null, _.template(string, context));
+    callback(null, _.template(string)(context));
 };
 
 // (attributes: TAttributes, callback: TCallback, context?: TContext) => void;
