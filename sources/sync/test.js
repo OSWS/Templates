@@ -1,6 +1,6 @@
 describe('sync', function() {
     it('function', function() {
-        assert(is.function(T.sync(function() {})));
+        assert(_.isFunction(T.sync(function() {})));
     });
     it('calling', function() {
         assert.equal(T.sync(function() { return 123; })(), 123);

@@ -1,6 +1,6 @@
 describe('async', function() {
     it('function', function() {
-        assert(is.function(T.async(function() {})));
+        assert(_.isFunction(T.async(function() {})));
     });
     it('calling', function(done) {
         T.async(function(callback) {

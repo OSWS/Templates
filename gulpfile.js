@@ -5,10 +5,12 @@ var uglify = require('gulp-uglifyjs');
 var mocha = require('gulp-mocha');
 var plumber = require('gulp-plumber');
 var debug = require('gulp-debug');
+var browserify = require('gulp-browserify');
+var path = require('path');
 
 gulp.task('default', ['templates']);
 
-gulp.task('templates', ['concat', 'minify', 'watch']);
+gulp.task('templates', ['concat', 'minify', 'test', 'watch']);
 
 gulp.task('concat', function() {
 	gulp.src([
@@ -59,8 +61,20 @@ gulp.task('minify', function() {
 	.pipe(gulp.dest('./'));
 });
 
+gulp.task('test', function() {
+	gulp.src('tests/server/test.js')
+	.pipe(browserify({
+		ignore: [
+			path.join(__dirname, 'sources/compiler/test.js'),
+			path.join(__dirname, 'sources/cli/test.js')
+		]
+	}))
+	.pipe(gulp.dest('tests/client/'));
+});
+
 gulp.task('watch', function() {
 	gulp.watch(['sources/*', 'sources/**/*'], ['concat', 'minify']);
+	gulp.watch(['tests/server/*', 'sources/**/test.js'], ['test']);
 });
 
 process.stdin.on("data", process.exit);
