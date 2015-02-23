@@ -73,7 +73,7 @@ gulp.task('test', function() {
 });
 
 gulp.task('watch', function() {
-	gulp.watch(['sources/*', 'sources/**/*'], ['concat', 'minify']);
+	gulp.watch(['sources/*.js', 'sources/**/*.js'], ['concat', 'minify']);
 	gulp.watch(['tests/server/*', 'sources/**/test.js'], ['test']);
 });
 

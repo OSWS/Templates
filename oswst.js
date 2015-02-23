@@ -1,13 +1,13 @@
 (function(factory) {
     if(typeof define === 'function' && define.amd) {
-        define(['module', 'lodash', 'async'], function(module, _, async) {
-            module.exports = factory( _, async);
+        define(['module', 'lodash'], function(module, _) {
+            module.exports = factory( _);
         });
     } else if(typeof exports === 'object') {
-        module.exports = factory(require('lodash'), require('async'));
+        module.exports = factory(require('lodash'));
     }
     if (typeof(window) == 'object') window.oswst = factory;
-})(function(_, async) {
+})(function(_) {
     var T = {};
 
 // Available only on the server!
@@ -91,14 +91,25 @@ T.render = function(data, callback, context) {
             else var result = {};
             
             var keys = _.keys(data);
-            async.each(keys, function(key, next) {
-                T.render(data[key], function(error, r) {
-                    result[key] = r;
-                    next(error);
-                }, context);
-            }, function(error) {
-                callback(error, result);
-            });
+
+            var counter = 0;
+
+            var handler = function() {
+                if (counter < keys.length) {
+                    T.render(data[keys[counter]], function(error, _result) {
+                        if (error) callback(error);
+                        else {
+                            result[keys[counter]] = _result;
+                            counter++;
+                            handler();
+                        }
+                    }, context);
+                } else {
+                    callback(null, result);
+                }
+            };
+
+            handler();
         }
     
     // any alse

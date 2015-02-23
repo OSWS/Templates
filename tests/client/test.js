@@ -16655,7 +16655,6 @@ exports.install = function(options) {
 
 }).call(this,require("oMfpAn"),require("buffer").Buffer)
 },{"buffer":36,"fs":35,"oMfpAn":40,"path":39,"source-map":42}],53:[function(require,module,exports){
-(function (global){
 (function(factory) {
     if(typeof define === 'function' && define.amd) {
         define(['module', 'lodash', 'async'], function(module, _, async) {
@@ -16665,7 +16664,6 @@ exports.install = function(options) {
         module.exports = factory(require('lodash'), require('async'));
     }
     if (typeof(window) == 'object') window.oswst = factory;
-    if (typeof(global) == 'object') global.oswst = factory;
 })(function(_, async) {
     var T = {};
 
@@ -16750,14 +16748,26 @@ T.render = function(data, callback, context) {
             else var result = {};
             
             var keys = _.keys(data);
-            async.each(keys, function(key, next) {
-                T.render(data[key], function(error, r) {
-                    result[key] = r;
-                    next(error);
-                }, context);
-            }, function(error) {
-                callback(error, result);
-            });
+
+            var counter = 0;
+
+            var handler = function() {
+                console.log(counter, keys.length)
+                if (counter < keys.length) {
+                    T.render(data[keys[counter]], function(error, _result) {
+                        if (error) callback(error);
+                        else {
+                            result[keys[counter]] = _result;
+                            counter++;
+                            handler();
+                        }
+                    });
+                } else {
+                    callback(null, result);
+                }
+            };
+
+            handler();
         }
     
     // any alse
@@ -16766,7 +16776,7 @@ T.render = function(data, callback, context) {
 
 // (string: string, context: Object, callback: TCallback) => void;
 T.renderContext = function(string, context, callback) {
-    callback(null, _.template(string, context));
+    callback(null, _.template(string)(context));
 };
 
 // (attributes: TAttributes, callback: TCallback, context?: TContext) => void;
@@ -17446,7 +17456,6 @@ return T;
 });
 
 //# sourceMappingURL=oswst.js.map
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"async":1,"callsite":2,"lodash":41,"module":35,"path":39}],54:[function(require,module,exports){
 describe('async', function() {
     it('function', function() {

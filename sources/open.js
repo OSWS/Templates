@@ -1,11 +1,11 @@
 (function(factory) {
     if(typeof define === 'function' && define.amd) {
-        define(['module', 'lodash', 'async'], function(module, _, async) {
-            module.exports = factory( _, async);
+        define(['module', 'lodash'], function(module, _) {
+            module.exports = factory( _);
         });
     } else if(typeof exports === 'object') {
-        module.exports = factory(require('lodash'), require('async'));
+        module.exports = factory(require('lodash'));
     }
     if (typeof(window) == 'object') window.oswst = factory;
-})(function(_, async) {
+})(function(_) {
     var T = {};
