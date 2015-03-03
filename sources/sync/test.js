@@ -1,7 +1,4 @@
 describe('sync', function() {
-    it('function', function() {
-        assert(_.isFunction(T.sync(function() {})));
-    });
     it('calling', function() {
         assert.equal(T.sync(function() { return 123; })(), 123);
     });
@@ -11,16 +8,15 @@ describe('sync', function() {
         assert.equal(T.sync(function() { return 123; }) + '', 123);
         assert.equal(T.sync(function() { return 123; }), 123);
     });
-    it('Templates.render', function() {
-        assert.equal(T.render(
-            T.sync(function() { return T.data(123); }),
-            function(error, result) {
-                if (error) throw error;
-                assert.equal(result, 123);
-            }
-        ));
-    });
-    it('rerender', function() {
-        assert.equal(T.sync(function() { return T.data(123); }), 123);
-    });
+    // it('T.compile', function() {
+    //     assert.equal(T.compile(
+    //         T.sync(
+    //             function() { return 123; }),
+    //             function(error, result) {
+    //                 if (error) throw error;
+    //                 assert.equal(result, 123);
+    //             }
+    //         )
+    //     );
+    // });
 });

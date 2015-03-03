@@ -1,80 +1,24 @@
 var gulp = require('gulp');
-var concat = require('gulp-concat');
-var sourcemap = require('gulp-concat-sourcemap');
 var uglify = require('gulp-uglifyjs');
-var mocha = require('gulp-mocha');
-var plumber = require('gulp-plumber');
 var debug = require('gulp-debug');
+var plumber = require('gulp-plumber');
 var browserify = require('gulp-browserify');
+var rename = require('gulp-rename');
+
 var path = require('path');
+var fs = require('fs');
 
-gulp.task('default', ['templates']);
-
-gulp.task('templates', ['concat', 'minify', 'test', 'watch']);
-
-gulp.task('concat', function() {
-	gulp.src([
-		'sources/open.js',
-		
-		'sources/compiler/index.js',
-		
-		'sources/helpers.js',
-		
-		'sources/render/index.js',
-		
-		'sources/sync/index.js',
-		'sources/async/index.js',
-		
-		'sources/prototype/index.js',
-		'sources/renderer/index.js',
-		'sources/data/index.js',
-		'sources/tag/index.js',
-		'sources/single/index.js',
-		'sources/singles/index.js',
-		'sources/double/index.js',
-		'sources/doubles/index.js',
-		'sources/doctype/index.js',
-		'sources/doctypes/index.js',
-		'sources/xml/index.js',
-		
-		'sources/mixin/index.js',
-		'sources/mixins/index.js',
-		
-		'sources/module/index.js',
-		
-		'sources/with/index.js',
-		
-		'sources/close.js'
-	])
-	.pipe(debug({ title: 'concat:' }))
-	.pipe(plumber())
-	.pipe(sourcemap('oswst.js'))
-	.pipe(gulp.dest('./'));
+gulp.task('sources-compile', function() {
+	gulp.src('./sources/index.js')
+	.pipe(browserify())
+	.pipe(rename('oswst.js'))
+	.pipe(gulp.dest('./'))
 });
 
-gulp.task('minify', function() {
-	gulp.src('oswst.js')
-	.pipe(debug({ title: 'minify:' }))
-	.pipe(plumber())
-	.pipe(concat('oswst.min.js'))
-	.pipe(uglify({ outSourceMap: true, inSourceMap: 'oswst.js.map' }))
-	.pipe(gulp.dest('./'));
+gulp.task('sources-watch', function() {
+	gulp.watch(['./sources/**/index.js'], ['sources-compile']);
 });
 
-gulp.task('test', function() {
-	gulp.src('tests/server/test.js')
-	.pipe(browserify({
-		ignore: [
-			path.join(__dirname, 'sources/compiler/test.js'),
-			path.join(__dirname, 'sources/cli/test.js')
-		]
-	}))
-	.pipe(gulp.dest('tests/client/'));
-});
-
-gulp.task('watch', function() {
-	gulp.watch(['sources/*.js', 'sources/**/*.js'], ['concat', 'minify']);
-	gulp.watch(['tests/server/*', 'sources/**/test.js'], ['test']);
-});
+gulp.task('default', ['sources-compile', 'sources-watch']);
 
 process.stdin.on("data", process.exit);

@@ -1,18 +1,15 @@
-if(typeof exports === 'object') {
-    var path = require('path');
-
-    describe('compiler', function() {
-        describe('Templates.compile', function() {
-            it('once', function() {
-                assert.equal(T.compile('module.exports = __filename + 1;', __dirname + '/0'), __dirname + '/01');
-            });
-            it('equal path', function() {
-                assert.equal(T.compile('module.exports = __filename + 1;', __dirname + '/1'), __dirname + '/11');
-                assert.equal(T.compile('module.exports = __filename + 2;', __dirname + '/1'), __dirname + '/12');
-            });
-        });
-        it('Templates.include', function() {
-            assert.equal(T.include('include0.js'), path.join(__dirname, 'include0.js'));
+describe('compiler', function() {
+    
+    it('.data.compile', function(done) {
+        T.Compiler().data('123').compile({}, function(error, result) {
+            if (error) throw error;
+            assert.equal(result, '123');
+            done();
         });
     });
-}
+    
+    it('.context', function(done) {
+        assert.deepEqual(T.Compiler().context({ a: { b: 1 } }).context({ a: { c: 2 } })._context, { a: { b: 1, c: 2 } });
+        done();
+    });
+});

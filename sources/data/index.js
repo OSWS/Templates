@@ -1,58 +1,61 @@
-(function() {
+// String data.
 
-// Array data managment from instance or static element.
-
-// Not intended for use immediately! Only inheritance!
-
-// [new] () => this;
-T.Data = T.Renderer.extend('prepend', 'append', function() {
-    var parent = this._parent;
+module.exports = function(exports) {
     
-    // data
-    
-    // Array<TData>;
-    this._data = undefined;
-
-    // (...arguments: Array<TData>) => this;
-    this.prepend = function() {
-        this._data.unshift.apply(this._data, arguments);
-        return this;
-    };
-
-    // (...arguments: Array<TData>) => this;
-    this.data = function() {
-        this._data = Array.prototype.slice.call(arguments);
-        return this;
-    };
-
-    // (...arguments: Array<TData>) => this;
-    this.append = function() {
-        this._data.push.apply(this._data, arguments);
-        return this;
-    };
-    
-    // constructor
-    
-    this.constructor = function() {
-        parent.constructor.call(this);
+    // [new] (...data: TData) => this;
+    exports.data = exports.Compiler
+    .extend(function() {
+        var prototype = this.___prototype;
         
-        // data
+        // TData;
+        this._data = undefined;
         
-        this._data = [];
-        if (_.isArray(this._parent._data)) this._data = this._parent._data.slice(0);
-    };
-});
-
-// Useful extension.
-
-T.data = T.Data.extend(function() {
-    var parent = this._parent;
-    
-    this.constructor = function() {
-        parent.constructor.apply(this);
+        // (...data: Array<TData>) => this;
+        this.data = function() {
+            this._data = Array.prototype.slice.call(arguments, 0);
+            
+            return this;
+        };
         
-        this.data.apply(this, arguments);
-    };
-});
-
-})();
+        // (...data: Array<TData>) => this;
+        this.append = function() {
+            if (typeof(this._data) != 'object' || Object.prototype.toString.call(this._data) != '[object Array]') this._data = [];
+            this._data.push.apply(this._data, arguments);
+            
+            return this;
+        };
+        
+        // (...data: Array<TData>) => this;
+        this.prepend = function() {
+            if (typeof(this._data) != 'object' || Object.prototype.toString.call(this._data) != '[object Array]') this._data = [];
+            this._data.unshift.apply(this._data, arguments);
+            
+            return this;
+        };
+        
+        // (context: TContext, callback: TCallback) => this;
+        this.__compile = function(context, callback) {
+            return prototype.__compile.call(this, context, function(error, data) {
+                if (error) callback(error);
+                else {
+                    if (typeof(data) == 'object' && Object.prototype.toString.call(data) == '[object Array]') 
+                        callback(null, data.join(''));
+                    else callback(null, data);
+                }
+            });
+        };
+        
+        this.extend = function() {
+            var extension = prototype.extend.apply(this, arguments);
+            exports.static(extension, 'append');
+            exports.static(extension, 'prepend');
+            return extension;
+        };
+        
+        this.__constructor = function() {
+            if (prototype.__constructor) prototype.__constructor.call(this);
+            this.data.apply(this, arguments);
+        };
+    })
+    .extend();
+};

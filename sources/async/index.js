@@ -1,37 +1,35 @@
-(function() {
+// Asynchronously returned data.
 
-// Wrap function. Says how perform this function to get the result.
-// (argument: (callback: (error, result) => void) => void) => Function;
-T.async = function(argument) {
-    var async = function(callback) {
-        if (callback) {
-            var called = false;
-            argument(function(error, result) {
-                if (!called) {
-                    called = true;
-                    if (_.isFunction(callback)) callback(error, result);
-                } else throw new Error('Repeated call callback unexpected!');
-            });
-        } else {
-            return async.toString();
-        }
+module.exports = function(exports) {
+    
+    // (argument: (callback: (error, result) => void) => void) => { [Function] .___oswstAsync: true };
+    exports.async = function(argument) {
+        var async = function(callback) {
+            if (callback) {
+                var called = false;
+                argument(function(error, result) {
+                    if (!called) {
+                        called = true;
+                        if (typeof(callback) == 'function') callback(error, result);
+                    } else throw new Error('Repeated call callback unexpected!');
+                });
+            } else return async.toString();
+        };
+        async.___oswstAsync = true;
+    	async.toString = function() {
+    	    var result = new Error('Asynchrony can not be converted into synchronicity!');
+    	    async(function(error, data) {
+    	        if (error) result = error;
+    	        else result = data;
+    	    });
+    	    if (typeof(result) == 'object' && result instanceof Error) throw result;
+    	    return String(result);
+    	};
+    	return async;
     };
-    async.__templatesAsync = true;
-	async.toString = function() {
-	    var _result = new Error('Asynchrony can not be converted into synchronicity!');
-        T.render(async, function(error, result) {
-	        if (error) throw error;
-            else _result = result;
-        }, {});
-	    if (_.isObject(_result) && _result instanceof Error) throw _result;
-	    return _result;
-	};
-	return async;
+    
+    // (argument: Function) => boolean;
+    exports.isAsyncFunction = function(argument) {
+        return !!argument.___oswstAsync;
+    };
 };
-
-// (argument: Function) => boolean;
-T.isAsyncFunction = function(argument) {
-    return !!argument.__templatesAsync;
-};
-
-})();

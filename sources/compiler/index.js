@@ -1,35 +1,76 @@
-// Available only on the server!
+// Support for TData, TContext and compilation.
 
-if(typeof exports === 'object') {
-
-(function(Module, path, callsite) {
-
-// String as a separate module.
-// Do not cache the result.
-
-// (filebody: string, filepath: string) => Module.exports;
-T.compile = function(filebody, filepath) {
-    var template = new Module(filepath, module);
-    template.filename = filepath;
-    template.paths = Module._nodeModulePaths(path.dirname(filepath));
-    template._compile(filebody, filepath);
-    template.loaded = true;
-    return template.exports;
+module.exports = function(exports) {
+    
+    exports.extendContextOnCompile = function(compiler, argumentContext) {
+        if (typeof(argumentContext) == 'undefined') return compiler._context;
+        else if (typeof(argumentContext) == 'object' && typeof(compiler._context) == 'object') {
+            return require('merge').recursive(compiler._context, argumentContext);
+        } else return argumentContext;
+    };
+    
+    // [new] () => this;
+    exports.Compiler = (new exports.Class())
+    .extend(function() {
+        var prototype = this.___prototype;
+        
+        // TData;
+        // this._data = undefined;
+        
+        // (data: TData) => this;
+        this.data = function(data) {
+            this._data = data;
+            
+            return this;
+        };
+        
+        // (context?: TContext, callback: TCallback) => async;
+        this.compile = function() {
+            var instance = this;
+            
+            var context = undefined;
+            var callback = undefined;
+            
+            if (typeof(arguments[0]) == 'object') context = arguments[0];
+            
+            if (typeof(arguments[0]) == 'function') callback = arguments[0];
+            else if (typeof(arguments[1]) == 'function') callback = arguments[1];
+            
+            var async = exports.async(function(callback) {
+                instance.__compile(context, callback);
+            });
+            
+            if (callback) async(callback);
+            
+            return async;
+        };
+        
+        // (context: TContext, callback: TCallback) => this;
+        this.__compile = function(context, callback) {
+            exports.compile(this._data, exports.extendContextOnCompile(this, context), callback);
+            
+            return this;
+        };
+        
+        // TContext;
+        // this._context = undefined;
+        
+        // (context: TContext) => this;
+        this.context = function(context) {
+            if (!Object.prototype.hasOwnProperty.call(this, '_context')) this._context = context;
+            else this._context = require('merge').recursive(this._context, context);
+            
+            return this;
+        };
+        
+        this.extend = function() {
+            var extension = prototype.extend.apply(this, arguments);
+            exports.static(extension, 'data');
+            exports.static(extension, 'context');
+            exports.static(extension, 'compile');
+            exports.static(extension, '__compile');
+            return extension;
+        };
+    })
+    .extend();
 };
-
-// As require, but do not cache the result.
-
-// (id: string) => Module.exports;
-T.include = function(id) {
-    if (path.resolve(id) == path.normalize(id)) var filename = id;
-    else {
-        var dirname = path.dirname(callsite()[1].getFileName());
-        var filename = path.normalize(path.join(dirname, id));
-    }
-    if(require.cache[filename]) delete require.cache[filename];
-    return require(filename);
-};
-
-})(require('module'), require('path'), require('callsite'));
-
-}

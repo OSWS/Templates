@@ -1,7 +1,44 @@
-# [OSWS](https://github.com/OSWS) [Templates](https://github.com/OSWS/Templates) [0.3.0](https://github.com/OSWS/Templates/wiki/0.3.0)
+#### Open Source Web Standards
+#### Templates | oswst
+#### 1.0.0
+---
 
-### [Documentation](https://github.com/OSWS/Templates/wiki)
+#### Install
 
-This version contains tools to control compilation, inheritance, and so the same for the implementation of XML and HTML.
+`git clone -b 1.0.0 git@github.com:OSWS/Templates.git oswst`
 
-###### In the near future OSWS to be refactored. Implementation will be made in separate repositories. This module will be used as storage space, debugging and documentation for the kernel of the template. OSWS central repository will contain a single command-line utility and collect all implemented in user-friendly interface.
+> package.json
+```json
+{
+    "dependencies": {
+        "oswst": "OSWS/Templates#1.0.0"
+    }
+}
+```
+
+---
+#### Require
+
+###### CommonJS
+```js
+var oswst = require('oswst');
+```
+
+###### RequireJS
+```js
+define(['oswst.min.js'], function(oswst) {});
+```
+
+###### window
+```js
+var oswst = window.oswst;
+```
+
+---
+#### Dependencies
+
+Rendering context requires string templating module.
+
+At the moment, the decision on the choice of the template is not accepted. [#28](https://github.com/OSWS/Templates/issues/28)
+
+Template system is not integrated, and it is necessary to specify manually!
