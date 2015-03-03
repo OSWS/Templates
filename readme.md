@@ -1,6 +1,7 @@
 #### Open Source Web Standards
 #### Templates | oswst
 #### 1.0.0
+
 ---
 
 #### Install
@@ -17,6 +18,7 @@
 ```
 
 ---
+
 #### Require
 
 ###### CommonJS
@@ -33,12 +35,3 @@ define(['oswst.min.js'], function(oswst) {});
 ```js
 var oswst = window.oswst;
 ```
-
----
-#### Dependencies
-
-Rendering context requires string templating module.
-
-At the moment, the decision on the choice of the template is not accepted. [#28](https://github.com/OSWS/Templates/issues/28)
-
-Template system is not integrated, and it is necessary to specify manually!
