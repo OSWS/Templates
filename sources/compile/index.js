@@ -2,18 +2,7 @@
 
 module.exports = function(exports) {
     
-    // (data: TData, context: TContext, result: TData, counter: number, keys: Array<string|number>, callback: TCallback) => void;
-    var __compileCore = function(data, context, result, counter, keys, callback) {
-        if (counter < keys.length) {
-            exports.compile(data[keys[counter]], context, function(error, compiled) {
-                if (error) callback(error);
-                else {
-                    result[keys[counter]] = compiled;
-                    __compileCore(data, context, result, counter + 1, keys, callback);
-                }
-            });
-        } else callback(null, result);
-    };
+    var async = require('async');
     
     // (data: TData, context: TContext, callback: TCallback) => void;
     exports.compile = function(data, context, callback) {
@@ -34,7 +23,18 @@ module.exports = function(exports) {
             else {
                 if (Object.prototype.toString.call(data) == '[object Array]') var result = [];
                 else var result = {};
-                __compileCore(data, context, result, 0, Object.keys(data), callback);
+    
+    			async.each(Object.keys(data), function(key, next) {
+    				exports.compile(data[key], context, function(error, value) {
+    				    if (error) callback(error);
+    					else {
+    					    result[key] = value;
+        					next();
+    					}
+    				}, context);
+    			}, function() {
+    				callback(null, result);
+    			});
             }
         
         } else callback(null, data);

@@ -11,4 +11,36 @@ describe('data', function() {
             done();
         });
     });
+    
+    describe('stress tests', function() {
+        var vertical = T.data();
+        it('create 100000 vertical', function(done) {
+            for (var i = 0; i < 100000; i++) {
+                vertical.append(T.data(i));
+            }
+            done();
+        }); 
+        var horizontal = T.data();
+        it('create 100000 horizontal', function(done) {
+            var cursor = horizontal;
+            for (var i = 0; i < 100000; i++) {
+                var temp = T.data(i);
+                cursor.append(temp);
+                var cursor = temp;
+            }
+            done();
+        });
+        it('compile 100000 vertical', function(done) {
+            vertical.compile(function(error, result) {
+                if (error) throw error;
+                done();
+            });
+        });
+        it('compile 100000 horizontal', function(done) {
+            horizontal.compile(function(error, result) {
+                if (error) throw error;
+                done();
+            });
+        });
+    });
 });
