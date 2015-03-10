@@ -21,9 +21,9 @@ describe('data', function() {
             done();
         }); 
         var horizontal = T.data();
-        it('create 100000 horizontal', function(done) {
+        it('create 700 horizontal', function(done) {
             var cursor = horizontal;
-            for (var i = 0; i < 100000; i++) {
+            for (var i = 0; i < 700; i++) {
                 var temp = T.data(i);
                 cursor.append(temp);
                 var cursor = temp;
@@ -36,7 +36,7 @@ describe('data', function() {
                 done();
             });
         });
-        it('compile 100000 horizontal', function(done) {
+        it('compile 700 horizontal', function(done) {
             horizontal.compile(function(error, result) {
                 if (error) throw error;
                 done();
