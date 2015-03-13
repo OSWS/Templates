@@ -29,5 +29,6 @@
   },
   "scripts": {
     "test": "mocha sources/test.js"
-  }
+  },
+  "main": "sources/index.js"
 }
