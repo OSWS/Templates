@@ -64,11 +64,17 @@ module.exports = function(exports) {
             } else return context;
         };
         
+        // => string;
+        this.toString = function() {
+            return String(this.compile());
+        };
+        
         this.extend = function() {
             var extension = prototype.extend.apply(this, arguments);
             exports.static(extension, 'data');
             exports.static(extension, 'context');
             exports.static(extension, 'compile');
+            exports.static(extension, 'toString');
             return extension;
         };
     })

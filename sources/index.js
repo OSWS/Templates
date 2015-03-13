@@ -29,3 +29,5 @@ require('./async/index.js')(module.exports);
 require('./compiler/index.js')(module.exports);
 require('./context/index.js')(module.exports);
 require('./data/index.js')(module.exports);
+
+if (typeof(window) == 'object') window['oswst'] = module.exports;
