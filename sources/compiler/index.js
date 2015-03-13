@@ -1,7 +1,5 @@
 // Support for TData, TContext and compilation.
 
-var merge = require('merge');
-
 module.exports = function(exports) {
     
     // [new] () => this;
@@ -51,17 +49,9 @@ module.exports = function(exports) {
         // (context: TContext) => this;
         this.context = function(context) {
             if (!Object.prototype.hasOwnProperty.call(this, '_context')) this._context = context;
-            else this._context = merge.recursive(this._context, context);
+            else this._context = exports.merge.recursive(this._context, context);
             
             return this;
-        };
-        
-        // () => Object <= TContext;
-        this.__extendContexts = function(context) {
-            if (typeof(context) == 'undefined') return this._context;
-            else if (typeof(context) == 'object' && typeof(this._context) == 'object') {
-                return require('merge').recursive(this._context, context);
-            } else return context;
         };
         
         // => string;

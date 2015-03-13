@@ -21,6 +21,8 @@
 // {} =>> string; // String({}) =>> '[object Object]'
 // [] =>> string; // [ 123, 456 ] =>> 123456
 
+module.exports.merge = require('merge');
+
 require('./class/index.js')(module.exports);
 require('./static/index.js')(module.exports);
 require('./compile/index.js')(module.exports);
