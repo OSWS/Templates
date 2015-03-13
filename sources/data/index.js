@@ -8,7 +8,7 @@ module.exports = function(exports) {
         var prototype = this.___prototype;
         
         // TData;
-        this._data = undefined;
+        // this._data = undefined;
         
         // (...data: Array<TData>) => this;
         this.data = function() {
