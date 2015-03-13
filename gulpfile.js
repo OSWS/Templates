@@ -15,10 +15,17 @@ gulp.task('sources-compile', function() {
 	.pipe(gulp.dest('./'))
 });
 
-gulp.task('sources-watch', function() {
-	gulp.watch(['./sources/**/index.js'], ['sources-compile']);
+gulp.task('sources-minify', function() {
+	gulp.src('./oswst.js')
+	.pipe(uglify())
+	.pipe(rename('oswst.min.js'))
+	.pipe(gulp.dest('./'))
 });
 
-gulp.task('default', ['sources-compile', 'sources-watch']);
+gulp.task('sources-watch', function() {
+	gulp.watch(['./sources/**/index.js'], ['sources-compile', 'sources-minify']);
+});
+
+gulp.task('default', ['sources-compile', 'sources-minify', 'sources-watch']);
 
 process.stdin.on("data", process.exit);
