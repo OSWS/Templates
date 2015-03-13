@@ -40,7 +40,7 @@ module.exports = function(exports) {
                     callback(error);
                     return;
                 }
-                exports.compileData(context, {}, callback);
+                exports.compile(context, {}, callback);
             });
         };
         

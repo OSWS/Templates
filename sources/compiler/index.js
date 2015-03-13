@@ -30,7 +30,7 @@ module.exports = function(exports) {
             else if (typeof(arguments[1]) == 'function') callback = arguments[1];
             
             var async = exports.async(function(callback) {
-                exports.compileData(instance, context, callback);
+                exports.compile(instance, context, callback);
             });
             
             if (callback) async(callback);

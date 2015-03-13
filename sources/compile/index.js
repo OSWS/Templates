@@ -5,7 +5,7 @@ module.exports = function(exports) {
     var async = require('async');
     
     // (data: TData, context: Object <= TContext, callback: TCallback) => void =>> string;
-    exports.compileData = function(data, context, callback) {
+    exports.compile = function(data, context, callback) {
         
         var whiler = true;
         
