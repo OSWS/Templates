@@ -34,15 +34,8 @@ module.exports = function(exports) {
         };
         
         // (context: TContext, callback: TCallback) => this;
-        this.__compile = function(context, callback) {
-            return prototype.__compile.call(this, context, function(error, data) {
-                if (error) callback(error);
-                else {
-                    if (typeof(data) == 'object' && Object.prototype.toString.call(data) == '[object Array]') 
-                        callback(null, data.join(''));
-                    else callback(null, data);
-                }
-            });
+        this.__compile = function(context) {
+            return this._data;
         };
         
         this.extend = function() {
@@ -56,6 +49,5 @@ module.exports = function(exports) {
             if (prototype.__constructor) prototype.__constructor.call(this);
             this.data.apply(this, arguments);
         };
-    })
-    .extend();
+    }).extend();
 };

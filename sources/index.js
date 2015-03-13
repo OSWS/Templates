@@ -1,6 +1,8 @@
 // Rules.
 
 // Comments with instructions in the style of language TypeScript.
+// => return
+// =>> callback
 
 // ._key
 // Utilitarian option, not intended for user use.
@@ -10,6 +12,14 @@
 
 // .___key
 // Additional Information. Read-only.
+
+// type TData = sync|async|Compiler|any;
+// sync|async =>> TData;
+// Compiler =>> string;
+// string|number =>> string;
+// boolean|undefined|null =>> string; // ''
+// {} =>> string; // String({}) =>> '[object Object]'
+// [] =>> string; // [ 123, 456 ] =>> 123456
 
 require('./class/index.js')(module.exports);
 require('./static/index.js')(module.exports);

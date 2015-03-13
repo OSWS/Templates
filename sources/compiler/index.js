@@ -2,19 +2,12 @@
 
 module.exports = function(exports) {
     
-    exports.extendContextOnCompile = function(compiler, argumentContext) {
-        if (typeof(argumentContext) == 'undefined') return compiler._context;
-        else if (typeof(argumentContext) == 'object' && typeof(compiler._context) == 'object') {
-            return require('merge').recursive(compiler._context, argumentContext);
-        } else return argumentContext;
-    };
-    
     // [new] () => this;
     exports.Compiler = (new exports.Class())
     .extend(function() {
         var prototype = this.___prototype;
         
-        // TData;
+        // Array<TData>;
         // this._data = undefined;
         
         // (data: TData) => this;
@@ -37,7 +30,7 @@ module.exports = function(exports) {
             else if (typeof(arguments[1]) == 'function') callback = arguments[1];
             
             var async = exports.async(function(callback) {
-                instance.__compile(context, callback);
+                exports.compileData(instance, context, callback);
             });
             
             if (callback) async(callback);
@@ -45,12 +38,10 @@ module.exports = function(exports) {
             return async;
         };
         
-        // (context: TContext, callback: TCallback) => this;
-        this.__compile = function(context, callback) {
-            exports.compile(this._data, exports.extendContextOnCompile(this, context), callback);
-            
-            return this;
-        };
+        // () => TData;
+        this.__compile = function() {
+            return this._data;
+        }
         
         // TContext;
         // this._context = undefined;
@@ -63,12 +54,19 @@ module.exports = function(exports) {
             return this;
         };
         
+        // () => Object <= TContext;
+        this.__extendContexts = function(context) {
+            if (typeof(context) == 'undefined') return this._context;
+            else if (typeof(context) == 'object' && typeof(this._context) == 'object') {
+                return require('merge').recursive(this._context, context);
+            } else return context;
+        };
+        
         this.extend = function() {
             var extension = prototype.extend.apply(this, arguments);
             exports.static(extension, 'data');
             exports.static(extension, 'context');
             exports.static(extension, 'compile');
-            exports.static(extension, '__compile');
             return extension;
         };
     })

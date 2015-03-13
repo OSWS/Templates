@@ -13,34 +13,42 @@ describe('data', function() {
     });
     
     describe('stress tests', function() {
-        var vertical = T.data();
-        it('create 100000 vertical', function(done) {
-            for (var i = 0; i < 100000; i++) {
-                vertical.append(T.data(i));
-            }
-            done();
-        }); 
-        var horizontal = T.data();
-        it('create 700 horizontal', function(done) {
-            var cursor = horizontal;
-            for (var i = 0; i < 700; i++) {
-                var temp = T.data(i);
-                cursor.append(temp);
-                var cursor = temp;
-            }
-            done();
-        });
-        it('compile 100000 vertical', function(done) {
-            vertical.compile(function(error, result) {
-                if (error) throw error;
-                done();
+        (function(count) {
+            describe(count+' vertical', function() {
+                var vertical = T.data();
+                it('create', function(done) {
+                    for (var i = 0; i < count; i++) {
+                        vertical.append(T.data(i));
+                    }
+                    done();
+                });
+                it('compile', function(done) {
+                    vertical.compile(function(error, result) {
+                        if (error) throw error;
+                        done();
+                    });
+                });
             });
-        });
-        it('compile 700 horizontal', function(done) {
-            horizontal.compile(function(error, result) {
-                if (error) throw error;
-                done();
+        })(100000);
+        (function(count) {
+            describe(count+' horizontal', function() {
+                var horizontal = T.data();
+                it('create', function(done) {
+                    var cursor = horizontal;
+                    for (var i = 0; i < count; i++) {
+                        var temp = T.data(i);
+                        cursor.append(temp);
+                        var cursor = temp;
+                    }
+                    done();
+                });
+                it('compile', function(done) {
+                    horizontal.compile(function(error, result) {
+                        if (error) throw error;
+                        done();
+                    });
+                });
             });
-        });
+        })(100000);
     });
 });

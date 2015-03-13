@@ -20,31 +20,6 @@ module.exports = function(exports) {
             return this;
         };
         
-        // () => any;
-        this.__returner = function() {
-            var _this = this;
-            var ___arguments = [];
-            var result = function() {
-                ___arguments.push(arguments);
-                return result;
-            };
-            result.___oswstContext = true;
-            
-            // () => this;
-            result.__construct = function() {
-                _this.___arguments = ___arguments;
-                return _this;
-            };
-            
-            // (context: TContext, callback: TCallback) => this;
-            result.compile = result.__compile = function(context, callback) {
-                exports.compile(this, context, callback);
-                return this;
-            };
-            
-            return result;
-        };
-        
         // .apply(this, ...path: Array<string>) => void;
         this.__constructor = function() {
             if (prototype.__constructor) prototype.__constructor.call(this);
@@ -55,29 +30,24 @@ module.exports = function(exports) {
             this.data.apply(this, arguments);
         };
         
-        // (context: TContext, callback: TCallback) => this;
-        this.__compile = function(context, callback) {
-            try {
-                var context = exports.contextTraveler.apply(context, this._data);
-            } catch(error) {
-                callback(error);
-                return this;
-            }
-            try {
-                if (this.___arguments.length) {
-                    for (var a in this.___arguments) {
-                        if (typeof(context) == 'function') var context = context.apply(this, this.___arguments[a]);
-                    }
+        // () => TData;
+        this.__compile = function(_context) {
+            var instance = this;
+            return exports.async(function(callback) {
+                try {
+                    var context = exports.contextTraveler.apply(_context, instance._data);
+                } catch(error) {
+                    callback(error);
+                    return;
                 }
-            } catch(error) {
-                callback(error);
-                return this;
-            }
-            exports.compile(context, context, callback);
-            return this;
+                exports.compileData(context, {}, callback);
+            });
         };
         
-    })().__construct().extend();
+        // () => Array<any>|void;
+        this.__compileChildren = undefined; // Custom data logic.
+        
+    });
     
     // .apply(this: TContext, arguments: Array<string>) => any;
     exports.contextTraveler = function() {
