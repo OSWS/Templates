@@ -15,7 +15,6 @@
     "url": "https://github.com/OSWS/Templates"
   },
   "dependencies": {
-    "async": "^0.9.0",
     "merge": "^1.2.0"
   },
   "devDependencies": {

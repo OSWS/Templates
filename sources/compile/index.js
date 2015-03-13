@@ -2,8 +2,6 @@
 
 module.exports = function(exports) {
     
-    var async = require('async');
-    
     // (data: TData, context: Object <= TContext, callback: TCallback) => void =>> string;
     exports.compile = function(data, context, callback) {
         
