@@ -1,5 +1,4 @@
 global.T = require('./index.js');
-global.doT = require('dot');
 global.assert = require('chai').assert;
 
 describe('oswst@'+require('../package.json').version, function() {
