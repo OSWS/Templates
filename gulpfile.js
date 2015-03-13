@@ -11,14 +11,14 @@ var fs = require('fs');
 gulp.task('sources-compile', function() {
 	gulp.src('./sources/index.js')
 	.pipe(browserify())
-	.pipe(rename('oswst.js'))
+	.pipe(rename(require('./package.json').name+'.js'))
 	.pipe(gulp.dest('./'))
 });
 
 gulp.task('sources-minify', function() {
-	gulp.src('./oswst.js')
+	gulp.src('./'+require('./package.json').name+'.js')
 	.pipe(uglify())
-	.pipe(rename('oswst.min.js'))
+	.pipe(rename(require('./package.json').name+'.min.js'))
 	.pipe(gulp.dest('./'))
 });
 

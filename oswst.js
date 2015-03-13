@@ -388,8 +388,6 @@ module.exports = function(exports) {
 },{}],5:[function(require,module,exports){
 // Support for TData, TContext and compilation.
 
-var merge = require('merge');
-
 module.exports = function(exports) {
     
     // [new] () => this;
@@ -439,17 +437,9 @@ module.exports = function(exports) {
         // (context: TContext) => this;
         this.context = function(context) {
             if (!Object.prototype.hasOwnProperty.call(this, '_context')) this._context = context;
-            else this._context = merge.recursive(this._context, context);
+            else this._context = exports.merge.recursive(this._context, context);
             
             return this;
-        };
-        
-        // () => Object <= TContext;
-        this.__extendContexts = function(context) {
-            if (typeof(context) == 'undefined') return this._context;
-            else if (typeof(context) == 'object' && typeof(this._context) == 'object') {
-                return require('merge').recursive(this._context, context);
-            } else return context;
         };
         
         // => string;
@@ -468,7 +458,7 @@ module.exports = function(exports) {
     })
     .extend();
 };
-},{"merge":1}],6:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 // At compile time can be transmitted to the context.
 // This class can access it.
 
@@ -551,7 +541,7 @@ module.exports = function(exports) {
         var prototype = this.___prototype;
         
         // TData;
-        this._data = undefined;
+        // this._data = undefined;
         
         // (...data: Array<TData>) => this;
         this.data = function() {
@@ -590,7 +580,7 @@ module.exports = function(exports) {
         
         this.__constructor = function() {
             if (prototype.__constructor) prototype.__constructor.call(this);
-            this.data.apply(this, arguments);
+            if (this.data) this.data.apply(this, arguments);
         };
     }).extend();
 };
@@ -618,6 +608,8 @@ module.exports = function(exports) {
 // {} =>> string; // String({}) =>> '[object Object]'
 // [] =>> string; // [ 123, 456 ] =>> 123456
 
+module.exports.merge = require('merge');
+
 require('./class/index.js')(module.exports);
 require('./static/index.js')(module.exports);
 require('./compile/index.js')(module.exports);
@@ -628,7 +620,7 @@ require('./context/index.js')(module.exports);
 require('./data/index.js')(module.exports);
 
 if (typeof(window) == 'object') window['oswst'] = module.exports;
-},{"./async/index.js":2,"./class/index.js":3,"./compile/index.js":4,"./compiler/index.js":5,"./context/index.js":6,"./data/index.js":7,"./static/index.js":9,"./sync/index.js":10}],9:[function(require,module,exports){
+},{"./async/index.js":2,"./class/index.js":3,"./compile/index.js":4,"./compiler/index.js":5,"./context/index.js":6,"./data/index.js":7,"./static/index.js":9,"./sync/index.js":10,"merge":1}],9:[function(require,module,exports){
 // Support static options to the class system.
 
 module.exports = function(exports) {

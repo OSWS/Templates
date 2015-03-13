@@ -1,7 +1,7 @@
 global.T = require('./index.js');
 global.assert = require('chai').assert;
 
-describe('oswst@'+require('../package.json').version, function() {
+describe(require('../package.json').name+'@'+require('../package.json').version, function() {
     require('./class/test.js');
     require('./static/test.js');
     require('./compile/test.js');
