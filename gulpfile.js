@@ -8,8 +8,9 @@ var rename = require('gulp-rename');
 var path = require('path');
 var fs = require('fs');
 
-gulp.task('sources-compile', function() {
+gulp.task('sources-browserify', function() {
 	gulp.src('./sources/index.js')
+	.pipe(debug({ title: 'browserify: ' }))
 	.pipe(browserify())
 	.pipe(rename(require('./package.json').name+'.js'))
 	.pipe(gulp.dest('./'))
@@ -17,15 +18,16 @@ gulp.task('sources-compile', function() {
 
 gulp.task('sources-minify', function() {
 	gulp.src('./'+require('./package.json').name+'.js')
+	.pipe(debug({ title: 'minify: ' }))
 	.pipe(uglify())
 	.pipe(rename(require('./package.json').name+'.min.js'))
 	.pipe(gulp.dest('./'))
 });
 
 gulp.task('sources-watch', function() {
-	gulp.watch(['./sources/**/index.js'], ['sources-compile', 'sources-minify']);
+	gulp.watch(['./sources/**/index.js'], ['sources-browserify', 'sources-minify']);
 });
 
-gulp.task('default', ['sources-compile', 'sources-minify', 'sources-watch']);
+gulp.task('default', ['sources-browserify', 'sources-minify', 'sources-watch']);
 
 process.stdin.on("data", process.exit);
