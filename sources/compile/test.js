@@ -92,4 +92,18 @@ describe('compile', function() {
             });
         });
     });
+    
+    it('full tree', function(done) {
+        var handlerCompiler = T.Compiler().extend(function() {
+            this.__compile = function(context, path) {
+                return path[path.length - 2][2];
+            };
+        });
+        var firstSync = T.sync(function() { return [ 1, handlerCompiler(), 3 ]; });
+        T.compile(firstSync, {}, function(e, d) {
+            if (e) throw e;
+            assert.equal(d, 133);
+            done();
+        });
+    });
 });

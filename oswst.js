@@ -316,6 +316,10 @@ module.exports = function(exports) {
         // false // up
         
         var reset = function(node) {
+            horizontal[deep] = -2;
+            direction = true;
+            deep++;
+            horizontal[deep] = -1;
             vertical[deep] = node;
         };
         
@@ -340,6 +344,12 @@ module.exports = function(exports) {
         };
         
         var out = function() {
+            
+            // ¿¿¿
+            vertical.pop();
+            horizontal.pop();
+            // ???
+            
             direction = false;
             deep--;
         };
@@ -347,12 +357,14 @@ module.exports = function(exports) {
         var core = function() {
             whiler = true;
             while (whiler) {
-                if (vertical.length && deep > -1) { // Available data to compile?
+                if (horizontal[deep] == -2) {
+                    out();
+                } else if (vertical.length && deep > -1) { // Available data to compile?
                     if (typeof(vertical[deep]) == 'function') { // is function?
                         if (vertical[deep].prototype instanceof exports.Compiler) // of Compiler?
-                            vertical[deep] = vertical[deep].__construct();
+                            reset(vertical[deep].__construct());
                         else if (exports.isSyncFunction(vertical[deep])) // is sync?
-                            vertical[deep] = vertical[deep].call(context);
+                            reset(vertical[deep].call(context));
                         else if (exports.isAsyncFunction(vertical[deep])) { // is async?
                             whiler = false;
                             vertical[deep].call(context, function(error, node) {
@@ -363,7 +375,7 @@ module.exports = function(exports) {
                                 }
                             });
                         } else if (exports.isContextFunction(vertical[deep])) // is context?
-                            vertical[deep] = vertical[deep].__construct();
+                            reset(vertical[deep].__construct());
                         else up(String(vertical[deep]));
                     } else if (typeof(vertical[deep]) == 'object') { // is object?
                         if (Object.prototype.toString.call(vertical[deep]) === '[object Array]') { // is array?
