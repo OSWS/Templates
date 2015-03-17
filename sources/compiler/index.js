@@ -38,7 +38,7 @@ module.exports = function(exports) {
             return async;
         };
         
-        // () => TData;
+        // (context: TContext, path: Array<TData>) => this;
         this.__compile = function() {
             return this._data;
         }
@@ -46,7 +46,7 @@ module.exports = function(exports) {
         // TContext;
         // this._context = undefined;
         
-        // (context: TContext) => this;
+        // (context: TContext, path: Array<TData>) => this;
         this.context = function(context) {
             if (!Object.prototype.hasOwnProperty.call(this, '_context')) this._context = context;
             else this._context = exports.merge.recursive(this._context, context);

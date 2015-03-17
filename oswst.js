@@ -371,7 +371,7 @@ module.exports = function(exports) {
                                 right();
                             else out();
                         } else if (vertical[deep] instanceof exports.Compiler) { // of Compiler?
-                            if (vertical[deep].__compile) reset(vertical[deep].__compile(context));
+                            if (vertical[deep].__compile) reset(vertical[deep].__compile(context, vertical));
                             else up(String(vertical[deep]));
                         } else up(String(vertical[deep]));
                     } else up(String(vertical[deep]));
@@ -426,7 +426,7 @@ module.exports = function(exports) {
             return async;
         };
         
-        // () => TData;
+        // (context: TContext, path: Array<TData>) => this;
         this.__compile = function() {
             return this._data;
         }
@@ -434,7 +434,7 @@ module.exports = function(exports) {
         // TContext;
         // this._context = undefined;
         
-        // (context: TContext) => this;
+        // (context: TContext, path: Array<TData>) => this;
         this.context = function(context) {
             if (!Object.prototype.hasOwnProperty.call(this, '_context')) this._context = context;
             else this._context = exports.merge.recursive(this._context, context);
@@ -566,7 +566,7 @@ module.exports = function(exports) {
             return this;
         };
         
-        // (context: TContext, callback: TCallback) => this;
+        // (context: TContext, path: Array<TData>) => this;
         this.__compile = function(context) {
             return this._data;
         };

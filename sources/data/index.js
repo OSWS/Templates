@@ -33,7 +33,7 @@ module.exports = function(exports) {
             return this;
         };
         
-        // (context: TContext, callback: TCallback) => this;
+        // (context: TContext, path: Array<TData>) => this;
         this.__compile = function(context) {
             return this._data;
         };

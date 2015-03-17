@@ -73,7 +73,7 @@ module.exports = function(exports) {
                                 right();
                             else out();
                         } else if (vertical[deep] instanceof exports.Compiler) { // of Compiler?
-                            if (vertical[deep].__compile) reset(vertical[deep].__compile(context));
+                            if (vertical[deep].__compile) reset(vertical[deep].__compile(context, vertical));
                             else up(String(vertical[deep]));
                         } else up(String(vertical[deep]));
                     } else up(String(vertical[deep]));
