@@ -12,6 +12,12 @@ describe('data', function() {
         });
     });
     
+    it('inheritance', function() {
+        var firstData = T.data(123, 456);
+        assert.equal(String(firstData.extend()().append(789)), 123456789);
+        assert.equal(String(firstData), 123456);
+    });
+    
     describe('stress tests', function() {
         (function(count) {
             describe(count+' vertical', function() {

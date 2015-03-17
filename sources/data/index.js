@@ -47,7 +47,7 @@ module.exports = function(exports) {
         
         this.__constructor = function() {
             if (prototype.__constructor) prototype.__constructor.call(this);
-            if (this.data) this.data.apply(this, arguments);
+            if (arguments.length > 0 && this.data) this.data.apply(this, arguments);
         };
     }).extend();
 };
