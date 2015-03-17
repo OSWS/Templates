@@ -580,6 +580,12 @@ module.exports = function(exports) {
         
         this.__constructor = function() {
             if (prototype.__constructor) prototype.__constructor.call(this);
+            this._data = [];
+            if (this.___prototype._data) {
+                for (var d in this.___prototype._data) {
+                    this._data[d] = this.___prototype._data[d];
+                }
+            }
             if (arguments.length > 0 && this.data) this.data.apply(this, arguments);
         };
     }).extend();
