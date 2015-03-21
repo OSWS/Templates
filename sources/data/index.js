@@ -45,8 +45,8 @@ exports.data = exports.Node().extend(function() {
     this.__constructor = function() {
         if (prototype.__constructor) prototype.__constructor.apply(this, arguments);
         
-        // Unsupport inheritance variable.
-        arguments.length > 0 ? this.data.apply(this, arguments) : this._data = undefined;
+        // Data inheritance.
+        arguments.length > 0 ? this.data.apply(this, arguments) : this._data = Array.prototype.slice.call(this.___prototype._data, 0);
     };
     
     // Static options support.
