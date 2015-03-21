@@ -10,7 +10,7 @@ exports.Node = (new exports.Class()).extend(function() {
     // Compile support.
     
     // Unsafe compile method.
-    // (context: TContext, path: Array<TData>) => this;
+    // (context: TContext) => this;
     this.__compile = function() { return ''; }
     
     // Safe compile method.
@@ -56,7 +56,7 @@ exports.Node = (new exports.Class()).extend(function() {
     // TContext;
     // this._context = undefined;
     
-    // (context: TContext, path: Array<TData>) => this;
+    // (context: TContext) => this;
     this.context = function(context) {
         this._context = context;
         

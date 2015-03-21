@@ -37,7 +37,7 @@ exports.data = exports.Node().extend(function() {
     // Compile support.
     
     // Unsafe compile method.
-    // (context: TContext, path: Array<TData>) => this;
+    // (context: TContext) => this;
     this.__compile = function() { return this._data; }
     
     // Construction.

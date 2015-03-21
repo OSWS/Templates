@@ -20,7 +20,7 @@ exports.sync = exports.Node().extend(function() {
     };
     
     // Unsafe compile method.
-    // (context: TContext, path: Array<TData>) => this;
+    // (context: TContext) => this;
     this.__compile = function(context) {
         return this._action.call(this, context);
     }
