@@ -1,59 +1,62 @@
-// String data.
+// Simple data manager.
 
 module.exports = function(exports) {
+
+// [new] (data?: TData) => this;
+exports.data = exports.Node().extend(function() {
+    var prototype = this.___prototype;
     
-    // [new] (...data: TData) => this;
-    exports.data = exports.Compiler
-    .extend(function() {
-        var prototype = this.___prototype;
+    // Data support.
+    
+    // Array<TData>;
+    // this._data = undefined;
+    
+    // (...data: Array<TData>) => this;
+    this.data = function() {
+        this._data = Array.prototype.slice.call(arguments, 0);
         
-        // TData;
-        // this._data = undefined;
+        return this;
+    };
+    
+    // (...data: Array<TData>) => this;
+    this.append = function() {
+        if (typeof(this._data) != 'object' || Object.prototype.toString.call(this._data) != '[object Array]') this._data = [];
+        this._data.push.apply(this._data, arguments);
         
-        // (...data: Array<TData>) => this;
-        this.data = function() {
-            this._data = Array.prototype.slice.call(arguments, 0);
-            
-            return this;
-        };
+        return this;
+    };
+    
+    // (...data: Array<TData>) => this;
+    this.prepend = function() {
+        if (typeof(this._data) != 'object' || Object.prototype.toString.call(this._data) != '[object Array]') this._data = [];
+        this._data.unshift.apply(this._data, arguments);
         
-        // (...data: Array<TData>) => this;
-        this.append = function() {
-            if (typeof(this._data) != 'object' || Object.prototype.toString.call(this._data) != '[object Array]') this._data = [];
-            this._data.push.apply(this._data, arguments);
-            
-            return this;
-        };
+        return this;
+    };
+    
+    // Compile support.
+    
+    // Unsafe compile method.
+    // (context: TContext, path: Array<TData>) => this;
+    this.__compile = function() { return this._data; }
+    
+    // Construction.
+    
+    this.__constructor = function() {
+        if (prototype.__constructor) prototype.__constructor.apply(this, arguments);
         
-        // (...data: Array<TData>) => this;
-        this.prepend = function() {
-            if (typeof(this._data) != 'object' || Object.prototype.toString.call(this._data) != '[object Array]') this._data = [];
-            this._data.unshift.apply(this._data, arguments);
-            
-            return this;
-        };
-        
-        // (context: TContext, path: Array<TData>) => this;
-        this.__compile = function(context) {
-            return this._data;
-        };
-        
-        this.extend = function() {
-            var extension = prototype.extend.apply(this, arguments);
-            exports.static(extension, 'append');
-            exports.static(extension, 'prepend');
-            return extension;
-        };
-        
-        this.__constructor = function() {
-            if (prototype.__constructor) prototype.__constructor.call(this);
-            this._data = [];
-            if (this.___prototype._data) {
-                for (var d in this.___prototype._data) {
-                    this._data[d] = this.___prototype._data[d];
-                }
-            }
-            if (arguments.length > 0 && this.data) this.data.apply(this, arguments);
-        };
-    }).extend();
+        // Unsupport inheritance variable.
+        arguments.length > 0 ? this.data.apply(this, arguments) : this._data = undefined;
+    };
+    
+    // Static options support.
+    
+    this.extend = function() {
+        var extension = prototype.extend.apply(this, arguments);
+        exports.__static(extension, 'data');
+        return extension;
+    };
+    
+}).extend();
+
 };

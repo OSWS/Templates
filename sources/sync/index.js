@@ -1,19 +1,29 @@
-// Synchronously returned data.
+// Synchronously returned data on compile.
+
+// Example:
+/*
+var example = sync(function(context) { return context.a; });
+compile(example, { a: 123 }, function(error, result) {
+    result // 123;
+});
+*/
 
 module.exports = function(exports) {
+
+// [new] (action: function) => this;
+exports.sync = exports.Node().extend(function() {
+    // function;
+    // this._action = undefined;
     
-    // (argument: () => any) => { [Function] .___oswstSync: true };
-    exports.sync = function(argument) {
-        var sync = function() { return argument.apply(this); };
-        sync.___oswstSync = true;
-        sync.toString = function() {
-            return String(sync.apply(this));
-        };
-        return sync;
+    this.__constructor = function(action) {
+        this._action = action;
     };
     
-    // (argument: Function) => boolean;
-    exports.isSyncFunction = function(argument) {
-        return !!argument.___oswstSync;
-    };
+    // Unsafe compile method.
+    // (context: TContext, path: Array<TData>) => this;
+    this.__compile = function(context) {
+        return this._action.call(this, context);
+    }
+});
+
 };

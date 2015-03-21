@@ -1,35 +1,12 @@
-// Rules.
+require('./class')(exports);
 
-// Comments with instructions in the style of language TypeScript.
-// => return
-// =>> callback
+require('./static')(exports);
 
-// ._key
-// Utilitarian option, not intended for user use.
+require('./compile')(exports);
 
-// .__key
-// Utilitarian function, not intended for user use.
+require('./node')(exports);
 
-// .___key
-// Additional Information. Read-only.
+require('./async')(exports);
+require('./sync')(exports);
 
-// type TData = sync|async|Compiler|any;
-// sync|async =>> TData;
-// Compiler =>> string;
-// string|number =>> string;
-// boolean|undefined|null =>> string; // ''
-// {} =>> string; // String({}) =>> '[object Object]'
-// [] =>> string; // [ 123, 456 ] =>> 123456
-
-module.exports.merge = require('merge');
-
-require('./class/index.js')(module.exports);
-require('./static/index.js')(module.exports);
-require('./compile/index.js')(module.exports);
-require('./sync/index.js')(module.exports);
-require('./async/index.js')(module.exports);
-require('./compiler/index.js')(module.exports);
-require('./context/index.js')(module.exports);
-require('./data/index.js')(module.exports);
-
-if (typeof(window) == 'object') window['oswst'] = module.exports;
+require('./data')(exports);

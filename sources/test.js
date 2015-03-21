@@ -1,13 +1,14 @@
-global.T = require('./index.js');
-global.assert = require('chai').assert;
-
 describe(require('../package.json').name+'@'+require('../package.json').version, function() {
-    require('./class/test.js');
-    require('./static/test.js');
-    require('./compile/test.js');
-    require('./sync/test.js');
-    require('./async/test.js');
-    require('./compiler/test.js');
-    require('./context/test.js');
-    require('./data/test.js');
+    require('./class/test');
+    
+    require('./static/test');
+    
+    require('./compile/test');
+    
+    require('./node/test');
+    
+    require('./async/test');
+    require('./sync/test');
+    
+    require('./data/test');
 });

@@ -1,108 +1,51 @@
+var compileAsync = require('../').compileAsync;
+var sync = require('../').sync;
+var Node = require('../').Node;
+var assert = require('chai').assert;
+
 describe('compile', function() {
-    var check = function(assert, wait) {return function(error, result) {
-        if (error) throw error;
-        assert(result, wait);
-    }};
-    
-    describe('native', function() {
-        it('number', function(done) {
-            T.compile(123, {}, function(e, d) {
-                if (e) throw e;
-                assert.equal(d, 123);
-                done();
-            });
-        });
-        it('string', function(done) {
-            T.compile('123', {}, function(e, d) {
-                if (e) throw e;
-                assert.equal(d, '123');
-                done();
-            });
-        });
-        it('array', function(done) {
-            T.compile([1, '2', 3], {}, function(e, d) {
-                if (e) throw e;
-                assert.deepEqual(d, '123');
-                done();
-            });
-        });
-        it('object', function(done) {
-            T.compile({a: 1, b: '2', c: 3}, {}, function(e, d) {
-                if (e) throw e;
-                assert.deepEqual(d, '[object Object]');
-                done();
-            });
-        });
-    });
-    
-    describe('sync', function() {
-        
-        it('return number', function(done) {
-            T.compile(T.sync(function() { return 123; }), {}, function(e, d) {
-                if (e) throw e;
-                assert.equal(d, 123);
-                done();
-            });
-        });
-        
-        // The returned data is also compiled?
-        it('return sync', function(done) {
-            T.compile(T.sync(function() { return T.sync(function() { return 123; }); }), {}, function(e, d) {
-                if (e) throw e;
-                assert.equal(d, 123);
-                done();
-            });
-        });
-        
-        // Native context is equal to OSWS context?
-        it('context', function(done) {
-            T.compile(T.sync(function() { return T.sync(function() { return this.a; }); }), { a: 123 }, function(e, d) {
-                if (e) throw e;
-                assert.equal(d, 123);
-                done();
-            });
-        });
-    });
-    
-    describe('async', function() {
-        
-        it('callback number', function(done) {
-            T.compile(T.async(function(callback) { callback(null, 123); }), {}, function(e, d) {
-                if (e) throw e;
-                assert.equal(d, 123);
-                done();
-            });
-        });
-        
-        // The returned data is also compiled?
-        it('callback sync', function(done) {
-            T.compile(T.async(function(callback) { callback(null, T.sync(function() { return 123; })); }), {}, function(e, d) {
-                if (e) throw e;
-                assert.equal(d, 123);
-                done();
-            });
-        });
-        
-        // Native context is equal to OSWS context?
-        it('context', function(done) {
-            T.compile(T.async(function(callback) { callback(null, T.sync(function() { return this.a; })); }), { a: 123 }, function(e, d) {
-                if (e) throw e;
-                assert.equal(d, 123);
-                done();
-            });
-        });
-    });
-    
-    it('full tree', function(done) {
-        var handlerCompiler = T.Compiler().extend(function() {
-            this.__compile = function(context, path) {
-                return path[path.length - 2][2];
-            };
-        });
-        var firstSync = T.sync(function() { return [ 1, handlerCompiler(), 3 ]; });
-        T.compile(firstSync, {}, function(e, d) {
+    it('number', function(done) {
+        compileAsync(123, {}, function(e, d) {
             if (e) throw e;
-            assert.equal(d, 133);
+            assert.equal(d, 123);
+            done();
+        });
+    });
+    it('string', function(done) {
+        compileAsync('123', {}, function(e, d) {
+            if (e) throw e;
+            assert.equal(d, '123');
+            done();
+        });
+    });
+    it('array', function(done) {
+        compileAsync([1, '2', 3], {}, function(e, d) {
+            if (e) throw e;
+            assert.deepEqual(d, '123');
+            done();
+        });
+    });
+    it('object', function(done) {
+        compileAsync({a: 1, b: '2', c: 3}, {}, function(e, d) {
+            if (e) throw e;
+            assert.deepEqual(d, '[object Object]');
+            done();
+        });
+    });
+    it('.context', function(done) {
+        var first = Node().extend(function() {
+            this.__compile = function(compilation) {
+                return compilation.context(3);
+            };
+        })();
+        first.context(function() {
+            return 2;
+        });
+        first.compile(function(argument) {
+            return [1, this.next(), argument];
+        }, function(error, result) {
+            if (error) throw error;
+            assert.equal(result, '123');
             done();
         });
     });
