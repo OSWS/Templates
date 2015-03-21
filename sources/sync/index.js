@@ -20,9 +20,9 @@ exports.sync = exports.Node().extend(function() {
     };
     
     // Unsafe compile method.
-    // (context: TContext) => this;
-    this.__compile = function(context) {
-        return this._action.call(this, context);
+    // (compilation: Compilation) => this;
+    this.__compile = function(compilation) {
+        return this._action.call(this, compilation);
     }
 });
 

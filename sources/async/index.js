@@ -20,10 +20,10 @@ exports.async = exports.Node().extend(function() {
     };
     
     // Unsafe compile method.
-    // (context: TContext, path: Array<TData>, callback: TCallback) => this;
+    // (compilation: Compilation, callback: TCallback) => this;
     this.__compile = function(compilation, callback) {
         var called = false;
-        this._action(compilation, function(error, result) {
+        this._action.call(this, compilation, function(error, result) {
             if (!called) {
                 called = true;
                 if (error) callback(error);
@@ -34,32 +34,3 @@ exports.async = exports.Node().extend(function() {
 });
 
 };
-
-// var async = function(argument) {
-//     var async = function oswsAsync(context, callback) {
-//         if (callback && typeof(callback) == 'function') {
-//             var called = false;
-//             argument(context, function(error, result) {
-//                 if (!called) {
-//                     called = true;
-//                     if (error) callback(error);
-//                     else callback(null, result);
-//                 } else throw new Error('Repeated call callback unexpected!');
-//             });
-//         } else {
-//             var result = new Error('Asynchrony can not be converted into synchronicity!');
-//             async(context, function(error, data) {
-//                 if (error) result = error;
-//                 else result = data;
-//             });
-//             if (typeof(result) == 'object' && result instanceof Error) throw result;
-//             return result;
-//         }
-//     };
-//     async.toString = function() {
-// 	    return require('../compile').compileSync(async, {});
-//     };
-//     return async;
-// };
-
-// exports.async = async;

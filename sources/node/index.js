@@ -10,7 +10,7 @@ exports.Node = (new exports.Class()).extend(function() {
     // Compile support.
     
     // Unsafe compile method.
-    // (context: TContext) => this;
+    // (compilation: Compilation) => this;
     this.__compile = function() { return ''; }
     
     // Safe compile method.
