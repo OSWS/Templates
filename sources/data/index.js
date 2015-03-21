@@ -46,7 +46,7 @@ exports.data = exports.Node().extend(function() {
         if (prototype.__constructor) prototype.__constructor.apply(this, arguments);
         
         // Data inheritance.
-        arguments.length > 0 ? this.data.apply(this, arguments) : this._data = Array.prototype.slice.call(this.___prototype._data, 0);
+        arguments.length > 0 ? this.data.apply(this, arguments) : this._data = this.___prototype._data? Array.prototype.slice.call(this.___prototype._data, 0) : [];
     };
     
     // Static options support.
