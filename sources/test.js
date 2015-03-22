@@ -11,4 +11,6 @@ describe(require('../package.json').name+'@'+require('../package.json').version,
     require('./sync/test');
     
     require('./data/test');
+    
+    require('./mixin/test');
 });

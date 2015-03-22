@@ -11,4 +11,6 @@ require('./sync')(exports);
 
 require('./data')(exports);
 
+require('./mixin')(exports);
+
 if (typeof(window) == 'object') window['oswst'] = exports;
