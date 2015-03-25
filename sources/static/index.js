@@ -18,7 +18,7 @@ First.a(123); // 123;
 
 module.exports = function(exports) {
 
-// (extension: Function, key: string) => void;
+// (extension: function, key: string) => void;
 exports.__static = function(extension, key) {
     extension[key] = function() {
         var instance = extension.__construct.call(this);

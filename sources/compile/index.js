@@ -1,12 +1,18 @@
 // Universal compiler.
 
+// TData = Node|Array<TData>|any;
+// TContext = (...arguments: Array<any>) => TData;
+
 module.exports = function(exports) {
 
 // Context tool.
 // new (compilation: Compilation) => this;
 exports.CompilationContext = function CompilationContext(compilation) {
+    
+    // Compilation;
     this.compilation = compilation;
     
+    // number;
     this.deep = -1;
     
     // () => any;
@@ -72,7 +78,7 @@ exports.CompilationContext = function CompilationContext(compilation) {
     }
     
     // Create new compilation context tool.
-    // () => CompilationContext;
+    // () => function;
     this.extend = function() {
         var temp = function() {};
         temp.prototype = this;
@@ -81,19 +87,29 @@ exports.CompilationContext = function CompilationContext(compilation) {
 }
 
 // Info about compilation step and controller.
-// new () => this;
+// new (data, context, callback) => this;
 exports.Compilation = function Compilation(data, context, callback) {
     var instance = this;
     
+    // string;
     this.result = '';
     
+    // boolean;
     this.whiler = false;
     
+    // ?function;
     this._context = context;
     
+    // number;
     this.deep = 0;
+    
+    // Array<TData>;
     this.tree = [data];
+    
+    // Array<number>;
     this.branchs = [-1];
+    
+    // boolean;
     this.direction = true; // true == down // false == up
     
     // Open one element without children.

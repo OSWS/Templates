@@ -18,7 +18,7 @@ exports.Class = function() {
     // this.___prototype = undefined;
     
     // Constructor of this class instance. Other instance.
-    // Function;
+    // function;
     // this.___factory = undefined;
     
     // That will be returned after the construction?
@@ -26,12 +26,12 @@ exports.Class = function() {
     this.__returner = function() { return this; };
     
     // What should be done in the construction?
-    // Function;
+    // function;
     // this.__constructor = undefined;
     
     // Inheritance method.
     // Argument injector is performed only for this inheritor, unlike .__constructor.
-    // (injector: TInjector) => Function;
+    // (injector: TInjector) => function;
     this.extend = function(injector) {
         if (typeof(injector) != 'function') var injector = function() {};
         
@@ -77,7 +77,5 @@ exports.Class = function() {
     // () => this;
     this.__construct = function() { return this.apply(this, arguments); };
 };
-
-exports.class = new exports.Class();
 
 };

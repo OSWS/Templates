@@ -8,11 +8,14 @@ compile(example, { a: 123 }, function(error, result) {
 });
 */
 
+// TAsync = (context: TContext, callback: TCallback) => void;
+
 module.exports = function(exports) {
 
-// [new] (action: function) => this;
+// [new] (action: TAsync) => this;
 exports.async = exports.Node().extend(function() {
-    // function;
+    
+    // TAsync;
     // this._action = undefined;
     
     this.__constructor = function(action) {
@@ -20,7 +23,7 @@ exports.async = exports.Node().extend(function() {
     };
     
     // Unsafe compile method.
-    // (compilation: Compilation, callback: TCallback) => this;
+    // (compilation: Compilation, callback: TCallback) => void;
     this.__compile = function(compilation, callback) {
         var called = false;
         this._action.call(this, compilation, function(error, result) {

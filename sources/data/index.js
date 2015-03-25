@@ -1,8 +1,18 @@
 // Simple data manager.
 
+// Example:
+/*
+var example = Node().extend(function() {
+    this.__compile = function() { return 'true'; };
+});
+example.compile(function(error, result) {
+    result; // 'true'
+});
+*/
+
 module.exports = function(exports) {
 
-// [new] (data?: TData) => this;
+// [new] (...data?: Array<TData>) => this;
 exports.data = exports.Node().extend(function() {
     var prototype = this.___prototype;
     
@@ -37,7 +47,7 @@ exports.data = exports.Node().extend(function() {
     // Compile support.
     
     // Unsafe compile method.
-    // (compilation: Compilation) => this;
+    // (compilation: Compilation) => TData;
     this.__compile = function() { return this._data; }
     
     // Construction.
@@ -54,6 +64,8 @@ exports.data = exports.Node().extend(function() {
     this.extend = function() {
         var extension = prototype.extend.apply(this, arguments);
         exports.__static(extension, 'data');
+        exports.__static(extension, 'append');
+        exports.__static(extension, 'prepend');
         return extension;
     };
     

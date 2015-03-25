@@ -1,6 +1,13 @@
 // Compilation node.
 // Basic methods.
 
+// Example:
+/*
+var first = new Class(); // New operator necessary.
+var Second = first.extend(); // Inherit next.
+var second = Second(); // New not necessary.
+*/
+
 module.exports = function(exports) {
 
 // [new] () => this;
@@ -10,7 +17,7 @@ exports.Node = (new exports.Class()).extend(function() {
     // Compile support.
     
     // Unsafe compile method.
-    // (compilation: Compilation) => this;
+    // (compilation: Compilation) => TData;
     this.__compile = function() { return ''; }
     
     // Safe compile method.

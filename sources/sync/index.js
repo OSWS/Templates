@@ -8,11 +8,14 @@ compile(example, { a: 123 }, function(error, result) {
 });
 */
 
+// TSync = (context: TContext) => TData;
+
 module.exports = function(exports) {
 
-// [new] (action: function) => this;
+// [new] (action: TSync) => this;
 exports.sync = exports.Node().extend(function() {
-    // function;
+    
+    // TSync;
     // this._action = undefined;
     
     this.__constructor = function(action) {
@@ -20,7 +23,7 @@ exports.sync = exports.Node().extend(function() {
     };
     
     // Unsafe compile method.
-    // (compilation: Compilation) => this;
+    // (compilation: Compilation) => TData;
     this.__compile = function(compilation) {
         return this._action.call(this, compilation);
     }

@@ -1,20 +1,29 @@
 // Mixin class.
 
+// Example:
+/*
+var example = mixin(function(a, b, c) { return a+b+c; });
+example(1, 2, 3); // 6
+example instanceof mixin // true
+*/
+
+// TMixin = (...arguments) => TData;
+
 module.exports = function(exports) {
 
-// [new] (...arguments) => this;
+// [new] (action: TMixin) => this;
 exports.mixin = exports.Node().extend(function() {
     var prototype = this.___prototype;
     
     // Action support.
     
-    // function;
+    // TMixin;
     // this._action = undefined;
     
     // Compile support.
     
     // Unsafe compile method.
-    // (compilation: Compilation) => this;
+    // (compilation: Compilation) => TData;
     this.__compile = function() {
         if (typeof(this._action) == 'function') return this._action.apply(this, this.___arguments);
         else return '';
